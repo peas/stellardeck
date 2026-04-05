@@ -138,9 +138,9 @@
     - Claude Code
   description: >
     Makes all list items appear one by one (incremental reveal).
-    Parser adds fragment class to <li> elements. Reveal.js handles animation.
+    Parser adds fragment class to <li> elements. StellarSlides handles animation.
   notes: >
-    Parser adds class="fragment" but Reveal.js fragment animation
+    Parser adds class="fragment" but StellarSlides fragment animation
     needs testing/polish. Marked partial until E2E verified.
 
 - id: frontmatter-slide-transition
@@ -162,7 +162,7 @@
     Sets the default transition between slides.
     Values: none, fade, slide, convex, concave, zoom.
   notes: >
-    Parser writes data-transition attribute. Reveal.js supports it
+    Parser writes data-transition attribute. StellarSlides supports it
     but wiring needs verification. Deckset values: fade, push, reveal, pop.
 
 - id: frontmatter-autoscale
@@ -495,10 +495,10 @@
     - Third point
   description: >
     List items appear one by one. Parser adds fragment class.
-    Works via Reveal.js fragment system.
+    Works via StellarSlides fragment system.
   notes: >
     Parser adds class="fragment" to <li>. Animation depends on
-    Reveal.js fragments being properly styled.
+    StellarSlides fragments being properly styled.
 
 # ═══════════════════════════════════════════════════════════════
 # BLOCKQUOTE
@@ -582,7 +582,7 @@
         optimizer.step()
     ```
   description: >
-    Highlight specific lines in a code block. Reveal.js highlight
+    Highlight specific lines in a code block. StellarSlides highlight
     plugin supports data-line-numbers attribute.
     Syntax: {3}, {3-5}, {1,3,5}, {1-3|5-7} (stepped).
   notes: >
@@ -917,7 +917,7 @@
   description: >
     Block-level math rendering via KaTeX.
     Also support inline math with $formula$ syntax.
-    Reveal.js has RevealMath plugin (KaTeX + MathJax).
+    StellarSlides has RevealMath plugin (KaTeX + MathJax).
   notes: >
     Deckset uses $$ for block and $ for inline (standard LaTeX).
     We should support both: $$ and :::math for block,
@@ -936,7 +936,7 @@
     :::diagram
     graph LR
       A[Browser] --> B[Tauri]
-      B --> C[Reveal.js]
+      B --> C[StellarSlides]
       B --> D[File System]
     :::
   description: >
@@ -1041,7 +1041,7 @@
     :::
   description: >
     Each paragraph within the block appears incrementally
-    (Reveal.js fragments). Unlike build-lists which only works
+    (StellarSlides fragments). Unlike build-lists which only works
     on list items, steps works on any content.
   notes: >
     Each paragraph (separated by blank line) gets class="fragment".

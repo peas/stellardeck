@@ -18,13 +18,13 @@ const { resolveRelativePath, convertFileSrc } = require('../js/path-utils');
 console.log('\n── resolveRelativePath ──');
 
 test('resolves ../assets/ from subdirectory', () => {
-  const result = resolveRelativePath('/Users/peas/presentations-paulo/vibe', '../assets/andrew_jpg.webp');
-  assert.strictEqual(result, '/Users/peas/presentations-paulo/assets/andrew_jpg.webp');
+  const result = resolveRelativePath('/home/user/deck-project/vibe', '../assets/andrew_jpg.webp');
+  assert.strictEqual(result, '/home/user/deck-project/assets/andrew_jpg.webp');
 });
 
 test('resolves multiple ../ levels', () => {
-  const result = resolveRelativePath('/Users/peas/presentations-paulo/deep/sub', '../../assets/img.webp');
-  assert.strictEqual(result, '/Users/peas/presentations-paulo/assets/img.webp');
+  const result = resolveRelativePath('/home/user/deck-project/deep/sub', '../../assets/img.webp');
+  assert.strictEqual(result, '/home/user/deck-project/assets/img.webp');
 });
 
 test('resolves ./ prefix', () => {
@@ -53,8 +53,8 @@ test('handles absolute path (no resolution needed)', () => {
 console.log('\n── convertFileSrc ──');
 
 test('preserves slashes in path', () => {
-  const result = convertFileSrc('/Users/peas/presentations-paulo/assets/img.webp');
-  assert.strictEqual(result, 'localfile://localhost/Users/peas/presentations-paulo/assets/img.webp');
+  const result = convertFileSrc('/home/user/deck-project/assets/img.webp');
+  assert.strictEqual(result, 'localfile://localhost/home/user/deck-project/assets/img.webp');
 });
 
 test('does NOT encode slashes as %2F', () => {
@@ -83,19 +83,19 @@ test('handles path with no special chars', () => {
 console.log('\n── resolve + convert (integration) ──');
 
 test('full pipeline: ../assets/ from vibe/ dir', () => {
-  const baseDir = '/Users/peas/presentations-paulo/vibe';
+  const baseDir = '/home/user/deck-project/vibe';
   const relative = '../assets/karpathy-vibe.webp';
   const absolute = resolveRelativePath(baseDir, relative);
   const url = convertFileSrc(absolute);
-  assert.strictEqual(url, 'localfile://localhost/Users/peas/presentations-paulo/assets/karpathy-vibe.webp');
+  assert.strictEqual(url, 'localfile://localhost/home/user/deck-project/assets/karpathy-vibe.webp');
 });
 
 test('full pipeline: ../../assets/ from deep dir', () => {
-  const baseDir = '/Users/peas/presentations-paulo/old/2019';
+  const baseDir = '/home/user/deck-project/old/2019';
   const relative = '../../assets/img.webp';
   const absolute = resolveRelativePath(baseDir, relative);
   const url = convertFileSrc(absolute);
-  assert.strictEqual(url, 'localfile://localhost/Users/peas/presentations-paulo/assets/img.webp');
+  assert.strictEqual(url, 'localfile://localhost/home/user/deck-project/assets/img.webp');
 });
 
 // ── Summary ──

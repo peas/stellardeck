@@ -1,4 +1,4 @@
-/* layout.css — Reveal.js overrides, Deckset layouts, viewport, print mode */
+/* layout.css — Slide engine layout, Deckset layouts, viewport, print mode */
 
     /* ===== Fixed viewport — all slides same size ===== */
     /* Deckset-style: gray canvas behind slides, slides have their own background */
@@ -10,11 +10,6 @@
       border-radius: 4px;
       overflow: hidden;
       width: 100%; height: 100%;
-    }
-    /* Speaker notes: hidden in all contexts (slides, embed, grid) */
-    .sd-slide aside.notes,
-    .reveal aside.notes {
-      display: none !important;
     }
     /* Broken image placeholder — shows path so you know what to fix */
     .broken-image {
@@ -138,7 +133,7 @@
       align-items: center;
       height: 90%;
     }
-    .deckset-split > div:first-child { overflow: hidden; } /* contain image side only */
+    .deckset-split > div { overflow: hidden; } /* contain image side only */
     .deckset-split img {
       max-height: 90vh; max-width: 100%;
       object-fit: contain; border-radius: var(--sd-image-radius, 12px);
@@ -179,7 +174,7 @@
       font-size: clamp(2rem, 7vw, 5rem); /* fallback — JS overrides with exact fit */
       margin: 0;
       padding: 0;
-      overflow: visible;
+      overflow: hidden;
     }
     /* #[fit] alignment follows theme (default: center for main, left for split) */
     .sd-slide > .deckset-fit { text-align: var(--sd-heading-align, left); }

@@ -1,9 +1,9 @@
 ---
 title: StellarDeck
-description: Markdown presentations that feel native.
+description: Markdown presentations for storytellers. Autoflow layouts, agent-native CLI, simple by design.
 template: splash
 hero:
-  tagline: Write markdown. Get beautiful slides. Zero config.
+  tagline: Markdown presentations for storytellers.
   image:
     file: ../../assets/logo.svg
   actions:
@@ -19,7 +19,17 @@ hero:
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 import BentoGrid from '../../components/BentoGrid.astro';
 
-A framework for telling stories through markdown. StellarDeck turns plain text into impactful presentations without getting in the way of your thinking. The constraints of markdown help you focus on the message: you can glance at your deck and instantly see if the narrative flows right, then quickly rearrange, add, or cut.
+StellarDeck turns plain markdown into slides without getting in the way. The constraints — short slides, sequential flow, no pixel-fiddling — keep you focused on what you're actually saying. Scan your deck, see if the narrative flows, cut or rearrange in seconds.
+
+## Four ideas
+
+**Story first.** A slide is a moment. Markdown's constraints are the feature: one idea per slide, a clear sequence, nothing to tweak. Read the deck like a script and feel the pacing.
+
+**Autoflow.** Write text, get good slides. Four short lines become a Z-pattern, an image next to text becomes a split, two questions become a diagonal. Eight rules, convention over configuration.
+
+**Agent-native.** The CLI exports PDF, PNG, and grid composites; accepts stdin; emits typed JSON diagnostics (overflow, missing images, theme mismatches) that agents can react to. Decks from LLMs just work.
+
+**Simple by design.** No build step. No bundler. Render parity across Tauri, browser, embed, and CLI. The `.md` file is the artifact.
 
 <BentoGrid />
 

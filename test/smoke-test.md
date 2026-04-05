@@ -1,4 +1,4 @@
-footer: Smoke Test — Deckset→Reveal.js
+footer: Smoke Test — Deckset→StellarSlides
 slidenumbers: true
 
 # Slide 1: Heading simples

@@ -50,7 +50,7 @@ export function updateChromeHeight() {
   document.body.style.setProperty('--chrome-height', toolH + 'px');
   document.body.style.setProperty('--sidebar-width', hasSidebar ? '220px' : '0px');
   if (tabBar) tabBar.style.display = hasSidebar ? 'flex' : (tabBar.classList.contains('visible') ? 'none' : '');
-  // Recalculate Reveal.js layout after chrome changes
+  // Recalculate StellarSlides layout after chrome changes
   if (Reveal.isReady?.()) requestAnimationFrame(() => Reveal.layout());
 }
 

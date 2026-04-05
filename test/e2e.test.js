@@ -1186,7 +1186,7 @@ test.describe('Slide transitions', () => {
     expect(result.hasSlide).toBe(true);
   });
 
-  test('Reveal.js default transition is none', async ({ page }) => {
+  test('default transition is none', async ({ page }) => {
     await page.goto(DECK);
     await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(500);

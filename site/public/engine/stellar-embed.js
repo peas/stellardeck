@@ -2,23 +2,26 @@
  * stellar-embed.js — Embeddable StellarDeck viewer
  *
  * Renders StellarDeck slides in any page. Two modes:
- *   - Single slide: parser + CSS in a scaled container
- *   - Deck: StellarSlides with navigation arrows
+ *   - Single slide: StellarSlides with no controls
+ *   - Deck: StellarSlides with embedded: true, navigation arrows
  *
  * Plus a playground mode: textarea editor + live preview side by side.
  *
  * Dependencies (load before this script):
  *   - autoflow.js (browser global: window.applyAutoflow)
  *   - deckset-parser.js (browser global: window.parseDecksetMarkdown)
- *   - slides2.js + slides2.css (StellarSlides engine)
- *   - css/themes.css + css/layout.css
+ *   - slides2.js (browser global: window.StellarSlides)
+ *   - css/themes.css + css/layout.css + slides2.css
  */
 
 const StellarEmbed = (() => {
   // Same canvas as the main app. Same CSS, same fitText, same proportions.
   // Embeds are visually smaller (scaled by container), but proportionally identical.
-  const DEFAULT_W = 1280;
-  const DEFAULT_H = 720;
+  // Defaults match constants.js; read from window.StellarConstants if loaded,
+  // else fall back to literals (embed ships standalone without constants.js).
+  const _C = window.StellarConstants && window.StellarConstants.SLIDE;
+  const DEFAULT_W = (_C && _C.WIDTH) || 1280;
+  const DEFAULT_H = (_C && _C.HEIGHT) || 720;
   const SLIDE_PAD = 64;
 
   // ============================================================
@@ -265,7 +268,7 @@ const StellarEmbed = (() => {
   }
 
   // ============================================================
-  // renderSlide — single slide using Reveal.js embedded (same engine as deck)
+  // renderSlide — single slide using StellarSlides embedded
   // ============================================================
 
   function renderSlide(container, markdown, options = {}) {
@@ -275,150 +278,24 @@ const StellarEmbed = (() => {
   }
 
   // ============================================================
-  // renderDeck — full deck with Reveal.js (embedded mode)
+  // renderDeck — full deck with StellarSlides (embedded mode)
   // ============================================================
 
-  // ============================================================
-  // renderExtras — QR codes, math, diagrams, code highlighting
-  // Inline versions of js/qr.js, js/math.js, js/diagrams.js
-  // Scoped to container (not document) for multi-embed pages
-  // ============================================================
-
-  let _qrLib = null, _katexLib = null, _mermaidLoaded = false;
-
-  async function renderExtras(container) {
-    await Promise.all([
-      renderQR(container),
-      renderMathIn(container),
-      renderDiagramsIn(container),
-      highlightCodeIn(container),
-    ]);
-    setupBrokenImages(container);
-  }
-
-  function setupBrokenImages(container) {
-    container.querySelectorAll('img').forEach(img => {
-      if (img._errorHandled) return;
-      img._errorHandled = true;
-      img.addEventListener('error', () => {
-        const placeholder = document.createElement('div');
-        placeholder.className = 'broken-image';
-        placeholder.textContent = '\u26A0 Image not found: ' + img.getAttribute('src');
-        img.replaceWith(placeholder);
-      });
-    });
-    container.querySelectorAll('section[data-background-image]').forEach(sec => {
-      if (sec._bgChecked) return;
-      sec._bgChecked = true;
-      const url = sec.getAttribute('data-background-image');
-      const test = new Image();
-      test.onerror = () => sec.setAttribute('data-bg-broken', '\u26A0 ' + url);
-      test.src = url;
-    });
-  }
-
-  async function renderQR(container) {
-    const els = container.querySelectorAll('.deckset-qr:not([data-qr-rendered])');
-    if (els.length === 0) return;
-    if (!_qrLib) {
-      try {
-        const mod = await import('https://esm.sh/qrcode-generator@1.4.4');
-        _qrLib = mod.default;
-      } catch (e) { console.warn('[StellarEmbed] QR library failed:', e); return; }
-    }
-    els.forEach(el => {
-      const url = el.dataset.qrUrl;
-      if (!url) return;
-      const qr = _qrLib(0, 'M');
-      qr.addData(url);
-      qr.make();
-      const modules = qr.getModuleCount();
-      let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${modules} ${modules}" style="width:100%;height:100%;max-width:256px;max-height:256px" shape-rendering="crispEdges">`;
-      svg += `<rect width="${modules}" height="${modules}" fill="white"/>`;
-      for (let r = 0; r < modules; r++)
-        for (let c = 0; c < modules; c++)
-          if (qr.isDark(r, c)) svg += `<rect x="${c}" y="${r}" width="1" height="1" fill="#1a1a2e"/>`;
-      svg += '</svg>';
-      el.innerHTML = svg;
-      el.dataset.qrRendered = 'true';
-    });
-  }
-
-  async function renderMathIn(container) {
-    const els = container.querySelectorAll('.deckset-math:not([data-math-rendered]), .deckset-math-inline:not([data-math-rendered])');
-    if (els.length === 0) return;
-    if (!_katexLib) {
-      try {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://esm.sh/katex@0.16.22/dist/katex.min.css';
-        document.head.appendChild(link);
-        const mod = await import('https://esm.sh/katex@0.16.22');
-        _katexLib = mod.default || mod;
-      } catch (e) { console.warn('[StellarEmbed] KaTeX failed:', e); return; }
-    }
-    els.forEach(el => {
-      const src = el.dataset.mathSrc;
-      if (!src) return;
-      try {
-        _katexLib.render(src, el, { displayMode: el.classList.contains('deckset-math'), throwOnError: false });
-      } catch (e) { el.textContent = src; el.style.color = '#f87171'; }
-      el.dataset.mathRendered = 'true';
-    });
-  }
-
-  async function renderDiagramsIn(container) {
-    const els = container.querySelectorAll('.deckset-diagram .mermaid:not([data-diagram-rendered])');
-    if (els.length === 0) return;
-    if (!_mermaidLoaded) {
-      try {
-        const { default: mermaid } = await import('https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs');
-        mermaid.initialize({ startOnLoad: false, theme: 'dark', look: 'handDrawn', fontFamily: 'var(--r-main-font)' });
-        window._mermaid = mermaid;
-        _mermaidLoaded = true;
-      } catch (e) { console.warn('[StellarEmbed] Mermaid failed:', e); return; }
-    }
-    for (const el of els) {
-      try {
-        const id = 'diagram-' + Math.random().toString(36).slice(2);
-        const { svg } = await window._mermaid.render(id, el.textContent);
-        el.innerHTML = svg;
-        el.dataset.diagramRendered = 'true';
-      } catch (e) { console.warn('[StellarEmbed] Diagram render failed:', e); }
-    }
-  }
-
-  function highlightCodeIn(container) {
-    if (typeof hljs === 'undefined') return;
-    container.querySelectorAll('pre code:not(.hljs)').forEach(el => hljs.highlightElement(el));
-  }
-
-  // ============================================================
-  // Embed navigation controls (StellarSlides doesn't create them)
-  // ============================================================
-
-  let _navStyleInjected = false;
+  let _embedStyleInjected = false;
   function injectEmbedStyles() {
-    if (_navStyleInjected) return;
-    _navStyleInjected = true;
+    if (_embedStyleInjected) return;
+    _embedStyleInjected = true;
     const style = document.createElement('style');
     style.textContent = `
-      .sd-embed-nav { position:absolute; top:50%; transform:translateY(-50%); z-index:10;
-        width:36px; height:36px; border-radius:50%; border:none; cursor:pointer;
-        background:rgba(0,0,0,0.4); color:rgba(255,255,255,0.8); font-size:1.2rem;
-        display:flex; align-items:center; justify-content:center;
-        opacity:0; transition:opacity 0.2s; }
-      .reveal:hover .sd-embed-nav { opacity:1; }
-      .sd-embed-nav:hover { background:rgba(0,0,0,0.7); color:white; }
-      .sd-embed-prev { left:8px; }
-      .sd-embed-next { right:8px; }
+      /* No font-size overrides — embed uses same CSS cascade as the main app.
+         Readability ensured by larger canvas (640x360 → scale ~0.7). */
     `;
     document.head.appendChild(style);
   }
 
   function renderDeck(container, markdown, options = {}) {
     injectEmbedStyles();
-    const { theme = 'nordic', scheme = '1', autoflow = false, showControls = true, slideIndexOffset = 0, width = DEFAULT_W, height = DEFAULT_H } = options;
+    const { theme = 'nordic', scheme = '1', autoflow = false, showControls = true, slideIndexOffset = 0, width = DEFAULT_W, height = DEFAULT_H, onDiagnostics = null } = options;
 
     container.innerHTML = `
       <div class="reveal theme-${theme} scheme-${scheme}" style="width:100%;height:100%;border-radius:8px;overflow:hidden;">
@@ -445,32 +322,12 @@ const StellarEmbed = (() => {
       center: true,
       hash: false,
     };
-    // Use StellarSlides if available, otherwise fall back to Reveal.js
-    const DeckEngine = window.StellarSlides || Reveal;
-    const deck = new DeckEngine(reveal, DeckEngine === Reveal ? { ...deckConfig, view: null } : deckConfig);
+    const deck = new window.StellarSlides(reveal, deckConfig);
 
     const runFitText = () => {
       syncMeasurerFont(reveal);
       fitTextIn(reveal, width, height);
     };
-
-    // Add navigation controls for multi-slide decks
-    if (showControls) {
-      const prevBtn = document.createElement('button');
-      prevBtn.className = 'sd-embed-nav sd-embed-prev';
-      prevBtn.innerHTML = '&#8249;';
-      prevBtn.setAttribute('aria-label', 'Previous slide');
-      prevBtn.onclick = (e) => { e.stopPropagation(); deck.prev(); };
-
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'sd-embed-nav sd-embed-next';
-      nextBtn.innerHTML = '&#8250;';
-      nextBtn.setAttribute('aria-label', 'Next slide');
-      nextBtn.onclick = (e) => { e.stopPropagation(); deck.next(); };
-
-      reveal.appendChild(prevBtn);
-      reveal.appendChild(nextBtn);
-    }
 
     deck.initialize().then(() => {
       // Load the ACTUAL theme fonts (not hardcoded) before measuring
@@ -481,23 +338,36 @@ const StellarEmbed = (() => {
         document.fonts.load(`900 48px ${headingFont}`),
         document.fonts.load(`400 16px ${bodyFont}`),
         document.fonts.ready,
-      ]).then(() => {
-        requestAnimationFrame(runFitText);
-        renderExtras(container);
-      });
+      ]).then(() => requestAnimationFrame(runFitText));
     });
 
     deck.on('slidechanged', () => requestAnimationFrame(runFitText));
 
+    // Diagnostics: if diagnostics.js is loaded, collect warnings progressively.
+    // Host page passes `onDiagnostics: (warnings) => { ... }` to receive updates.
+    let _diagnostics = [];
+    const emitDiagnostics = () => {
+      if (!window.StellarDiagnostics) return;
+      // Use Reveal alias (deck) for diagnoseCurrent's internal Reveal lookup
+      if (!window.Reveal) window.Reveal = deck;
+      window.StellarDiagnostics.merge(_diagnostics, window.StellarDiagnostics.diagnoseDeck({ theme }));
+      window.StellarDiagnostics.merge(_diagnostics, window.StellarDiagnostics.diagnoseCurrent({ theme }));
+      if (typeof onDiagnostics === 'function') onDiagnostics([..._diagnostics]);
+    };
+    deck.initialize().then(() => setTimeout(emitDiagnostics, 800));
+    deck.on('slidechanged', () => setTimeout(emitDiagnostics, 100));
+
     return {
       deck,
+      diagnostics: () => [..._diagnostics],
       update: (md) => {
         const currentIdx = deck.getState()?.indexh || 0;
         slidesEl.innerHTML = parseDecksetMarkdown(md, { autoflow: options.autoflow, slideIndexOffset });
         deck.sync();
         deck.slide(Math.min(currentIdx, deck.getTotalSlides() - 1));
         requestAnimationFrame(runFitText);
-        renderExtras(container);
+        _diagnostics = [];
+        setTimeout(emitDiagnostics, 400);
       },
     };
   }
@@ -538,7 +408,7 @@ const StellarEmbed = (() => {
     // Syntax highlighting overlay
     setupHighlighting(textarea);
 
-    // Both modes use Reveal.js and need aspect-ratio
+    // Both modes use StellarSlides and need aspect-ratio
     preview.style.aspectRatio = '16/9';
     let instance;
     if (mode === 'single') {
@@ -572,6 +442,3 @@ const StellarEmbed = (() => {
 
   return { renderSlide, renderDeck, playground, setupHighlighting };
 })();
-
-// Expose on window for cross-script access (const doesn't set window properties)
-if (typeof window !== 'undefined') window.StellarEmbed = StellarEmbed;

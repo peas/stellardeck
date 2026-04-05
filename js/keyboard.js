@@ -9,7 +9,7 @@ import { setupBrokenImageHandlers } from './images.js';
 import { showToast } from './toast.js';
 
 export function setupKeyboard() {
-  // ALL keyboard handling — Reveal.js keyboard is disabled
+  // ALL keyboard handling — engine's built-in keyboard is disabled
   document.addEventListener('keydown', (e) => {
     // Cmd/Ctrl shortcuts (work in all states)
     if (e.metaKey || e.ctrlKey) {

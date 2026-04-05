@@ -1,8 +1,8 @@
 /**
  * slides2.js — StellarSlides engine
  *
- * Vanilla CSS/JS slide engine replacing Reveal.js.
- * Exposes window.StellarSlides class + window.Reveal adapter.
+ * Vanilla CSS/JS slide engine for StellarDeck.
+ * Exposes window.StellarSlides class + window.Reveal legacy API alias.
  *
  * Usage (viewer — singleton):
  *   Reveal.initialize({ width: 1280, height: 720, ... });
@@ -112,7 +112,7 @@
         this._resizeObserver.observe(this._container);
 
         // Mark ready and resolve — emit 'ready' after a microtask so listeners
-        // registered in the .then() chain are captured (matches Reveal.js behavior)
+        // registered in the .then() chain are captured
         this._state.ready = true;
         resolve();
         // setTimeout(0) ensures .then() callbacks run before 'ready' is emitted
@@ -334,7 +334,7 @@
       const slideW = this._config.width;
       const slideH = this._config.height;
 
-      // Scale to fit, with Reveal.js-compatible margin
+      // Scale to fit with margin
       const margin = this._config.margin;
       const scale = Math.min(
         (containerW * (1 - margin)) / slideW,
@@ -407,13 +407,9 @@
 
     getPlugin(name) {
       if (name === 'highlight') {
-        // RevealHighlight is a factory — call it to get the instance with highlightBlock()
-        if (!this._highlightPlugin) {
-          if (typeof RevealHighlight === 'function') {
-            this._highlightPlugin = RevealHighlight();
-          } else if (typeof hljs !== 'undefined') {
-            this._highlightPlugin = { highlightBlock: (el) => hljs.highlightElement(el) };
-          }
+        // Return hljs adapter if highlight.js is loaded (from CDN)
+        if (!this._highlightPlugin && typeof hljs !== 'undefined') {
+          this._highlightPlugin = { highlightBlock: (el) => hljs.highlightElement(el) };
         }
         return this._highlightPlugin || null;
       }
@@ -470,12 +466,12 @@
     }
   }
 
-  // ─── Reveal.js Compatibility Adapter ───
-  // Exposes window.Reveal with the same API so existing code works unchanged.
+  // ─── Legacy API Alias ───
+  // Exposes window.Reveal so existing code (Reveal.next(), Reveal.sync(), etc.) works unchanged.
 
   let _defaultInstance = null;
 
-  const RevealAdapter = {
+  const stellarSlides = {
     initialize(config) {
       const container = document.querySelector('.reveal');
       if (!container) {
@@ -508,6 +504,6 @@
   // ─── Exports ───
 
   window.StellarSlides = StellarSlides;
-  window.Reveal = RevealAdapter;
+  window.Reveal = stellarSlides; // Legacy API alias — keeps existing Reveal.xxx() calls working
 
 })();

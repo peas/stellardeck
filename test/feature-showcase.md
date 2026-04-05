@@ -45,7 +45,7 @@ Does our culture protect adults from **reality**?
 - Second item appears
 - Third item appears
 
-^ Build lists reveal items one by one using Reveal.js fragments. Add the directive at the top of any slide. Great for progressive disclosure.
+^ Build lists reveal items one by one using fragments. Add the directive at the top of any slide. Great for progressive disclosure.
 
 ---
 
@@ -136,7 +136,7 @@ Then, StellarDeck renders it beautifully.
 Finally, we present with confidence.
 :::
 
-^ Steps wraps each paragraph in a Reveal.js fragment. They appear one at a time on click/arrow, like build-lists but for paragraphs.
+^ Steps wraps each paragraph in a fragment. They appear one at a time on click/arrow, like build-lists but for paragraphs.
 
 ---
 
@@ -184,7 +184,7 @@ The most famous equation in physics.
 :::diagram
 graph LR
   A[Markdown .md] -->|deckset-parser.js| B[HTML Slides]
-  B -->|Reveal.js| C[Interactive Deck]
+  B -->|StellarSlides| C[Interactive Deck]
   C -->|decktape| D[PDF Export]
   style A fill:#3b82f6,stroke:#1d4ed8,color:#fff
   style B fill:#8b5cf6,stroke:#6d28d9,color:#fff

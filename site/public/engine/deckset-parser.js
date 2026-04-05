@@ -1,7 +1,8 @@
 /**
- * deckset-parser.js — Deckset Markdown → Reveal.js HTML converter
+ * deckset-parser.js — Deckset Markdown → StellarSlides HTML converter
  *
- * Converts Deckset-flavored markdown into Reveal.js <section> HTML.
+ * Converts Deckset-flavored markdown into <section> HTML rendered by
+ * StellarSlides (format also compatible with Reveal.js).
  * Handles image modifiers, [fit] headings, speaker notes, directives,
  * split layouts, background images, video embeds, and more.
  *
@@ -229,7 +230,7 @@ function markdownToHtml(md) {
   // Strikethrough ~~text~~
   html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
 
-  // Escape raw HTML tags that would break Reveal.js structure
+  // Escape raw HTML tags that would break slide structure
   // (section, style, script — but NOT already-generated tags like <strong>, <a>, etc.)
   html = html.replace(/<(\/?)section([\s>])/gi, '&lt;$1section$2');
   html = html.replace(/<(\/?)script([\s>])/gi, '&lt;$1script$2');
@@ -1271,7 +1272,7 @@ function parseSlide(rawLines, globalDirectives) {
 // ============================================================
 
 /**
- * Parse a complete Deckset markdown document into Reveal.js HTML.
+ * Parse a complete Deckset markdown document into slide HTML.
  * Handles frontmatter extraction, slide splitting on ---, and per-slide parsing.
  * @param {string} raw - Full markdown document
  * @param {Object} [options] - Options: { autoflow: boolean, slideIndexOffset: number }
