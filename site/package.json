@@ -1,0 +1,20 @@
+{
+  "name": "site",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "prebuild": "node scripts/copy-engine.js",
+    "predev": "node scripts/copy-engine.js",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "postbuild": "node scripts/smoke-test.js",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.38.2",
+    "astro": "^6.0.1",
+    "sharp": "^0.34.2"
+  }
+}

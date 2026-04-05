@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="2048" viewBox="0 0 2048 2048">
+  <defs>
+    <linearGradient id="starFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1ca5e8"/>
+      <stop offset="100%" stop-color="#168ecf"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+    <filter id="outerSoft" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+  <rect width="2048" height="2048" fill="#ffffff"/>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <polygon points="421,794 412,522 446,418 888,435 749,730" fill="#0f63ad" stroke="#a6d8ff" stroke-width="28"/>
+    <polygon points="1659,746 1299,692 1164,437 1641,418 1670,452" fill="#0f5ca7" stroke="#9fd2ff" stroke-width="28"/>
+    <polygon points="539,1714 421,1688 420,1124 584,1282" fill="#1670bb" stroke="#a8dcff" stroke-width="28"/>
+    <polygon points="1639,1710 1518,1270 1664,1088 1670,1670" fill="#135ea9" stroke="#9ed4ff" stroke-width="28"/>
+    <polygon points="1276,1720 886,1700 1086,1588" fill="#166fb4" stroke="#a8dcff" stroke-width="28"/>
+
+    <polygon points="1015,347 1271,771 1762,838 1437,1212 1525,1700 1069,1507 632,1741 675,1248 317,905 800,793" fill="none" stroke="#b6f4ff" stroke-opacity="0.65" stroke-width="64" filter="url(#softGlow)"/>
+    <polygon points="1015,347 1271,771 1762,838 1437,1212 1525,1700 1069,1507 632,1741 675,1248 317,905 800,793" fill="none" stroke="#ffffff" stroke-width="52" filter="url(#outerSoft)"/>
+    <polygon points="1015,347 1271,771 1762,838 1437,1212 1525,1700 1069,1507 632,1741 675,1248 317,905 800,793" fill="url(#starFill)" stroke="#ffffff" stroke-width="36"/>
+  </g>
+</svg>

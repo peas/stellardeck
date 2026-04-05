@@ -1,0 +1,123 @@
+---
+title: Autoflow
+description: Zero-config layout inference — plain markdown in, designed slides out.
+---
+
+import StellarSlide from '../../../components/StellarSlide.astro';
+import StellarDeck from '../../../components/StellarDeck.astro';
+import { decks } from '../../../data/decks';
+
+Autoflow analyzes plain markdown and infers the best layout for each slide. No directives needed — just write text, and StellarDeck chooses headings, positioning, alignment, and emphasis. Convention over configuration for slide design.
+
+<StellarDeck source={decks['autoflow'].md} autoflow={true} />
+
+Navigate the deck above to see autoflow in action. Every slide was written as plain paragraphs — autoflow added all the layout directives.
+
+## How It Works
+
+Each slide passes through a pipeline before the parser runs:
+
+1. **Skip checks** — slides with explicit directives (`#[fit]`, `![right]`, position modifiers), code fences, or custom blocks (`:::columns`) are left alone.
+2. **Rule matching** — the slide is tested against each rule in order. First match wins.
+3. **Directive injection** — the matched rule injects directives into the raw markdown. The parser handles them normally.
+
+Autoflow never invents content. It only adds the same directives you would write by hand.
+
+## Rules
+
+Eight rules, evaluated in this order:
+
+| Rule | When it matches | What it does |
+|:-----|:----------------|:-------------|
+| **Title** | First slide, 2+ paragraphs, short title line | `#[fit]` centered title, normal subtitle |
+| **Divider** | Single line, 1-2 words | `#[fit]` heading, centered |
+| **Diagonal** | 2 paragraphs, at least one ends with `?` | Top-left + bottom-right positioning |
+| **Z-Pattern** | Exactly 4 short paragraphs | Four corners: TL, TR, BL, BR |
+| **Alternating** | 3+ short paragraphs | Accent color rotation |
+| **Statement** | 1-4 short lines (max 8 words each) | `#[fit]` headings, alignment varies |
+| **Split** | One bare image + text | `![right]` or `![left]`, alternating sides |
+| **Autoscale** | More than 8 lines or 80+ words | `[.autoscale: true]` |
+
+### Title
+
+The first slide gets special treatment. A short opening line followed by longer paragraphs becomes a `#[fit]` title with subtitle text.
+
+<StellarSlide autoflow slideIndex={0} source={`Punch **Slides**
+
+Bold text-only slides for **storytelling**.
+No images needed — just **words** and **rhythm**.`} />
+
+### Diagonal
+
+Two paragraphs where at least one contains a question. Positioned on opposite corners for Z-axis reading flow.
+
+<StellarSlide autoflow source={`What is **distraction** and what is **disruption**?
+
+**Arrogance** or **procrastination**?`} />
+
+### Statement
+
+Short plain-text lines (1-4 lines, max 8 words each) become `#[fit]` headings that fill the slide.
+
+<StellarSlide autoflow source={`Think **big**.
+Act **small**.`} />
+
+### Divider
+
+A single line with one or two words becomes a full-width `#[fit]` heading. Perfect for section breaks.
+
+<StellarSlide autoflow source={`**Learn** fast.`} />
+
+### Split (image + text)
+
+When autoflow detects a bare image and text on the same slide, it creates a split layout — image on one side, text on the other. The side alternates between slides.
+
+<StellarSlide autoflow source={`![](images/coaches/yuval-ayalon.webp)
+
+The discipline of hand balancing requires years of patient, consistent practice.`} />
+
+## Anti-Monotony
+
+When consecutive slides match the same rule, autoflow varies their presentation:
+
+- **Statements** rotate alignment: center, left, right.
+- **Diagonals** mirror corner positions: TL/BR becomes TR/BL on the next diagonal.
+
+Based on Steven Bradley's alternating rhythm principle — visual variety within structural consistency.
+
+## Enabling Autoflow
+
+Three ways to turn it on:
+
+**Frontmatter** — add `autoflow: true` at the top of your markdown:
+
+```md
+footer: My Talk
+autoflow: true
+
+First slide content here.
+```
+
+**Toolbar** — click the Autoflow toggle in StellarDeck's toolbar. Saves the preference to the sidecar file.
+
+**Sidecar** — autoflow state persists in `.stellar.json` alongside your `.md` file:
+
+```json
+{
+  "autoflow": true,
+  "theme": "Nordic, 1",
+  "lastSlide": 0
+}
+```
+
+The sidecar approach means autoflow never modifies your markdown. Layout inference is a presentation-time concern.
+
+## When Not to Use Autoflow
+
+Autoflow works best for text-heavy, punch-style decks. Less useful when:
+
+- Your slides already have explicit layouts (`![right]`, position headings).
+- You need precise control over every slide's appearance.
+- Most slides are code blocks or diagrams (autoflow skips these anyway).
+
+You can mix both: autoflow handles plain-text slides, explicit directives take priority wherever you add them.

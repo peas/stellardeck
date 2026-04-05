@@ -1,0 +1,106 @@
+---
+title: Getting Started
+description: Your first presentation in 5 minutes.
+---
+
+import StellarSlide from '../../../components/StellarSlide.astro';
+import StellarDeck from '../../../components/StellarDeck.astro';
+import { decks } from '../../../data/decks';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+StellarDeck turns plain markdown into presentation slides. Write text, separate with `---`, and you have a deck.
+
+<StellarDeck source={decks['getting-started'].md} />
+
+## Slide Structure
+
+Frontmatter at the top configures the deck. `---` on its own line separates slides.
+
+<StellarSlide source={`footer: stellardeck.dev
+slidenumbers: true
+
+# My First Slide
+
+Welcome to StellarDeck.`} />
+
+## Headings
+
+Use `#`, `##`, `###` for heading levels.
+
+<StellarSlide source={`# Main Title
+
+## Subtitle
+
+### Section heading
+
+Regular text below headings.`} />
+
+## Auto-fit Headings
+
+Add `[fit]` after `#` to make headings stretch to fill the slide width.
+
+<StellarSlide source={`#[fit] Auto-fit Headings
+
+^ Add [fit] after # to make headings fill the slide width.`} />
+
+## Lists
+
+Unordered lists use `-`, ordered use `1.`. Nest with two spaces.
+
+<StellarSlide source={`# Shopping List
+
+- Apples
+- Bananas
+  - Yellow ones
+  - Green ones
+- Oranges
+
+1. First step
+2. Second step`} />
+
+## Blockquotes
+
+Use `>` for blockquotes. They render with an accent-colored left border.
+
+<StellarSlide source={`> The best way to predict
+> the future is to invent it.
+> — Alan Kay`} />
+
+## Speaker Notes
+
+Lines starting with `^` become speaker notes — invisible on the slide, visible in presenter mode (`P`).
+
+<StellarSlide source={`# Key Point
+
+The important thing to remember.
+
+^ This note is only visible in presenter mode. The audience never sees it.`} />
+
+## Build Lists
+
+`[.build-lists: true]` reveals list items one at a time on click.
+
+<StellarSlide source={`[.build-lists: true]
+
+# Agenda
+
+- Introduction
+- Main topic
+- Conclusion`} />
+
+## Presenter Mode
+
+Press `P` in the desktop app to open a presenter window with the current slide, next slide preview, and speaker notes. Here's what it looks like:
+
+<StellarDeck source={decks['getting-started'].md} presenter />
+
+Navigate with the arrows — the next slide preview and notes update automatically. In the desktop app, the presenter window syncs with the main window via BroadcastChannel.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard title="Images & Layouts" description="Split layouts, backgrounds, columns, and positioning." href="/guide/images-layouts/" />
+  <LinkCard title="Code, Math & Diagrams" description="Syntax highlighting, KaTeX, Mermaid, QR codes." href="/guide/code-math-diagrams/" />
+  <LinkCard title="Autoflow" description="Zero-config layout inference." href="/guide/autoflow/" />
+  <LinkCard title="Themes & Colors" description="Built-in themes and per-slide color overrides." href="/guide/themes-colors/" />
+</CardGrid>

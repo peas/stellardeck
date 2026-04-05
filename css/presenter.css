@@ -1,0 +1,158 @@
+/* presenter.css — Presenter mode layout */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  display: grid;
+  grid-template-rows: 44px 1fr minmax(120px, 35vh);
+  height: 100vh;
+  background: #141414;
+  color: #e2e8f0;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* ===== Header bar ===== */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background: #1e1e1e;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  gap: 16px;
+}
+.header-timer {
+  font-variant-numeric: tabular-nums;
+  color: #38bdf8;
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+}
+.header-counter {
+  font-variant-numeric: tabular-nums;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+}
+.header-spacer { flex: 1; }
+.header-clock {
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+}
+
+/* ===== Slides row ===== */
+.slides-row {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: 0; /* prevent grid blowout */
+}
+
+/* Each slide panel: label on top, frame below */
+.slide-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.slide-label {
+  font-size: 0.7rem;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  padding-left: 2px;
+  flex-shrink: 0;
+}
+
+/* Slide frame: 16:9 container with the actual slide preview inside */
+.slide-frame {
+  position: relative;
+  flex: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #2d2d32; /* same gray canvas as main viewer — letterbox bars visible */
+  border: 2px solid rgba(255,255,255,0.08);
+}
+.current-frame {
+  border-color: #3b82f6;
+}
+.next-frame {
+  cursor: pointer;
+}
+.next-frame:hover {
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* Slide inner: canvas scaled to fit via JS transform */
+.slide-inner {
+  width: var(--sd-slide-w, 1280px);
+  height: var(--sd-slide-h, 720px);
+  transform-origin: 0 0;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+/* Fragments — hide unrevealed, show visible */
+.slide-inner .fragment { opacity: 0; }
+.slide-inner .fragment.visible,
+.slide-inner .fragment.current-fragment { opacity: 1; }
+
+/* ===== Notes area ===== */
+.notes-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 20px;
+  background: #1e1e1e;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.notes-label {
+  font-size: 0.7rem;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.notes-text {
+  flex: 1;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: #e2e8f0;
+  overflow-y: auto;
+  max-width: 72ch; /* comfortable reading width — ~65-75 chars per line */
+}
+.notes-text:empty::before {
+  content: 'No speaker notes for this slide';
+  color: #3b3b3b;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* Scrollbar */
+.notes-text::-webkit-scrollbar { width: 5px; }
+.notes-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* ===== Disconnected overlay ===== */
+.disconnected {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: #141414;
+  color: #64748b;
+  font-size: 1rem;
+  z-index: 100;
+}
+.disconnected.hidden { display: none; }

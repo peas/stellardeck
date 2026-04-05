@@ -1,0 +1,72 @@
+---
+title: Themes & Colors
+description: 9 themes, color schemes, and per-slide customization.
+---
+
+import StellarSlide from '../../../components/StellarSlide.astro';
+
+StellarDeck ships with 9 themes. Each defines fonts, colors, and accent styles. Override colors per slide or switch schemes without touching CSS.
+
+## Choosing a Theme
+
+Set the theme in frontmatter. Defaults to Nordic if omitted.
+
+```md
+theme: Letters from Brazil
+```
+
+| Theme | Fonts | Style |
+|:------|:------|:------|
+| Nordic | Poppins + Lato | Dark, clean |
+| Letters from Brazil | Saira Condensed | Warm tan, editorial |
+| Serif | Playfair Display | Classic light serif |
+| Minimal | System fonts | Light, no distractions |
+| Hacker | JetBrains Mono | Green-on-black terminal |
+| Poster | Bebas Neue | Bold geometric, large headings |
+| Alun | FK Grotesk | Grupo Alun brand |
+| Borneli | DM Sans | StartSe/Borneli brand |
+| Keynote | Montserrat + Raleway | Apple Keynote-style gradients |
+
+## Color Schemes
+
+Each theme has 4-7 alternate color schemes. Select one by adding a number after the theme name.
+
+```md
+theme: Nordic, 2
+```
+
+Scheme `1` is the default.
+
+## Custom Colors
+
+Override heading, text, or background color on any individual slide with directives.
+
+<StellarSlide source={`[.background-color: #0a192f]
+[.header: #64ffda]
+[.text: #8892b0]
+
+# Custom Colors
+
+Custom heading and text colors per slide.`} />
+
+## Accent Bold
+
+Themes with accent support render `**bold**` in the theme's accent color automatically.
+
+<StellarSlide source={`# Accent Colors
+
+Words in **bold** get the theme's accent color automatically.
+
+This works with **Nordic**, **Keynote**, and other themes that enable accent bold.`} />
+
+## Alternating Colors
+
+Add `[.alternating-colors: true]` to color alternating paragraphs in main and accent colors.
+
+<StellarSlide source={`[.alternating-colors: true]
+
+What drives **innovation**?
+
+Is it **necessity** or **curiosity**?
+
+The answer shapes our **approach**.`} />

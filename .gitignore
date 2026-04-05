@@ -1,0 +1,16 @@
+node_modules/
+*.pdf
+.DS_Store
+*.stellar.json
+
+# Tauri build artifacts
+src-tauri/target/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Astro site
+site/dist/
+site/node_modules/
+site/.astro/

@@ -1,0 +1,231 @@
+---
+/**
+ * StellarDeck — navigable deck embed with optional presenter mode.
+ *
+ * Usage:
+ *   <StellarDeck source={markdown} />
+ *   <StellarDeck source={markdown} presenter />
+ *   <StellarDeck source={markdown} autoflow />
+ */
+import StellarEngine from './StellarEngine.astro';
+
+interface Props {
+  /** Markdown source (full deck with --- separators) */
+  source: string;
+  /** Show presenter layout: current slide + next slide + notes */
+  presenter?: boolean;
+  /** Show editable markdown editor alongside the deck */
+  editable?: boolean;
+  /** Enable autoflow */
+  autoflow?: boolean;
+  /** Theme */
+  theme?: string;
+}
+
+const { source, presenter = false, editable = false, autoflow = false, theme = 'nordic' } = Astro.props;
+const id = `deck-${Math.random().toString(36).slice(2, 8)}`;
+const mode = presenter ? 'presenter' : editable ? 'editable' : 'deck';
+const dataJson = JSON.stringify({ id, source, theme, autoflow, mode });
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+---
+
+<StellarEngine />
+
+{presenter ? (
+  <div class="sd-presenter" id={`${id}-presenter`}>
+    <div class="sd-presenter-main">
+      <div class="sd-presenter-label">Current</div>
+      <div id={id} class="sd-presenter-current"></div>
+    </div>
+    <div class="sd-presenter-side">
+      <div class="sd-presenter-next-wrap">
+        <div class="sd-presenter-label">Next</div>
+        <div id={`${id}-next`} class="sd-presenter-next"></div>
+      </div>
+      <div class="sd-presenter-notes-wrap">
+        <div class="sd-presenter-label">Speaker Notes</div>
+        <div id={`${id}-notes`} class="sd-presenter-notes">
+          <em>No notes for this slide.</em>
+        </div>
+      </div>
+    </div>
+  </div>
+) : editable ? (
+  <div class="sd-editable">
+    <div class="sd-editable-preview">
+      <div id={id} class="sd-deck-container"></div>
+    </div>
+    <div class="sd-editable-editor">
+      <div class="sd-editable-titlebar">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+        <span class="sd-editable-filename">deck.md</span>
+      </div>
+      <textarea id={`${id}-editor`} class="sd-editable-textarea" spellcheck="false">{source}</textarea>
+    </div>
+  </div>
+) : (
+  <div class="sd-deck-wrap">
+    <div id={id} class="sd-deck-container"></div>
+  </div>
+)}
+
+<script type="application/json" data-stellar-fulldeck set:html={dataJson} />
+
+<style>
+  /* === Deck mode === */
+  .sd-deck-wrap {
+    margin: 1.5rem 0 2rem;
+  }
+  .sd-deck-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  /* === Presenter mode === */
+  .sd-presenter {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 12px;
+    margin: 1.5rem 0 2rem;
+    background: #141414;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px;
+  }
+
+  .sd-presenter-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+
+  .sd-presenter-current {
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1a1a2e;
+    border: 2px solid #3b82f6;
+  }
+
+  .sd-presenter-side {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+  }
+
+  .sd-presenter-next {
+    aspect-ratio: 16 / 9;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+  }
+
+  .sd-presenter-notes-wrap {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .sd-presenter-notes {
+    background: #1e1e1e;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #94a3b8;
+    overflow-y: auto;
+    height: 100%;
+    min-height: 80px;
+    max-height: 200px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  @media (max-width: 768px) {
+    .sd-presenter {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* === Editable mode === */
+  .sd-editable {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 1.5rem 0 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Slide on top */
+  .sd-editable-preview .sd-deck-container {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Editor below */
+  .sd-editable-editor {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .sd-editable-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: #1c2128;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+
+  .sd-editable-filename {
+    color: #64748b;
+    font-size: 0.65rem;
+    margin-left: 6px;
+    font-family: 'SF Mono', Menlo, 'JetBrains Mono', monospace;
+  }
+
+  .sd-editable-textarea {
+    width: 100%;
+    min-height: 300px;
+    padding: 12px 14px;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: 'SF Mono', Menlo, 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    border: none;
+    resize: vertical;
+    outline: none;
+    tab-size: 2;
+    box-sizing: border-box;
+  }
+
+  .sd-editable-textarea:focus {
+    box-shadow: inset 0 0 0 1px var(--sl-color-accent, #3b82f6);
+  }
+</style>

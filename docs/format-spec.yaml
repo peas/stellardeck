@@ -1,0 +1,1200 @@
+# StellarDeck Format Specification
+# Deckset-compatible markdown + StellarDeck extensions
+#
+# status: implemented | partial | planned | not-planned
+# target: 1.0 | 1.1 | future | n/a
+# deckset: whether original Deckset supports this feature
+#
+# This file is the source of truth for:
+# - Documentation generation
+# - Sample deck generation (from examples)
+# - Feature tracking / progress
+# - Parser test coverage
+
+# ═══════════════════════════════════════════════════════════════
+# STRUCTURE
+# ═══════════════════════════════════════════════════════════════
+
+- id: slide-separator
+  category: structure
+  name: Slide separator
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "---"
+  example: |
+    # Slide 1
+
+    ---
+
+    # Slide 2
+  description: >
+    Three dashes on their own line separate slides.
+    Must have blank line before and after (or be at start/end of file).
+
+- id: speaker-notes-caret
+  category: structure
+  name: "Speaker notes (^ prefix)"
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "^ Note text"
+  example: |
+    # My Slide
+
+    Key point here.
+
+    ^ This is only visible in presenter mode.
+    ^ Second note paragraph.
+  description: >
+    Lines starting with ^ are speaker notes, hidden from the audience.
+    Multiple ^ lines in one slide are concatenated.
+
+- id: speaker-notes-html-comment
+  category: structure
+  name: "Speaker notes (<!-- comment -->)"
+  status: planned
+  target: "1.0"
+  deckset: false
+  syntax: "<!-- Note text -->"
+  example: |
+    # My Slide
+
+    Content here.
+
+    <!-- This is a speaker note, Marp/Slidev compatible -->
+  description: >
+    HTML comments as speaker notes. Universal syntax used by
+    Marp, Slidev, and standard Markdown. Increases portability.
+  notes: >
+    Only comments that are NOT directives should become notes.
+    Marp uses comments for both directives and notes.
+
+# ═══════════════════════════════════════════════════════════════
+# FRONTMATTER
+# ═══════════════════════════════════════════════════════════════
+
+- id: frontmatter-footer
+  category: frontmatter
+  name: Footer text
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "footer: Text"
+  example: |
+    footer: @paulosilveira
+    slidenumbers: true
+
+    # First Slide
+  description: >
+    Displays footer text on every slide. Placed at top of file
+    before any slide content.
+
+- id: frontmatter-slidenumbers
+  category: frontmatter
+  name: Slide numbers
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "slidenumbers: true"
+  example: |
+    slidenumbers: true
+
+    # First Slide
+  description: >
+    Shows slide numbers. In Deckset, appears in corner.
+    In StellarDeck, shown in toolbar counter.
+
+- id: frontmatter-theme
+  category: frontmatter
+  name: Theme
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "theme: Theme Name, N"
+  example: |
+    theme: Letters from Sweden, 7
+
+    # First Slide
+  description: >
+    Sets the presentation theme and optional color scheme number.
+    StellarDeck themes: Default (Inter), Letters from Sweden, Serif,
+    Minimal, Hacker, Poster, Alun, Borneli.
+
+- id: frontmatter-build-lists
+  category: frontmatter
+  name: Build lists (global)
+  status: partial
+  target: "1.0"
+  deckset: true
+  syntax: "build-lists: true"
+  example: |
+    build-lists: true
+
+    # Tools
+
+    - Copilot
+    - Cursor
+    - Claude Code
+  description: >
+    Makes all list items appear one by one (incremental reveal).
+    Parser adds fragment class to <li> elements. Reveal.js handles animation.
+  notes: >
+    Parser adds class="fragment" but Reveal.js fragment animation
+    needs testing/polish. Marked partial until E2E verified.
+
+- id: frontmatter-slide-transition
+  category: frontmatter
+  name: Slide transition (global)
+  status: partial
+  target: "1.0"
+  deckset: true
+  syntax: "slide-transition: fade"
+  example: |
+    slide-transition: fade
+
+    # First Slide
+
+    ---
+
+    # Second Slide (fades in)
+  description: >
+    Sets the default transition between slides.
+    Values: none, fade, slide, convex, concave, zoom.
+  notes: >
+    Parser writes data-transition attribute. Reveal.js supports it
+    but wiring needs verification. Deckset values: fade, push, reveal, pop.
+
+- id: frontmatter-autoscale
+  category: frontmatter
+  name: Autoscale
+  status: partial
+  target: "1.1"
+  deckset: true
+  syntax: "autoscale: true"
+  example: |
+    autoscale: true
+
+    # Slide with lots of text
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  description: >
+    Automatically scales down content that overflows the slide.
+    Parser stores the value but scaling logic not yet implemented.
+
+# ═══════════════════════════════════════════════════════════════
+# DIRECTIVES (per-slide)
+# ═══════════════════════════════════════════════════════════════
+
+- id: directive-background-color
+  category: directives
+  name: Background color
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "[.background-color: #hex]"
+  example: |
+    [.background-color: #1e3a5f]
+
+    # Dark Blue Slide
+
+    Custom background color.
+  description: >
+    Sets the slide background to a specific color.
+    Overrides the theme's default background.
+
+- id: directive-background-image
+  category: directives
+  name: Background image (directive)
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "[.background-image: url]"
+  example: |
+    [.background-image: photo.jpg]
+
+    # Text over image
+  description: >
+    Alternative to ![](img) for setting a background image via directive.
+
+- id: directive-slide-transition
+  category: directives
+  name: Slide transition (per-slide)
+  status: partial
+  target: "1.0"
+  deckset: true
+  syntax: "[.slide-transition: type]"
+  example: |
+    [.slide-transition: zoom]
+
+    # This slide zooms in
+  description: >
+    Overrides the global transition for this specific slide.
+
+- id: directive-build-lists
+  category: directives
+  name: Build lists (per-slide)
+  status: partial
+  target: "1.0"
+  deckset: true
+  syntax: "[.build-lists: true]"
+  example: |
+    [.build-lists: true]
+
+    # Step by step
+
+    - First
+    - Second
+    - Third
+  description: >
+    Enables incremental list reveal for this slide only.
+
+- id: directive-header-color
+  category: directives
+  name: Header color
+  status: planned
+  target: "1.0"
+  deckset: true
+  syntax: "[.header: #hex]"
+  example: |
+    [.header: #ff6600]
+
+    # Orange heading
+  description: >
+    Overrides heading color for this slide.
+    Deckset syntax: [.header: #color].
+
+- id: directive-text-color
+  category: directives
+  name: Text color
+  status: planned
+  target: "1.0"
+  deckset: true
+  syntax: "[.text: #hex]"
+  example: |
+    [.text: #cccccc]
+
+    # Heading
+
+    This body text is light gray.
+  description: >
+    Overrides body text color for this slide.
+
+- id: directive-text-alignment
+  category: directives
+  name: Text alignment
+  status: planned
+  target: "1.1"
+  deckset: true
+  syntax: "[.text-emphasis: alignment]"
+  example: |
+    [.text-emphasis: center]
+
+    # Centered content
+
+    All text on this slide is centered.
+  description: >
+    Sets text alignment for the entire slide.
+    Values: left, center, right.
+
+- id: directive-hide-footer
+  category: directives
+  name: Hide footer
+  status: planned
+  target: "1.1"
+  deckset: true
+  syntax: "[.hide-footer]"
+  example: |
+    [.hide-footer]
+
+    # Clean slide
+
+    No footer on this one.
+  description: >
+    Hides the footer on a specific slide (e.g., title or image-only slides).
+
+# ═══════════════════════════════════════════════════════════════
+# HEADINGS
+# ═══════════════════════════════════════════════════════════════
+
+- id: heading-h1-h6
+  category: headings
+  name: "Headings (H1–H6)"
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "# to ######"
+  example: |
+    # Heading 1
+    ## Heading 2
+    ### Heading 3
+    #### Heading 4
+  description: >
+    Standard Markdown headings. Space after # is optional in Deckset
+    (our parser handles both).
+
+- id: heading-fit
+  category: headings
+  name: "Auto-fit heading (#[fit])"
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "#[fit] Text"
+  example: |
+    #[fit] Big Bold
+    #[fit] Statement
+  description: >
+    Heading that automatically scales to fill the slide width.
+    Multiple consecutive #[fit] lines share inline markdown context
+    (bold/italic can span lines). Uses off-screen DOM measurement.
+  notes: >
+    Must copy textTransform from heading to measurer (themes may
+    apply uppercase). See feedback_fittext_measurement.md.
+
+# ═══════════════════════════════════════════════════════════════
+# TEXT FORMATTING
+# ═══════════════════════════════════════════════════════════════
+
+- id: text-bold
+  category: text-formatting
+  name: Bold
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "**text** or __text__"
+  example: |
+    # Emphasis
+
+    This is **bold text** and this is __also bold__.
+  description: >
+    Bold text. Both ** and __ syntaxes supported.
+
+- id: text-italic
+  category: text-formatting
+  name: Italic
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "*text* or _text_"
+  example: |
+    # Emphasis
+
+    This is *italic* and _also italic_.
+  description: >
+    Italic text. Both * and _ syntaxes supported.
+
+- id: text-strikethrough
+  category: text-formatting
+  name: Strikethrough
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "~~text~~"
+  example: |
+    # Corrections
+
+    ~~Old approach~~ New approach is better.
+  description: >
+    Strikethrough text using double tildes.
+
+- id: text-inline-code
+  category: text-formatting
+  name: Inline code
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "`code`"
+  example: |
+    # API
+
+    Use `fetch()` to make HTTP requests.
+  description: >
+    Inline code with monospace font.
+
+- id: text-link
+  category: text-formatting
+  name: Link
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "[text](url)"
+  example: |
+    # Resources
+
+    Visit [Alura](https://alura.com.br) for courses.
+  description: >
+    Markdown links. Also auto-links bare URLs (https://...).
+
+- id: text-bare-url
+  category: text-formatting
+  name: Bare URL auto-link
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "https://example.com"
+  example: |
+    # Contact
+
+    https://paulo.com.br
+  description: >
+    URLs starting with http:// or https:// are automatically
+    converted to clickable links.
+
+# ═══════════════════════════════════════════════════════════════
+# LISTS
+# ═══════════════════════════════════════════════════════════════
+
+- id: list-unordered
+  category: lists
+  name: Unordered list
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "- item or * item"
+  example: |
+    # Tools
+
+    - Copilot
+    - Cursor
+    - Claude Code
+    - Replit
+  description: >
+    Bullet list using - or * prefix.
+
+- id: list-ordered
+  category: lists
+  name: Ordered list
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "1. item"
+  example: |
+    # Steps
+
+    1. Clone the repo
+    2. Install dependencies
+    3. Run tests
+  description: >
+    Numbered list using N. prefix.
+
+- id: list-build
+  category: lists
+  name: Incremental list reveal
+  status: partial
+  target: "1.0"
+  deckset: true
+  syntax: "[.build-lists: true] + list"
+  example: |
+    [.build-lists: true]
+
+    # One at a time
+
+    - First point
+    - Second point
+    - Third point
+  description: >
+    List items appear one by one. Parser adds fragment class.
+    Works via Reveal.js fragment system.
+  notes: >
+    Parser adds class="fragment" to <li>. Animation depends on
+    Reveal.js fragments being properly styled.
+
+# ═══════════════════════════════════════════════════════════════
+# BLOCKQUOTE
+# ═══════════════════════════════════════════════════════════════
+
+- id: blockquote
+  category: blockquote
+  name: Blockquote
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "> text"
+  example: |
+    > We are not students of some subject matter,
+    > but students of problems.
+
+    Karl Popper
+  description: >
+    Blockquote. Multi-line (consecutive > lines) concatenated.
+    Often used for quotes with attribution text below.
+
+# ═══════════════════════════════════════════════════════════════
+# CODE
+# ═══════════════════════════════════════════════════════════════
+
+- id: code-fenced
+  category: code
+  name: Fenced code block
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "```lang ... ```"
+  example: |
+    # Example
+
+    ```python
+    def hello():
+        print("Hello, world!")
+        return 42
+    ```
+  description: >
+    Fenced code block with optional language tag.
+    Content is HTML-escaped (&, <, >).
+
+- id: code-syntax-highlight
+  category: code
+  name: Syntax highlighting
+  status: planned
+  target: "1.0"
+  deckset: true
+  syntax: "```python ... ```"
+  example: |
+    # Highlighted Code
+
+    ```javascript
+    const greet = (name) => {
+      console.log(`Hello, ${name}!`);
+    };
+    ```
+  description: >
+    Syntax coloring for code blocks. Uses highlight.js loaded from CDN
+    on first use (lazy-loaded when code blocks are present).
+  notes: >
+    highlight.js is loaded from cdnjs on demand. The StellarSlides
+    getPlugin('highlight') method returns an hljs adapter.
+
+- id: code-line-highlight
+  category: code
+  name: Line highlighting
+  status: planned
+  target: "1.0"
+  deckset: false
+  syntax: "```python {3-5} ... ```"
+  example: |
+    # Focus on the key line
+
+    ```python {2}
+    def train(model, data):
+        loss = model.forward(data)  # <-- this line highlighted
+        loss.backward()
+        optimizer.step()
+    ```
+  description: >
+    Highlight specific lines in a code block. Reveal.js highlight
+    plugin supports data-line-numbers attribute.
+    Syntax: {3}, {3-5}, {1,3,5}, {1-3|5-7} (stepped).
+  notes: >
+    Not a Deckset feature. StellarDeck extension. Parse the {N-M}
+    after the language tag and emit data-line-numbers on <code>.
+
+# ═══════════════════════════════════════════════════════════════
+# IMAGES
+# ═══════════════════════════════════════════════════════════════
+
+- id: image-background
+  category: images
+  name: Background image (cover)
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![](image.jpg)"
+  example: |
+    ![](../assets/photo.webp)
+
+    ^ Speaker note: image fills the entire slide as background.
+  description: >
+    Image alone on a slide becomes a full-bleed background (cover mode).
+    No text content — image fills the entire slide.
+
+- id: image-fit
+  category: images
+  name: "Background image (contain/fit)"
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![fit](image.jpg)"
+  example: |
+    ![fit](../assets/diagram.webp)
+  description: >
+    Background image in contain mode — fits entirely within the slide
+    without cropping. May show letterboxing.
+
+- id: image-filtered
+  category: images
+  name: Filtered background
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![filtered](image.jpg)"
+  example: |
+    ![filtered](../assets/photo.webp)
+
+    # Text over dark image
+
+    The dark overlay makes text readable.
+  description: >
+    Background image with dark semi-transparent overlay (50% black).
+    Makes text readable over busy images.
+
+- id: image-right
+  category: images
+  name: "Split layout (image right)"
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![right](image.jpg)"
+  example: |
+    ![right](../assets/photo.webp)
+
+    # Split Layout
+
+    Text on the left, image on the right.
+
+    - Point A
+    - Point B
+  description: >
+    50/50 split layout. Image fills the right half,
+    text content fills the left half.
+
+- id: image-left
+  category: images
+  name: "Split layout (image left)"
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![left](image.jpg)"
+  example: |
+    ![left](../assets/photo.webp)
+
+    # Split Layout
+
+    Text on the right, image on the left.
+  description: >
+    50/50 split layout. Image fills the left half,
+    text content fills the right half.
+
+- id: image-inline
+  category: images
+  name: Inline image
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![inline](image.jpg)"
+  example: |
+    # Architecture
+
+    Text above.
+
+    ![inline](../assets/diagram.webp)
+
+    Text below.
+  description: >
+    Image rendered inline within the slide content,
+    not as a background. Respects content flow.
+
+- id: image-inline-row
+  category: images
+  name: Multiple inline images (row)
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![inline](a.jpg) ![inline](b.jpg)"
+  example: |
+    # Comparison
+
+    ![inline](../assets/before.webp) ![inline](../assets/after.webp)
+  description: >
+    Multiple inline images on the same line render as a row,
+    evenly distributed horizontally.
+
+- id: image-percentage
+  category: images
+  name: Image percentage sizing
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![50%](image.jpg)"
+  example: |
+    # Small image
+
+    ![inline, 40%](../assets/logo.webp)
+  description: >
+    Limits image max-width to the given percentage.
+    Combinable with other modifiers (inline, left, right).
+
+- id: image-qr
+  category: images
+  name: QR code from URL
+  status: planned
+  target: "1.0"
+  deckset: false
+  syntax: "![qr](url)"
+  example: |
+    ![right, qr](https://alura.com.br/ai)
+
+    # Scan for AI courses
+
+    Access our free AI learning path.
+  description: >
+    Generates a QR code SVG from the URL at render time.
+    Combines with all image modifiers: inline, right, left, percentage.
+    No external image needed — generated in-browser.
+  notes: >
+    Use a lightweight QR library (qrcode-generator, ~8KB).
+    Output SVG, style with theme colors.
+
+# ═══════════════════════════════════════════════════════════════
+# VIDEO
+# ═══════════════════════════════════════════════════════════════
+
+- id: video-background
+  category: video
+  name: Video background
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![](video.mp4)"
+  example: |
+    ![](../assets/demo.mp4)
+  description: >
+    Video alone on a slide plays as full-bleed background.
+    Supported formats: .mp4, .mov, .m4v, .webm, .ogg.
+
+- id: video-autoplay
+  category: video
+  name: Video autoplay
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![autoplay](video.mp4)"
+  example: |
+    ![autoplay](../assets/demo.mp4)
+  description: >
+    Video starts playing automatically when slide is shown.
+
+- id: video-loop
+  category: video
+  name: Video loop
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![loop](video.mp4)"
+  example: |
+    ![autoplay, loop](../assets/animation.mp4)
+  description: >
+    Video loops continuously. Often combined with autoplay.
+
+- id: video-mute
+  category: video
+  name: Video mute
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![mute](video.mp4)"
+  example: |
+    ![autoplay, loop, mute](../assets/bg-loop.mp4)
+  description: >
+    Video plays without sound.
+
+# ═══════════════════════════════════════════════════════════════
+# AUDIO
+# ═══════════════════════════════════════════════════════════════
+
+- id: audio-player
+  category: audio
+  name: Audio player
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![](audio.mp3)"
+  example: |
+    # Listen
+
+    ![](../assets/sample.mp3)
+  description: >
+    Renders an audio player with controls.
+    Supported formats: .mp3, .m4a, .ogg, .wav, .aac.
+
+# ═══════════════════════════════════════════════════════════════
+# YOUTUBE
+# ═══════════════════════════════════════════════════════════════
+
+- id: youtube-embed
+  category: youtube
+  name: YouTube embed
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![](https://youtube.com/watch?v=ID)"
+  example: |
+    ![](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+  description: >
+    YouTube video as full-slide iframe embed.
+    Accepts youtube.com/watch, youtube.com/embed, and youtu.be URLs.
+
+- id: youtube-autoplay
+  category: youtube
+  name: YouTube autoplay
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "![autoplay](https://youtu.be/ID)"
+  example: |
+    ![autoplay](https://youtu.be/dQw4w9WgXcQ)
+  description: >
+    YouTube video that autoplays (muted, per browser policy).
+
+# ═══════════════════════════════════════════════════════════════
+# TABLES
+# ═══════════════════════════════════════════════════════════════
+
+- id: table
+  category: tables
+  name: Markdown table
+  status: planned
+  target: "1.0"
+  deckset: true
+  syntax: "| col | col |"
+  example: |
+    # Comparison
+
+    | Feature | StellarDeck | Deckset |
+    |---------|:-----------:|:-------:|
+    | Free    | Yes         | No      |
+    | Linux   | Yes         | No      |
+    | Themes  | 8           | 25+     |
+  description: >
+    Standard Markdown tables with alignment support.
+    GFM (GitHub Flavored Markdown) table syntax.
+  notes: >
+    Parser needs to detect | lines and emit <table>.
+    Support alignment via :--- (left), :---: (center), ---: (right).
+
+# ═══════════════════════════════════════════════════════════════
+# HORIZONTAL RULE
+# ═══════════════════════════════════════════════════════════════
+
+- id: horizontal-rule
+  category: structure
+  name: Horizontal rule (within slide)
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "*** or --- (within slide content)"
+  example: |
+    # Section
+
+    Content above the rule.
+
+    ***
+
+    Content below the rule.
+  description: >
+    Horizontal rule within a slide (not a slide separator).
+    Only *** is safe — --- on its own line is the slide separator.
+
+# ═══════════════════════════════════════════════════════════════
+# EXTENDED — ::: BLOCK DIRECTIVES (StellarDeck extensions)
+# ═══════════════════════════════════════════════════════════════
+
+- id: ext-math
+  category: extended
+  name: "Math / LaTeX (:::math)"
+  status: planned
+  target: "1.0"
+  deckset: false
+  syntax: ":::math ... :::"
+  example: |
+    # Gradient Descent
+
+    :::math
+    \theta_{t+1} = \theta_t - \alpha \nabla J(\theta_t)
+    :::
+
+    Where $\alpha$ is the learning rate.
+  description: >
+    Block-level math rendering via KaTeX.
+    Also support inline math with $formula$ syntax.
+    Reveal.js has RevealMath plugin (KaTeX + MathJax).
+  notes: >
+    Deckset uses $$ for block and $ for inline (standard LaTeX).
+    We should support both: $$ and :::math for block,
+    $ for inline. KaTeX is lighter than MathJax (~300KB vs ~5MB).
+
+- id: ext-diagram
+  category: extended
+  name: "Diagram (:::diagram)"
+  status: planned
+  target: "1.0"
+  deckset: false
+  syntax: ":::diagram ... :::"
+  example: |
+    # Architecture
+
+    :::diagram
+    graph LR
+      A[Browser] --> B[Tauri]
+      B --> C[Reveal.js]
+      B --> D[File System]
+    :::
+  description: >
+    Mermaid diagram with handDrawn mode (look: "handDrawn",
+    theme: "neutral"). Renders SVG inline in the slide.
+    Supports flowchart, sequence, ER, class, state, etc.
+  notes: >
+    Mermaid is ~68MB but can be lazy-loaded on first use.
+    Default config: { look: "handDrawn", theme: "neutral" }.
+    Future: D2 as premium alternative via :::d2.
+
+
+- id: ext-columns
+  category: extended
+  name: "Columns (:::columns)"
+  status: planned
+  target: "1.0"
+  deckset: false
+  syntax: ":::columns ... ::: ... :::"
+  example: |
+    # Before vs After
+
+    :::columns
+    ## Before
+    - Manual process
+    - 3 hours/week
+    - Error-prone
+
+    :::
+    ## After
+    - Automated
+    - 5 minutes/week
+    - 99.9% accuracy
+    :::
+  description: >
+    Multi-column layout. Each ::: separator starts a new column.
+    Columns are evenly distributed (2 cols = 50/50, 3 = 33/33/33).
+    Content in each column is regular Markdown.
+  notes: >
+    Pandoc uses ::::columns / :::: for this.
+    Slidev uses <div class="grid grid-cols-2">.
+    Our syntax is simpler: ::: separates columns within the block.
+
+- id: ext-qr-block
+  category: extended
+  name: "QR code block (:::qr)"
+  status: planned
+  target: "1.0"
+  deckset: false
+  syntax: ":::qr ... :::"
+  example: |
+    :::qr
+    https://alura.com.br/ai
+    Sign up for free
+    :::
+  description: >
+    Block-level QR code with optional label text below.
+    For simple inline QR, use ![qr](url) instead.
+    The block form allows additional customization.
+  notes: >
+    Most cases will use ![qr](url) image syntax.
+    Block form is for when you want a label or custom styling.
+
+- id: ext-html
+  category: extended
+  name: "Raw HTML (:::html)"
+  status: planned
+  target: "1.1"
+  deckset: false
+  syntax: ":::html ... :::"
+  example: |
+    # Custom embed
+
+    :::html
+    <div style="display:flex; gap:1rem; justify-content:center">
+      <div style="padding:2rem; background:#1e293b; border-radius:12px">
+        Custom HTML content
+      </div>
+    </div>
+    :::
+  description: >
+    Escape hatch for raw HTML injection. Content is inserted
+    directly into the slide without markdown processing.
+    Use sparingly — prefer native features when possible.
+
+- id: ext-steps
+  category: extended
+  name: "Steps / fragments (:::steps)"
+  status: planned
+  target: "1.1"
+  deckset: false
+  syntax: ":::steps ... :::"
+  example: |
+    # Process
+
+    :::steps
+    First, we collect data.
+
+    Then, we train the model.
+
+    Finally, we deploy.
+    :::
+  description: >
+    Each paragraph within the block appears incrementally
+    (Reveal.js fragments). Unlike build-lists which only works
+    on list items, steps works on any content.
+  notes: >
+    Each paragraph (separated by blank line) gets class="fragment".
+
+- id: ext-ascii
+  category: extended
+  name: "ASCII art (:::ascii)"
+  status: planned
+  target: "1.1"
+  deckset: false
+  syntax: ":::ascii ... :::"
+  example: |
+    # Architecture
+
+    :::ascii
+    ┌─────────┐     ┌─────────┐     ┌─────────┐
+    │ Browser │────>│  Tauri  │────>│  Files  │
+    └─────────┘     └─────────┘     └─────────┘
+    :::
+  description: >
+    Preserves whitespace and renders in monospace font with
+    optional styling (box-drawing characters, etc.).
+    Larger font than code blocks, no syntax highlighting.
+
+- id: ext-center
+  category: extended
+  name: "Center block (:::center)"
+  status: planned
+  target: "1.1"
+  deckset: false
+  syntax: ":::center ... :::"
+  example: |
+    :::center
+    # Thank You
+
+    Paulo Silveira
+    @paulosilveira
+    :::
+  description: >
+    Centers all content horizontally and vertically.
+    Useful for closing slides, quotes, and statements.
+
+- id: ext-chart
+  category: extended
+  name: "Chart (:::chart)"
+  status: planned
+  target: future
+  deckset: false
+  syntax: ":::chart ... :::"
+  example: |
+    # Growth
+
+    :::chart bar
+    2020: 500000
+    2021: 1200000
+    2022: 2100000
+    2023: 3000000
+    2024: 4500000
+    :::
+  description: >
+    Simple chart (bar, pie, line) from inline data.
+    Renders SVG. Minimal syntax — label: value per line.
+  notes: >
+    Could use a lightweight charting lib or generate SVG directly.
+    Bar charts are the most common in presentations.
+
+- id: ext-embed
+  category: extended
+  name: "External embed (:::embed)"
+  status: planned
+  target: future
+  deckset: false
+  syntax: ":::embed ... :::"
+  example: |
+    # Live Demo
+
+    :::embed
+    https://codepen.io/user/pen/abcdef
+    :::
+  description: >
+    Embeds an external URL in an iframe within the slide.
+    Useful for CodePen, tweets, interactive demos.
+
+- id: ext-timeline
+  category: extended
+  name: "Timeline (:::timeline)"
+  status: planned
+  target: future
+  deckset: false
+  syntax: ":::timeline ... :::"
+  example: |
+    # Our Journey
+
+    :::timeline
+    2004: Caelum founded
+    2011: Alura launched
+    2019: FIAP acquisition
+    2024: Grupo Alun formed
+    :::
+  description: >
+    Visual timeline from simple year: event data.
+    Renders as horizontal or vertical timeline with styled nodes.
+
+- id: ext-animate
+  category: extended
+  name: "Animation (:::animate)"
+  status: planned
+  target: future
+  deckset: false
+  syntax: ":::animate ... :::"
+  example: |
+    :::animate fade-in
+    # Appears with fade
+    :::
+  description: >
+    CSS animation applied to a content block.
+    Values: fade-in, slide-up, zoom, bounce, etc.
+
+# ═══════════════════════════════════════════════════════════════
+# DECKSET FEATURES — NOT PLANNED
+# ═══════════════════════════════════════════════════════════════
+
+- id: footnotes
+  category: text-formatting
+  name: Footnotes
+  status: not-planned
+  target: n/a
+  deckset: true
+  syntax: "[^1] / [^1]: text"
+  example: |
+    # Research
+
+    According to recent studies[^1], AI adoption is accelerating.
+
+    [^1]: McKinsey Global Survey, 2024
+  description: >
+    Footnote references and definitions. Rarely used in presentations.
+  notes: >
+    Low priority — footnotes don't translate well to slides.
+    If needed, use speaker notes instead.
+
+- id: emoji
+  category: text-formatting
+  name: "Emoji shortcodes"
+  status: not-planned
+  target: n/a
+  deckset: true
+  syntax: ":emoji_name:"
+  example: |
+    # Status
+
+    :rocket: Launched
+    :warning: Needs attention
+  description: >
+    GitHub-style emoji shortcodes. Low priority — use native
+    Unicode emoji instead (works everywhere).

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StellarDeck v2</title>
+  <link rel="stylesheet" href="slides2.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/chrome.css">
+</head>
+<body>
+  <div id="tab-bar"></div>
+
+  <div id="toolbar">
+    <button class="toolbar-btn" id="btn-play" title="Fullscreen (F)">&#9654; Play</button>
+    <button class="toolbar-btn" id="btn-presenter" title="Presenter mode (P)">&#9998; Presenter</button>
+    <button class="toolbar-btn" id="btn-grid" title="Grid overview (G)">&#9638; Grid</button>
+    <div class="toolbar-sep"></div>
+    <select class="toolbar-select" id="theme-select" title="Theme"></select>
+    <button class="toolbar-btn" id="btn-colors" title="Color scheme">&#9679; Colors</button>
+    <div class="toolbar-sep"></div>
+    <button class="toolbar-btn" id="btn-autoflow" title="Autoflow layout inference (A)">&#9889; Autoflow</button>
+    <button class="toolbar-btn" id="btn-editor" title="Open in default editor (Cmd+E)">&#9998; Edit</button>
+    <button class="toolbar-btn" id="btn-export" title="Export to PDF">&#8681; PDF</button>
+    <button class="toolbar-btn" id="btn-diagnostics" title="Deck diagnostics" hidden>&#9888; <span id="diag-count">0</span></button>
+    <div class="toolbar-sep"></div>
+    <span class="slide-counter" id="slide-counter"></span>
+    <div class="toolbar-spacer"></div>
+    <button class="toolbar-btn" id="btn-sidebar" title="Toggle sidebar (Cmd+B)">&#9776;</button>
+    <button class="toolbar-btn" id="btn-about" title="About StellarDeck">? About</button>
+  </div>
+
+  <div id="export-progress"><div id="export-progress-bar"></div></div>
+  <div id="scheme-popover"></div>
+
+  <div id="about-backdrop"></div>
+  <div id="about-dialog">
+    <button class="close-about" id="close-about">&times;</button>
+    <div style="text-align:center;margin-bottom:12px">
+      <img src="assets/brand/stellardeck-simplified-min-512.png" width="64" height="64" alt="StellarDeck" style="border-radius:12px">
+    </div>
+    <h2>StellarDeck</h2>
+    <div class="version">v0.1.0</div>
+    <p>Markdown presentations that feel native.<br>
+    Built with StellarSlides + Tauri.</p>
+    <p>By <strong>Paulo Silveira</strong></p>
+    <p>
+      <a href="https://github.com/peas/stellardeck" target="_blank">GitHub</a> &middot;
+      <a href="https://stellardeck.dev" target="_blank">Docs</a> &middot;
+      <a href="https://github.com/peas/stellardeck/wiki" target="_blank">Examples</a>
+    </p>
+  </div>
+
+  <div id="diagnostics-panel" hidden>
+    <div class="diag-header">
+      <strong>Deck diagnostics</strong>
+      <button class="close-diag" id="close-diag">&times;</button>
+    </div>
+    <div id="diag-list"></div>
+  </div>
+
+  <div id="error">
+    <h1>Arquivo não encontrado</h1>
+    <p>Uso: <code>viewer.html?file=caminho/para/apresentacao.md</code></p>
+    <p>Exemplo: <code>viewer.html?file=1bi-dev/IA-carreiras-educacao-para-professores-light.md</code></p>
+  </div>
+
+  <div id="welcome-screen">
+    <img src="assets/brand/stellardeck-simplified-min-512.png" width="72" height="72" alt="StellarDeck" style="margin-bottom:16px;border-radius:14px">
+    <h1 style="margin:0 0 4px;font-size:1.5rem;font-weight:700;color:#e2e8f0">StellarDeck</h1>
+    <p style="color:#64748b;font-size:0.85rem;margin:0 0 24px">Open a presentation to begin</p>
+    <button id="welcome-open" style="padding:10px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#94a3b8;cursor:pointer;font-size:0.85rem;margin-bottom:24px">Open File (Cmd+O)</button>
+    <div id="recent-list" style="text-align:left;width:320px"></div>
+  </div>
+
+  <div id="slide-area">
+    <div class="reveal">
+      <div class="slides" id="slides"></div>
+    </div>
+  </div>
+
+  <div id="grid-overlay">
+    <div id="grid-header">
+      <h2 id="grid-title">Slides</h2>
+      <span>Arrows to navigate, Enter to open, Esc to close</span>
+    </div>
+    <div id="grid-container"></div>
+  </div>
+
+
+  <div id="status-bar">
+    <span id="status-file"></span>
+    <span id="status-autoflow"></span>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="constants.js"></script>
+  <script src="slides2.js"></script>
+  <script src="autoflow.js"></script>
+  <script src="deckset-parser.js"></script>
+  <script src="diagnostics.js"></script>
+  <script src="print-mode.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

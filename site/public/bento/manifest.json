@@ -1,0 +1,74 @@
+[
+  {
+    "name": "vibe-title",
+    "slug": "vibe-coding",
+    "label": "Vibe Coding",
+    "file": "vibe-title.png"
+  },
+  {
+    "name": "chocolate-cover",
+    "slug": "bean-to-bar",
+    "label": "Bean to Bar",
+    "file": "chocolate-cover.png"
+  },
+  {
+    "name": "coach-portrait",
+    "slug": "hand-balancing",
+    "label": "Hand Balancing",
+    "file": "coach-portrait.png"
+  },
+  {
+    "name": "code-block",
+    "slug": "kitchen-sink",
+    "label": "Kitchen Sink",
+    "file": "code-block.png"
+  },
+  {
+    "name": "split-layout",
+    "slug": "getting-started",
+    "label": "Getting Started",
+    "file": "split-layout.png"
+  },
+  {
+    "name": "columns",
+    "slug": "kitchen-sink",
+    "label": "Kitchen Sink",
+    "file": "columns.png"
+  },
+  {
+    "name": "diagonal",
+    "slug": "autoflow",
+    "label": "Autoflow",
+    "file": "diagonal.png"
+  },
+  {
+    "name": "vibe-book",
+    "slug": "vibe-coding",
+    "label": "Vibe Coding",
+    "file": "vibe-book.png"
+  },
+  {
+    "name": "chocolate-dark",
+    "slug": "bean-to-bar",
+    "label": "Bean to Bar",
+    "file": "chocolate-dark.png"
+  },
+  {
+    "name": "training-diagram",
+    "slug": "hand-balancing",
+    "label": "Hand Balancing",
+    "file": "training-diagram.png"
+  },
+  {
+    "name": "flowchart",
+    "slug": "kitchen-sink",
+    "label": "Kitchen Sink",
+    "file": "flowchart.png"
+  },
+  {
+    "name": "custom-color",
+    "slug": "kitchen-sink",
+    "label": "Kitchen Sink",
+    "file": "custom-color.png"
+  }
+]

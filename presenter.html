@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StellarDeck Presenter</title>
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/presenter.css">
+</head>
+<body>
+  <div class="header">
+    <span class="header-timer" id="elapsed">0:00</span>
+    <span class="header-counter" id="counter">– / –</span>
+    <span class="header-spacer"></span>
+    <span class="header-clock" id="clock"></span>
+  </div>
+
+  <div class="slides-row">
+    <div class="slide-panel current-panel">
+      <div class="slide-label">Current</div>
+      <div class="slide-frame current-frame">
+        <div class="slide-inner sd-slide" id="current-inner"></div>
+      </div>
+    </div>
+    <div class="slide-panel next-panel">
+      <div class="slide-label">Next</div>
+      <div class="slide-frame next-frame">
+        <div class="slide-inner sd-slide" id="next-inner"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes-area">
+    <div class="notes-label">Notes</div>
+    <div class="notes-text" id="notes"></div>
+  </div>
+
+  <div class="disconnected" id="disconnected">
+    Waiting for presentation...
+  </div>
+
+  <script type="module" src="js/presenter.js"></script>
+</body>
+</html>

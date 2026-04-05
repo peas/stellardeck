@@ -1,0 +1,53 @@
+---
+title: StellarDeck
+description: Markdown presentations that feel native.
+template: splash
+hero:
+  tagline: Write markdown. Get beautiful slides. Zero config.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Get Started
+      link: /guide/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/peas/stellardeck
+      icon: external
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+import BentoGrid from '../../components/BentoGrid.astro';
+
+A framework for telling stories through markdown. StellarDeck turns plain text into impactful presentations without getting in the way of your thinking. The constraints of markdown help you focus on the message: you can glance at your deck and instantly see if the narrative flows right, then quickly rearrange, add, or cut.
+
+<BentoGrid />
+
+## Guide
+
+<CardGrid>
+  <LinkCard title="Getting Started" description="Your first presentation in 5 minutes." href="/guide/getting-started/" />
+  <LinkCard title="Images & Layouts" description="Splits, backgrounds, columns, and positioning." href="/guide/images-layouts/" />
+  <LinkCard title="Code, Math & Diagrams" description="Syntax highlighting, LaTeX, Mermaid, QR codes." href="/guide/code-math-diagrams/" />
+  <LinkCard title="Autoflow" description="Zero-config layout inference." href="/guide/autoflow/" />
+  <LinkCard title="Themes & Colors" description="9 themes, color schemes, custom colors." href="/guide/themes-colors/" />
+</CardGrid>
+
+## Examples
+
+Real presentations built with StellarDeck. Navigate the deck, then explore slide by slide with a live editor.
+
+<CardGrid>
+  <LinkCard title="Bean to Bar Chocolate" description="Diagrams, columns, custom backgrounds." href="/examples/bean-to-bar/" />
+  <LinkCard title="Hand Balancing" description="Split layouts with coach portraits." href="/examples/hand-balancing/" />
+  <LinkCard title="Vibe Coding" description="AI-assisted coding and the new developer." href="/examples/vibe-coding/" />
+</CardGrid>
+
+---
+
+<div style="text-align:center;margin-top:2rem;color:var(--sl-color-gray-3);font-size:0.85rem;">
+  <p>
+    <a href="https://github.com/peas/stellardeck"><img src="https://img.shields.io/github/stars/peas/stellardeck?style=social" alt="GitHub stars" /></a>
+  </p>
+  <p>Built by <a href="https://paulo.com.br">Paulo Silveira</a> &middot; Apache 2.0 &middot; <a href="https://github.com/peas/stellardeck">GitHub</a></p>
+</div>

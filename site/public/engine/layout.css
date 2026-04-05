@@ -1,0 +1,306 @@
+/* layout.css — Reveal.js overrides, Deckset layouts, viewport, print mode */
+
+    /* ===== Fixed viewport — all slides same size ===== */
+    /* Deckset-style: gray canvas behind slides, slides have their own background */
+    .reveal { background: #2d2d32 !important; }
+    .reveal > .backgrounds { background: #2d2d32 !important; }
+    .reveal .slide-background-content { background-color: var(--r-background-color); }
+
+    .reveal .slides > section {
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%; height: 100%;
+    }
+    /* Speaker notes: hidden in all contexts (slides, embed, grid) */
+    .sd-slide aside.notes,
+    .reveal aside.notes {
+      display: none !important;
+    }
+    /* Broken image placeholder — shows path so you know what to fix */
+    .broken-image {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 200px; min-width: 250px;
+      border: 2px dashed #f87171;
+      border-radius: 12px;
+      background: rgba(248,113,113,0.08);
+      color: #f87171; font-size: 0.65em;
+      font-family: 'JetBrains Mono', monospace;
+      word-break: break-all; padding: 1.5rem;
+      text-align: center; line-height: 1.4;
+    }
+    /* For background images that fail, show on the slide itself */
+    .reveal .slides section[data-bg-broken]::after {
+      content: attr(data-bg-broken);
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #f87171; font-size: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      border: 2px dashed #f87171;
+      border-radius: 12px; padding: 2rem;
+      background: rgba(248,113,113,0.08);
+      text-align: center; max-width: 80%;
+      word-break: break-all;
+    }
+    /* ===== Shared slide content styles =====
+       .sd-slide is the unified selector — works in all contexts:
+       Reveal slides (<section class="sd-slide">), grid (.grid-slide-inner.sd-slide),
+       presenter (.slide-inner.sd-slide). */
+    .sd-slide {
+      color: var(--r-main-color, #e2e8f0);
+      font-family: var(--r-main-font, Inter, sans-serif);
+      font-size: var(--r-main-font-size, 28px);
+      padding: 2rem;
+      box-sizing: border-box;
+      text-align: left;
+    }
+    .sd-slide h1, .sd-slide h2, .sd-slide h3 {
+      text-align: left;
+      text-transform: var(--r-heading-text-transform, none);
+      font-family: var(--r-heading-font, Inter, sans-serif);
+      font-weight: var(--r-heading-font-weight, 900);
+      letter-spacing: var(--r-heading-letter-spacing, -0.03em);
+      line-height: var(--r-heading-line-height, 1.1);
+      color: var(--r-heading-color, #f8fafc);
+      margin: 0 0 0.6em 0;
+    }
+    .sd-slide h2 { margin-bottom: 0.5em; }
+    .sd-slide h3 { margin-bottom: 0.4em; }
+    .sd-slide blockquote {
+      border-left: 4px solid var(--accent, #0ea5e9);
+      padding: 1.2rem 1.8rem;
+      font-style: italic;
+      font-size: 1.15em;
+      background: rgba(14,165,233,0.06);
+      border-radius: 0 8px 8px 0;
+      width: 90%;
+    }
+    .sd-slide ul, .sd-slide ol { margin-left: 1rem; }
+    .sd-slide li { margin-bottom: 0.5rem; }
+    .reveal .progress span { background: var(--accent); }
+    .sd-slide pre { text-align: left; }
+    .sd-slide pre code {
+      background: #1e293b; padding: 1.2rem; border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
+      display: block; overflow-x: auto;
+      line-height: 1.5;
+    }
+    .sd-slide img { max-width: 100%; object-fit: contain; border-radius: var(--sd-image-radius, 12px); }
+    .sd-slide table {
+      border-collapse: collapse; width: auto; font-size: 0.85em;
+      margin: 0.5rem auto;
+    }
+    .sd-slide th, .sd-slide td {
+      border: 1px solid rgba(255,255,255,0.15); padding: 0.4rem 0.8rem;
+    }
+    .sd-slide th {
+      background: rgba(255,255,255,0.08); font-weight: 600;
+    }
+
+    /* ===== Accent color patterns ===== */
+    .sd-slide strong { color: var(--sd-accent-bold-color, inherit); }
+    .sd-slide li::marker { color: var(--sd-accent-bullets-color, inherit); }
+    /* Alternating line colors for paragraph-heavy slides */
+    .deckset-alternating p:nth-child(even) {
+      color: var(--accent, var(--r-heading-color));
+    }
+
+    /* ===== Position modifiers: #[top-left], #[bottom-right], etc. ===== */
+    /* Uses a wrapper div with CSS grid for clean positioning without overlap */
+    .deckset-pos-group {
+      display: grid;
+      grid-template: "tl t tr" auto "l c r" 1fr "bl b br" auto / 1fr 1fr 1fr;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0; left: 0;
+      padding: 2rem;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+    .deckset-pos-group > * { pointer-events: auto; }
+    .deckset-pos-top-left     { grid-area: tl; align-self: start; text-align: left; }
+    .deckset-pos-top          { grid-area: t;  align-self: start; text-align: center; }
+    .deckset-pos-top-right    { grid-area: tr; align-self: start; text-align: right; }
+    .deckset-pos-left         { grid-area: l;  grid-column: 1 / 3; align-self: center; text-align: left; } /* span 2 cols for wider content */
+    .deckset-pos-center       { grid-area: c;  align-self: center; text-align: center; }
+    .deckset-pos-right        { grid-area: r;  align-self: center; text-align: right; }
+    .deckset-pos-bottom-left  { grid-area: bl; align-self: end; text-align: left; }
+    .deckset-pos-bottom       { grid-area: b;  align-self: end; text-align: center; }
+    .deckset-pos-bottom-right { grid-area: br; align-self: end; text-align: right; }
+    /* Collapse margins between grouped position headings */
+    .deckset-pos-group h1, .deckset-pos-group h2, .deckset-pos-group h3 { margin: 0; line-height: 1.1; }
+
+    /* ===== Deckset layout classes ===== */
+    .deckset-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+      height: 90%;
+    }
+    .deckset-split > div:first-child { overflow: hidden; } /* contain image side only */
+    .deckset-split img {
+      max-height: 90vh; max-width: 100%;
+      object-fit: contain; border-radius: var(--sd-image-radius, 12px);
+    }
+    .deckset-inline-row {
+      display: flex; gap: 1rem;
+      justify-content: center; align-items: center;
+      height: 80%;
+    }
+    .deckset-inline-row img {
+      max-height: 100%; object-fit: contain;
+      border-radius: 12px; flex: 1; min-width: 0;
+    }
+    .deckset-inline-single {
+      display: flex; justify-content: center; margin: 0.5rem 0;
+    }
+    .deckset-inline-single img {
+      max-height: 500px; object-fit: contain; border-radius: 12px;
+    }
+
+    /* ===== :::columns directive ===== */
+    .deckset-columns {
+      display: grid;
+      gap: 2rem;
+      align-items: start;
+      height: 100%;
+    }
+    .deckset-column {
+      min-width: 0; /* prevent grid blowout */
+    }
+
+    /* #[fit] headings — font-size set by JS fitText(), CSS fallback for print/headless */
+    .deckset-fit {
+      display: block;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      font-size: clamp(2rem, 7vw, 5rem); /* fallback — JS overrides with exact fit */
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+    }
+    /* #[fit] alignment follows theme (default: center for main, left for split) */
+    .sd-slide > .deckset-fit { text-align: var(--sd-heading-align, left); }
+    .deckset-split .deckset-fit { text-align: left; }
+
+    /* Autoscale: progressive font reduction for text-heavy slides.
+       Autoflow sets data-autoscale-tier="light|moderate|dense" based on content line count.
+       - light (9-12 lines): slight reduction, comfortable reading
+       - moderate (13-18 lines): noticeable reduction, still legible
+       - dense (19+ lines): tight spacing, maximum content fit
+       Fallback: [.autoscale: true] without tier gets moderate sizing. */
+    section[data-autoscale="true"] {
+      font-size: 0.72em;
+      line-height: 1.4;
+    }
+    section[data-autoscale="true"] h1,
+    section[data-autoscale="true"] h2,
+    section[data-autoscale="true"] h3 {
+      font-size: 1.3em;
+      margin-bottom: 0.3em;
+    }
+    /* Light tier: 9-12 content lines */
+    section[data-autoscale-tier="light"] {
+      font-size: 0.85em;
+      line-height: 1.45;
+    }
+    /* Moderate tier: 13-18 content lines */
+    section[data-autoscale-tier="moderate"] {
+      font-size: 0.72em;
+      line-height: 1.4;
+    }
+    /* Dense tier: 19+ content lines */
+    section[data-autoscale-tier="dense"] {
+      font-size: 0.6em;
+      line-height: 1.35;
+    }
+
+    /* Plain text bump: slides without headings or autoscale get slightly larger paragraphs */
+    section:not([data-autoscale]) > p {
+      font-size: max(inherit, 1.1em);
+    }
+
+    /* Left/right image-only: image fills half as background */
+    .deckset-split-bg {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 100%;
+      margin: -2rem;
+    }
+    .deckset-split-bg .img-half {
+      background-size: cover; background-position: center;
+    }
+
+    /* Deckset-style gray canvas — slide floats on neutral background */
+    html, body { background: #2d2d32 !important; margin: 0; }
+    /* In print mode, canvas matches slide bg (for clean PDF export) */
+    html.print-mode, html.print-mode body { background: var(--r-background-color, #0a0a0a) !important; }
+
+    /* Layout: sidebar left, toolbar top, 16:9 slide centered in remaining space */
+    body { --chrome-height: 0px; --sidebar-width: 0px; }
+
+    /* Slide area: fixed 16:9 viewport centered within available space */
+    #slide-area {
+      position: fixed;
+      top: var(--chrome-height);
+      left: var(--sidebar-width);
+      right: 0;
+      bottom: 26px; /* status bar height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2d2d32;
+      /* Horizontal breathing room — slide doesn't touch sidebar/edge */
+      padding: 0 20px;
+    }
+    .reveal {
+      width: min(100%, calc((100vh - var(--chrome-height)) * 16 / 9)) !important;
+      height: min(100%, calc((100vw - var(--sidebar-width) - 40px) * 9 / 16)) !important;
+      max-width: 100%;
+      max-height: 100%;
+      margin: 0 !important;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+    html.print-mode .reveal { width: 100% !important; height: 100% !important; box-shadow: none; }
+
+    /* ===== QR codes ===== */
+    .deckset-qr {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 200px;
+    }
+    .deckset-qr svg { border-radius: var(--sd-image-radius, 12px); }
+    .deckset-qr-bg {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%; height: 80%;
+    }
+
+    /* ===== Math (KaTeX) ===== */
+    .deckset-math {
+      margin: 1rem 0;
+      text-align: center;
+      font-size: 1.4em;
+    }
+    .deckset-math-inline {
+      display: inline;
+    }
+
+    /* ===== Diagrams (Mermaid) ===== */
+    .deckset-diagram {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 200px;
+      margin: 1rem 0;
+    }
+    .deckset-diagram .mermaid {
+      width: 100%;
+      text-align: center;
+    }
+    .deckset-diagram .mermaid svg {
+      max-width: 100%;
+      max-height: 70vh;
+    }
+
+    #error { position: fixed; top: var(--chrome-height); left: var(--sidebar-width); right: 0; bottom: 0; }
+    #grid-overlay { padding-top: calc(1.5rem + var(--chrome-height)); margin-left: var(--sidebar-width); }

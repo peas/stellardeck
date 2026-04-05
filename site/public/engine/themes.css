@@ -1,0 +1,227 @@
+/* themes.css — Font imports, :root defaults, theme classes, color schemes */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+
+    /* ===== Default theme (Inter) — Clean modern ===== */
+    :root {
+      --r-main-font: 'Inter', system-ui, sans-serif;
+      --r-heading-font: 'Inter', system-ui, sans-serif;
+      --r-heading-font-weight: 900;
+      --r-heading-letter-spacing: -0.03em;
+      --r-heading-line-height: 1.1;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 28px;
+      --r-background-color: #0a0a0a;
+      --r-main-color: #e2e8f0;
+      --r-heading-color: #f8fafc;
+      --r-link-color: #38bdf8;
+      --accent: #0ea5e9;
+      /* StellarDeck custom properties */
+      --sd-heading-align: left;
+      --sd-image-radius: 12px;
+      --sd-fit-scale: 1;      /* multiplier for #[fit] font size */
+      --sd-code-radius: 8px;
+    }
+
+    /* ===== Letters from Brazil — Bold condensed uppercase ===== */
+    .theme-letters-from-brazil {
+      --r-heading-font: 'TrimPoster-SemiCondensed', 'Trim Poster SemiCondensed', 'Saira Extra Condensed', 'Barlow Condensed', sans-serif;
+      --r-heading-font-weight: 700;
+      --r-heading-letter-spacing: 0.02em;
+      --r-heading-line-height: 1.15;
+      --r-heading-text-transform: none;
+      --r-main-font: 'TrimMono-Regular', 'Trim Mono', 'JetBrains Mono', monospace;
+      --r-main-font-size: 26px;
+      --sd-heading-align: left;
+      --sd-image-radius: 12px;
+      --sd-fit-scale: 1.1;
+    }
+    .theme-letters-from-brazil.scheme-1 { --r-background-color: #47B386; --r-heading-color: #2C3850; --r-main-color: #2C3850; --accent: #F2EEE7; }
+    .theme-letters-from-brazil.scheme-2 { --r-background-color: #E8D6D2; --r-heading-color: #FB6863; --r-main-color: #454445; --accent: #FB6863; }
+    .theme-letters-from-brazil.scheme-3 { --r-background-color: #22A6E3; --r-heading-color: #EDEAE3; --r-main-color: #EDEAE3; --accent: #3F202D; }
+    .theme-letters-from-brazil.scheme-4 { --r-background-color: #122232; --r-heading-color: #FEE04A; --r-main-color: #81867F; --accent: #FEE04A; }
+    .theme-letters-from-brazil.scheme-5 { --r-background-color: #085293; --r-heading-color: #FDCA42; --r-main-color: #FFFFFF; --accent: #FDCA42; }
+    .theme-letters-from-brazil.scheme-6 { --r-background-color: #FFFFFF; --r-heading-color: #000000; --r-main-color: #000000; --accent: #8B8B8B; }
+    .theme-letters-from-brazil.scheme-7 { --r-background-color: #000000; --r-heading-color: #FFFFFF; --r-main-color: #FFFFFF; --accent: #8B8B8B; }
+
+    /* ===== Serif — Classic academic, centered ===== */
+    /* Inspired by Reveal.js "serif" theme (MIT) */
+    .theme-serif {
+      --r-main-font: 'Source Sans 3', 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+      --r-heading-font: 'Playfair Display', 'Palatino Linotype', Georgia, serif;
+      --r-heading-font-weight: 700;
+      --r-heading-letter-spacing: 0em;
+      --r-heading-line-height: 1.2;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 30px;
+      --sd-heading-align: center;
+      --sd-image-radius: 0px;
+      --sd-fit-scale: 0.9;
+    }
+    .theme-serif.scheme-1 { --r-background-color: #f5f0eb; --r-heading-color: #1a1a1a; --r-main-color: #333333; --accent: #8b4513; }
+    .theme-serif.scheme-2 { --r-background-color: #1a1a2e; --r-heading-color: #e0d5c1; --r-main-color: #c4b99a; --accent: #d4a574; }
+    .theme-serif.scheme-3 { --r-background-color: #fefefe; --r-heading-color: #2c3e50; --r-main-color: #444444; --accent: #2980b9; }
+    .theme-serif.scheme-4 { --r-background-color: #0d1117; --r-heading-color: #f0e6d3; --r-main-color: #b0a080; --accent: #e6c07b; }
+
+    /* ===== Minimal — Clean whitespace, system fonts ===== */
+    /* Inspired by Marp "default" theme (ISC) */
+    .theme-minimal {
+      --r-main-font: system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+      --r-heading-font: system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+      --r-heading-font-weight: 700;
+      --r-heading-letter-spacing: -0.02em;
+      --r-heading-line-height: 1.15;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 26px;
+      --sd-heading-align: center;
+      --sd-image-radius: 0px;
+      --sd-fit-scale: 0.85;
+    }
+    .theme-minimal.scheme-1 { --r-background-color: #ffffff; --r-heading-color: #111111; --r-main-color: #333333; --accent: #0066cc; }
+    .theme-minimal.scheme-2 { --r-background-color: #0f172a; --r-heading-color: #f1f5f9; --r-main-color: #cbd5e1; --accent: #3b82f6; }
+    .theme-minimal.scheme-3 { --r-background-color: #fafaf9; --r-heading-color: #1c1917; --r-main-color: #44403c; --accent: #d97706; }
+    .theme-minimal.scheme-4 { --r-background-color: #18181b; --r-heading-color: #fafafa; --r-main-color: #a1a1aa; --accent: #a78bfa; }
+
+    /* ===== Hacker — Terminal dark, monospace ===== */
+    /* Inspired by Reveal.js "night" + Dracula (MIT) */
+    .theme-hacker {
+      --r-main-font: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --r-heading-font: 'JetBrains Mono', 'Fira Code', monospace;
+      --r-heading-font-weight: 700;
+      --r-heading-letter-spacing: -0.02em;
+      --r-heading-line-height: 1.15;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 24px;
+      --sd-heading-align: left;
+      --sd-image-radius: 2px;
+      --sd-fit-scale: 0.95;
+      --sd-code-radius: 4px;
+    }
+    .theme-hacker.scheme-1 { --r-background-color: #0d1117; --r-heading-color: #58a6ff; --r-main-color: #c9d1d9; --accent: #3fb950; }
+    .theme-hacker.scheme-2 { --r-background-color: #282a36; --r-heading-color: #bd93f9; --r-main-color: #f8f8f2; --accent: #ff79c6; }
+    .theme-hacker.scheme-3 { --r-background-color: #002b36; --r-heading-color: #b58900; --r-main-color: #839496; --accent: #268bd2; }
+    .theme-hacker.scheme-4 { --r-background-color: #1a1b26; --r-heading-color: #7aa2f7; --r-main-color: #a9b1d6; --accent: #bb9af7; }
+
+    /* ===== Poster — Big bold, max impact ===== */
+    .theme-poster {
+      --r-main-font: 'Space Grotesk', system-ui, sans-serif;
+      --r-heading-font: 'Bebas Neue', 'Impact', sans-serif;
+      --r-heading-font-weight: 400;
+      --r-heading-letter-spacing: 0.04em;
+      --r-heading-line-height: 1.0;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 28px;
+      --sd-heading-align: center;
+      --sd-image-radius: 0px;
+      --sd-fit-scale: 1.3;
+    }
+    .theme-poster.scheme-1 { --r-background-color: #000000; --r-heading-color: #ffffff; --r-main-color: #cccccc; --accent: #ff3333; }
+    .theme-poster.scheme-2 { --r-background-color: #1a0a2e; --r-heading-color: #f0e68c; --r-main-color: #dda0dd; --accent: #ff6347; }
+    .theme-poster.scheme-3 { --r-background-color: #ffffff; --r-heading-color: #000000; --r-main-color: #333333; --accent: #ff0000; }
+    .theme-poster.scheme-4 { --r-background-color: #0a192f; --r-heading-color: #64ffda; --r-main-color: #8892b0; --accent: #64ffda; }
+
+    /* ===== Alun — Grupo Alun brand identity ===== */
+    /* FK Grotesk → DM Sans (fallback), Flecha → DM Serif Display (fallback) */
+    .theme-alun {
+      --r-main-font: 'FK Grotesk', 'DM Sans', system-ui, sans-serif;
+      --r-heading-font: 'Flecha M', 'DM Serif Display', Georgia, serif;
+      --r-heading-font-weight: 400;
+      --r-heading-letter-spacing: -0.01em;
+      --r-heading-line-height: 1.15;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 28px;
+      --sd-heading-align: left;
+      --sd-image-radius: 8px;
+      --sd-fit-scale: 1.0;
+    }
+    .theme-alun.scheme-1 { --r-background-color: #0d0c0c; --r-heading-color: #FF9414; --r-main-color: #f3f2f2; --accent: #FF9414; }
+    .theme-alun.scheme-2 { --r-background-color: #0d0c0c; --r-heading-color: #ED1460; --r-main-color: #f3f2f2; --accent: #ED1460; }
+    .theme-alun.scheme-3 { --r-background-color: #f3f2f2; --r-heading-color: #0d0c0c; --r-main-color: #333333; --accent: #FF9414; }
+    .theme-alun.scheme-4 { --r-background-color: #FF9414; --r-heading-color: #0d0c0c; --r-main-color: #0d0c0c; --accent: #f3f2f2; }
+    .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #ffffff; --r-main-color: #f3f2f2; --accent: #FF9414; }
+
+    /* ===== Borneli — Inspired by Junior Borneli's "A Travessia Humana" ===== */
+    /* Light corporate: warm gray bg, navy headings, magenta accents */
+    .theme-borneli {
+      --r-main-font: 'DM Sans', 'Inter', system-ui, sans-serif;
+      --r-heading-font: 'DM Sans', 'Inter', system-ui, sans-serif;
+      --r-heading-font-weight: 700;
+      --r-heading-letter-spacing: -0.02em;
+      --r-heading-line-height: 1.15;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 28px;
+      --sd-heading-align: center;
+      --sd-image-radius: 8px;
+      --sd-fit-scale: 0.95;
+    }
+    .theme-borneli.scheme-1 { --r-background-color: #ece7e2; --r-heading-color: #1a1050; --r-main-color: #3a3060; --accent: #8a2080; }
+    .theme-borneli.scheme-2 { --r-background-color: #1a1050; --r-heading-color: #ece7e2; --r-main-color: #c4b8d0; --accent: #8a2080; }
+    .theme-borneli.scheme-3 { --r-background-color: #ffffff; --r-heading-color: #1a1050; --r-main-color: #444444; --accent: #8a2080; }
+    .theme-borneli.scheme-4 { --r-background-color: #8a2080; --r-heading-color: #ffffff; --r-main-color: #f0e0f0; --accent: #1a1050; }
+    .theme-borneli.scheme-5 { --r-background-color: #f5f0eb; --r-heading-color: #1a1050; --r-main-color: #5a4070; --accent: #c040a0; }
+
+    /* ===== Nordic — Poppins + Lato, contemporary Scandinavian (replaces "Letters from Brazil" name) ===== */
+    .theme-nordic {
+      --r-main-font: 'Lato', 'Inter', sans-serif;
+      --r-heading-font: 'Poppins', 'Inter', sans-serif;
+      --r-heading-font-weight: 700;
+      --r-heading-letter-spacing: -0.02em;
+      --r-heading-line-height: 1.15;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 28px;
+      --sd-heading-align: left;
+      --sd-image-radius: 8px;
+      --sd-fit-scale: 1.0;
+      --sd-accent-bold: 1; /* bold text uses accent color */
+      --sd-accent-bullets: 1; /* list bullets use accent color */
+    }
+    .theme-nordic.scheme-1 { --r-background-color: #0a1628; --r-heading-color: #e2e8f0; --r-main-color: #94a3b8; --accent: #38bdf8; }
+    .theme-nordic.scheme-2 { --r-background-color: #fafaf9; --r-heading-color: #1c1917; --r-main-color: #57534e; --accent: #0284c7; }
+    .theme-nordic.scheme-3 { --r-background-color: #1e293b; --r-heading-color: #f1f5f9; --r-main-color: #94a3b8; --accent: #22d3ee; }
+    .theme-nordic.scheme-4 { --r-background-color: #0f172a; --r-heading-color: #fbbf24; --r-main-color: #e2e8f0; --accent: #fbbf24; }
+    .theme-nordic.scheme-5 { --r-background-color: #ffffff; --r-heading-color: #0f172a; --r-main-color: #475569; --accent: #6366f1; }
+
+    /* ===== Keynote — Montserrat + Raleway, Apple-inspired presentation style ===== */
+    .theme-keynote {
+      --r-main-font: 'Raleway', 'Helvetica Neue', sans-serif;
+      --r-heading-font: 'Montserrat', 'Helvetica Neue', sans-serif;
+      --r-heading-font-weight: 800;
+      --r-heading-letter-spacing: -0.03em;
+      --r-heading-line-height: 1.05;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 28px;
+      --sd-heading-align: left;
+      --sd-image-radius: 12px;
+      --sd-fit-scale: 1.05;
+      --sd-accent-bold: 1;
+      --sd-accent-bullets: 1;
+    }
+    .theme-keynote.scheme-1 { --r-background-color: #000000; --r-heading-color: #ffffff; --r-main-color: #d1d5db; --accent: #f59e0b; }
+    .theme-keynote.scheme-2 { --r-background-color: #111827; --r-heading-color: #f9fafb; --r-main-color: #9ca3af; --accent: #10b981; }
+    .theme-keynote.scheme-3 { --r-background-color: #ffffff; --r-heading-color: #111827; --r-main-color: #4b5563; --accent: #6366f1; }
+    .theme-keynote.scheme-4 { --r-background-color: #0c0a20; --r-heading-color: #e0e7ff; --r-main-color: #a5b4fc; --accent: #818cf8; }
+    .theme-keynote.scheme-5 { --r-background-color: #1c1917; --r-heading-color: #fef3c7; --r-main-color: #d6d3d1; --accent: #f97316; }
+
+    /* ===== Accent color patterns ===== */
+    /* Active by default on ALL themes. Disable per-slide with [.accent-bold: false] */
+    :root {
+      --sd-accent-bold-color: var(--accent, var(--r-heading-color));
+      --sd-accent-bullets-color: var(--accent, var(--r-heading-color));
+    }
+    /* Themes can override the accent color for specific effects */

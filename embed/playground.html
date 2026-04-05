@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StellarDeck Playground</title>
+  <link rel="stylesheet" href="../slides2.css">
+  <link rel="stylesheet" href="../css/themes.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      padding: 2rem 3rem;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.03em;
+    }
+    h1 span { color: #38bdf8; }
+    .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 2.5rem; }
+    .example {
+      margin-bottom: 3rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .example:last-child { border-bottom: none; }
+    .example-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .example h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+    .example .badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-single { background: rgba(56,189,248,0.15); color: #38bdf8; }
+    .badge-deck { background: rgba(168,85,247,0.15); color: #a855f7; }
+    .badge-autoflow { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .example p {
+      color: #94a3b8;
+      font-size: 0.82rem;
+      margin-bottom: 12px;
+    }
+    /* Embed slide containers */
+    .stellar-preview .reveal { border-radius: 8px; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+  <h1>Stellar<span>Deck</span> Playground</h1>
+  <p class="subtitle">Edit the markdown on the left. The slide preview updates in real-time.</p>
+
+  <!-- Example 1: Headings -->
+  <div class="example" id="ex-headings"></div>
+
+  <!-- Example 2: Autoflow Statement -->
+  <div class="example" id="ex-statement"></div>
+
+  <!-- Example 3: Autoflow Diagonal -->
+  <div class="example" id="ex-diagonal"></div>
+
+  <!-- Example 4: Split Layout -->
+  <div class="example" id="ex-split"></div>
+
+  <!-- Example 5: Alternating Colors -->
+  <div class="example" id="ex-alternating"></div>
+
+  <!-- Example 6: Code Block -->
+  <div class="example" id="ex-code"></div>
+
+  <!-- Example 7: Columns -->
+  <div class="example" id="ex-columns"></div>
+
+  <!-- Example 8: Full Deck -->
+  <div class="example" id="ex-deck"></div>
+
+  <!-- Example 9: Autoflow Demo (same file as app) -->
+  <div class="example" id="ex-autoflow-deck"></div>
+
+  <script src="../slides2.js"></script>
+  <script src="../autoflow.js"></script>
+  <script src="../deckset-parser.js"></script>
+  <script src="stellar-embed.js"></script>
+  <script>
+  window.addEventListener('load', () => {
+    // ── Example 1: Headings ──
+    const ex1 = document.getElementById('ex-headings');
+    ex1.innerHTML = `
+      <div class="example-header">
+        <h2>Headings & #[fit]</h2>
+        <span class="badge badge-single">single slide</span>
+      </div>
+      <p>Use <code>#</code> for headings. <code>#[fit]</code> auto-sizes the heading to fill the slide width.</p>
+      <div id="pg-headings"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-headings'),
+`#[fit] Think **big**.
+#[fit] Act **small**.`, { mode: 'single', label: 'Deckset Markdown' });
+
+    // ── Example 2: Autoflow Statement ──
+    const ex2 = document.getElementById('ex-statement');
+    ex2.innerHTML = `
+      <div class="example-header">
+        <h2>Autoflow: Statement</h2>
+        <span class="badge badge-autoflow">autoflow</span>
+        <span class="badge badge-single">single slide</span>
+      </div>
+      <p>With autoflow, plain short text automatically becomes a bold <code>#[fit]</code> statement. No directives needed.</p>
+      <div id="pg-statement"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-statement'),
+`Software
+is not solved.`, { mode: 'single', autoflow: true, label: 'Plain markdown (autoflow on)' });
+
+    // ── Example 3: Autoflow Diagonal ──
+    const ex3 = document.getElementById('ex-diagonal');
+    ex3.innerHTML = `
+      <div class="example-header">
+        <h2>Autoflow: Diagonal</h2>
+        <span class="badge badge-autoflow">autoflow</span>
+        <span class="badge badge-single">single slide</span>
+      </div>
+      <p>Two paragraphs with a question mark become a diagonal layout: top-left and bottom-right.</p>
+      <div id="pg-diagonal"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-diagonal'),
+`What is distraction?
+
+Arrogance or procrastination?`, { mode: 'single', autoflow: true, label: 'Two paragraphs with ?' });
+
+    // ── Example 4: Split Layout ──
+    const ex4 = document.getElementById('ex-split');
+    ex4.innerHTML = `
+      <div class="example-header">
+        <h2>Split Layout</h2>
+        <span class="badge badge-single">single slide</span>
+      </div>
+      <p><code>![right](url)</code> or <code>![left](url)</code> splits the slide: image on one side, text on the other.</p>
+      <div id="pg-split"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-split'),
+`![right](https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800)
+
+# The Mountains
+
+Nature teaches us **patience**
+and **perspective**.`, { mode: 'single', label: 'Image + text → split layout' });
+
+    // ── Example 5: Alternating Colors ──
+    const ex5 = document.getElementById('ex-alternating');
+    ex5.innerHTML = `
+      <div class="example-header">
+        <h2>Alternating Colors</h2>
+        <span class="badge badge-single">single slide</span>
+      </div>
+      <p><code>[.alternating-colors: true]</code> gives each paragraph a different accent color. Great for questions or key points.</p>
+      <div id="pg-alternating"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-alternating'),
+`[.alternating-colors: true]
+
+Do we recognize **effort** more than results?
+
+Does **freedom** without consequence empower or disorient?
+
+Have we traded **firmness** for sympathy?
+
+Too much space to be **heard**, too little will to **execute**?`, { mode: 'single', label: 'Each paragraph gets accent color' });
+
+    // ── Example 6: Code Block ──
+    const ex6 = document.getElementById('ex-code');
+    ex6.innerHTML = `
+      <div class="example-header">
+        <h2>Code Blocks</h2>
+        <span class="badge badge-single">single slide</span>
+      </div>
+      <p>Fenced code blocks with syntax highlighting. Supports all major languages.</p>
+      <div id="pg-code"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-code'),
+"# API Example\n\n```javascript\nasync function fetchSlides(url) {\n  const response = await fetch(url);\n  const markdown = await response.text();\n  return parseDecksetMarkdown(markdown);\n}\n```", { mode: 'single', label: 'Heading + code block' });
+
+    // ── Example 7: Columns ──
+    const ex7 = document.getElementById('ex-columns');
+    ex7.innerHTML = `
+      <div class="example-header">
+        <h2>Columns</h2>
+        <span class="badge badge-single">single slide</span>
+      </div>
+      <p><code>:::columns</code> splits content into side-by-side columns, separated by <code>---</code>.</p>
+      <div id="pg-columns"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-columns'),
+`# Pros & Cons
+
+:::columns
+## Pros
+- Simple markdown syntax
+- Works in any editor
+- Version control friendly
+
+---
+
+## Cons
+- Less visual control
+- No drag-and-drop
+- Learning curve for directives
+:::`, { mode: 'single', label: 'Side-by-side comparison' });
+
+    // ── Example 8: Full Deck ──
+    const ex8 = document.getElementById('ex-deck');
+    ex8.innerHTML = `
+      <div class="example-header">
+        <h2>Full Deck with Navigation</h2>
+        <span class="badge badge-deck">deck mode</span>
+        <span class="badge badge-autoflow">autoflow</span>
+      </div>
+      <p>A complete mini-deck with autoflow. Use arrow keys or click the controls to navigate.</p>
+      <div id="pg-deck"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-deck'),
+`Stellar Deck
+
+Write the story. We handle the stage.
+
+---
+
+Think **big**.
+
+Act **small**.
+
+---
+
+What drives **innovation**?
+
+Curiosity and **courage**.
+
+---
+
+Know more.
+
+Do more.
+
+Ship more.
+
+---
+
+The **future** is markdown.`, { mode: 'deck', autoflow: true, label: 'Multi-slide deck' });
+
+    // ── Example 9: Autoflow Demo via iframe (pixel-identical, editable) ──
+    const ex9 = document.getElementById('ex-autoflow-deck');
+    fetch('../test/autoflow-demo.md').then(r => r.text()).then(md => {
+      ex9.innerHTML = `
+        <div class="example-header">
+          <h2>Autoflow Demo (same renderer as the app)</h2>
+          <span class="badge badge-deck">iframe</span>
+          <span class="badge badge-autoflow">autoflow</span>
+        </div>
+        <p>Pixel-identical rendering via iframe. Edit the markdown — the preview reloads on the same slide.</p>
+        <div style="display:flex;gap:16px;align-items:stretch;">
+          <div style="flex:1;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:#1a1a1f;border:1px solid rgba(255,255,255,0.15);border-bottom:none;border-radius:8px 8px 0 0;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;"></span>
+              <span style="color:#64748b;font-size:0.7rem;margin-left:8px;font-family:'SF Mono',Menlo,monospace;">autoflow-demo.md</span>
+            </div>
+            <textarea id="iframe-editor" spellcheck="false" style="
+              flex:1;min-height:400px;padding:14px;border-radius:0 0 8px 8px;
+              border:1px solid rgba(255,255,255,0.15);border-top:none;
+              background:#0a0a0a;color:#c9d1d9;font-family:'SF Mono',Menlo,'Fira Code',monospace;
+              font-size:0.85rem;line-height:1.6;resize:none;outline:none;
+              caret-color:#58a6ff;
+            ">${md}</textarea>
+          </div>
+          <div style="flex:1;">
+            <iframe id="iframe-preview" src="../viewer.html?file=test/autoflow-demo.md&embed"
+              style="width:100%;aspect-ratio:16/9;border:1px solid rgba(255,255,255,0.1);border-radius:8px;"
+              allowfullscreen></iframe>
+          </div>
+        </div>
+      `;
+
+      StellarEmbed.setupHighlighting(document.getElementById('iframe-editor'));
+
+      let timer;
+      document.getElementById('iframe-editor').addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          const iframe = document.getElementById('iframe-preview');
+          const md = document.getElementById('iframe-editor').value;
+          // Get current slide index from iframe via postMessage
+          // Then reload with updated content via blob URL
+          try {
+            const iframeWin = iframe.contentWindow;
+            const currentSlide = iframeWin.Reveal?.getState?.()?.indexh || 0;
+            // Re-render: update the markdown and re-parse inside the iframe
+            iframeWin.document.getElementById('slides').innerHTML =
+              iframeWin.parseDecksetMarkdown(md, { autoflow: true });
+            iframeWin.Reveal.sync();
+            iframeWin.Reveal.slide(Math.min(currentSlide, iframeWin.Reveal.getTotalSlides() - 1));
+            if (iframeWin._renderExtras) iframeWin._renderExtras();
+            iframeWin.document.fonts.ready.then(() => {
+              requestAnimationFrame(() => { if (iframeWin.fitText) iframeWin.fitText(); });
+            });
+          } catch(e) { /* cross-origin or not ready */ }
+        }, 300);
+      });
+    });
+  }); // end window.load
+  </script>
+</body>
+</html>

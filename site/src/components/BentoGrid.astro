@@ -1,0 +1,88 @@
+---
+/**
+ * SlideShowcase — rows of slide screenshots, all 16:9, no cropping.
+ * Within each row all slides have identical width and height.
+ * Different row sizes (2, 3, 4 per row) create visual rhythm.
+ */
+
+const rows = [
+  [
+    { img: 'vibe-title', slug: 'vibe-coding' },
+    { img: 'flowchart', slug: 'kitchen-sink' },
+    { img: 'chocolate-dark', slug: 'bean-to-bar' },
+  ],
+  [
+    { img: 'diagonal', slug: 'autoflow' },
+    { img: 'coach-portrait', slug: 'hand-balancing' },
+  ],
+  [
+    { img: 'code-block', slug: 'kitchen-sink' },
+    { img: 'training-diagram', slug: 'hand-balancing' },
+    { img: 'custom-color', slug: 'kitchen-sink' },
+    { img: 'vibe-book', slug: 'vibe-coding' },
+  ],
+  [
+    { img: 'split-layout', slug: 'getting-started' },
+    { img: 'columns', slug: 'kitchen-sink' },
+    { img: 'chocolate-cover', slug: 'bean-to-bar' },
+  ],
+];
+---
+
+<div class="showcase">
+  {rows.map(row => (
+    <div class="showcase-row" style={`--cols: ${row.length}`}>
+      {row.map(item => (
+        <a href={`/examples/${item.slug}/`} class="showcase-card">
+          <img src={`/bento/${item.img}.png`} alt="" loading="lazy" decoding="async" />
+        </a>
+      ))}
+    </div>
+  ))}
+</div>
+
+<style>
+  .showcase {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 clamp(16px, 3vw, 48px);
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+    box-sizing: border-box;
+  }
+
+  .showcase-row {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    gap: 12px;
+  }
+
+  .showcase-card {
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: border-color 0.2s, transform 0.3s;
+  }
+
+  .showcase-card:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+  }
+
+  .showcase-card img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: block;
+    object-fit: cover;
+  }
+
+  @media (max-width: 640px) {
+    .showcase-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

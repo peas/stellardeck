@@ -1,0 +1,98 @@
+---
+title: Images & Layouts
+description: Split layouts, backgrounds, columns, and positioning.
+---
+
+import StellarSlide from '../../../components/StellarSlide.astro';
+
+StellarDeck uses image modifiers and custom blocks to control layout — no CSS, no templates, just markdown.
+
+## Background Images
+
+A bare image becomes a full-bleed background. Add `fit` to contain without cropping, or `filtered` for a dark overlay.
+
+<StellarSlide source={`![filtered](images/coaches/yuval-ayalon.webp)
+
+# Filtered Background
+
+Dark overlay keeps text readable.`} />
+
+## Split Layouts
+
+`![right]` or `![left]` splits the slide in half — image on one side, text on the other.
+
+<StellarSlide source={`![right](images/coaches/yuval-ayalon.webp)
+
+# Split Layouts
+
+Text goes on the left, image on the right.
+
+Works with left too — just swap the modifier.`} />
+
+## Columns
+
+`:::columns` splits content into equal-width columns.
+
+<StellarSlide source={`# Before & After
+
+:::columns
+## Before
+- Manual process
+- Error-prone
+- Hours of work
+
+## After
+- Automated
+- Reliable
+- Minutes
+:::`} />
+
+## Three Columns
+
+Add another separator for a third column. The grid adjusts automatically.
+
+<StellarSlide source={`# Features
+
+:::columns
+## Speed
+Fast rendering
+
+## Quality
+Beautiful output
+
+## Simplicity
+Just markdown
+:::`} />
+
+## Center Block
+
+`:::center` vertically and horizontally centers its content. Good for closing slides and credits.
+
+<StellarSlide source={`:::center
+# Thank You
+
+Your Name
+@handle
+:::`} />
+
+## Steps
+
+`:::steps` reveals each paragraph on click — like build lists, but for free-form content.
+
+<StellarSlide source={`:::steps
+First, we write markdown.
+
+Then, StellarDeck renders it.
+
+Finally, we present.
+:::`} />
+
+## Custom Background Color
+
+`[.background-color: #hex]` sets any CSS color as the slide background.
+
+<StellarSlide source={`[.background-color: #1e3a5f]
+
+#[fit] Custom Colors
+
+Any CSS hex color works.`} />

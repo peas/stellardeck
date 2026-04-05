@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autoflow Examples — StellarDeck</title>
+  <link rel="stylesheet" href="../slides2.css">
+  <link rel="stylesheet" href="../css/themes.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      padding: 2rem 3rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.3rem; letter-spacing: -0.03em; }
+    h1 span { color: #22c55e; }
+    .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 2.5rem; }
+    .example { margin-bottom: 3rem; padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .example:last-child { border-bottom: none; }
+    .example-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+    .example h2 { font-size: 1.1rem; font-weight: 700; color: #f1f5f9; }
+    .example p { color: #94a3b8; font-size: 0.82rem; margin-bottom: 12px; }
+    .rule-tag {
+      font-size: 0.65rem; padding: 2px 8px; border-radius: 4px;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+      background: rgba(34,197,94,0.15); color: #22c55e;
+    }
+    .comparison { display: flex; gap: 16px; align-items: stretch; }
+    .comparison > div { flex: 1; }
+    .comparison-label { font-size: 0.7rem; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stellar-preview .reveal { border-radius: 8px; overflow: hidden; }
+    .stellar-editor-chrome {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 12px;
+      background: #1a1a1f;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+    }
+    .editor-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .editor-dot.red { background: #ff5f57; }
+    .editor-dot.yellow { background: #febc2e; }
+    .editor-dot.green { background: #28c840; }
+    .editor-title { color: #64748b; font-size: 0.7rem; margin-left: 8px; font-family: 'SF Mono', Menlo, monospace; }
+  </style>
+</head>
+<body>
+
+  <h1><span>Autoflow</span> Examples</h1>
+  <p class="subtitle">Write plain markdown. Autoflow detects the structure and applies the right layout automatically.<br>
+  Left: autoflow OFF (plain rendering). Right: autoflow ON (smart layout). Edit either textarea to see the difference.</p>
+
+  <div class="example" id="ex-divider"></div>
+  <div class="example" id="ex-statement-short"></div>
+  <div class="example" id="ex-statement-long"></div>
+  <div class="example" id="ex-diagonal"></div>
+  <div class="example" id="ex-z-pattern"></div>
+  <div class="example" id="ex-alternating"></div>
+  <div class="example" id="ex-title"></div>
+  <div class="example" id="ex-antimonotony"></div>
+
+  <script src="../slides2.js"></script>
+  <script src="../autoflow.js"></script>
+  <script src="../deckset-parser.js"></script>
+  <script src="stellar-embed.js"></script>
+  <script>
+    // Helper: editable example (Markdown editor | Autoflow preview)
+    function editableComparison(container, title, rule, description, markdown) {
+      container.innerHTML = `
+        <div class="example-header">
+          <h2>${title}</h2>
+          <span class="rule-tag">${rule}</span>
+        </div>
+        <p>${description}</p>
+        <div class="comparison">
+          <div style="flex:1;display:flex;flex-direction:column;">
+            <div class="stellar-editor-chrome">
+              <span class="editor-dot red"></span><span class="editor-dot yellow"></span><span class="editor-dot green"></span>
+              <span class="editor-title">slide.md</span>
+            </div>
+            <textarea class="stellar-textarea" spellcheck="false" style="
+              flex:1;min-height:180px;padding:14px;border-radius:0 0 8px 8px;
+              border:1px solid rgba(255,255,255,0.15);border-top:none;
+              background:#0a0a0a;color:#c9d1d9;font-family:'SF Mono',Menlo,'Fira Code',monospace;
+              font-size:0.85rem;line-height:1.6;resize:none;outline:none;
+              caret-color:#58a6ff;
+            ">${markdown.trim()}</textarea>
+          </div>
+          <div style="flex:1;">
+            <div class="stellar-preview on" style="aspect-ratio:16/9"></div>
+          </div>
+        </div>
+      `;
+      const onInst = StellarEmbed.renderSlide(container.querySelector('.on'), markdown, { autoflow: true });
+      const textarea = container.querySelector('.stellar-textarea');
+      StellarEmbed.setupHighlighting(textarea);
+
+      let timer;
+      textarea.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { onInst.update(textarea.value); }, 200);
+      });
+    }
+
+  window.addEventListener('load', () => {
+    // ── 1. Divider ──
+    editableComparison(
+      document.getElementById('ex-divider'),
+      'Section Divider', 'divider',
+      'A single short word or number becomes a bold, full-width heading. Perfect for section breaks and year markers.',
+      `2026`
+    );
+
+    // ── 2. Short Statement ──
+    editableComparison(
+      document.getElementById('ex-statement-short'),
+      'Short Statement (centered)', 'statement',
+      'Short text (1-2 lines, few words) gets centered alignment for maximum impact. Based on Bradley\'s radial balance principle.',
+      `Think big.\n\nAct small.`
+    );
+
+    // ── 3. Long Statement ──
+    editableComparison(
+      document.getElementById('ex-statement-long'),
+      'Statement (3-4 lines)', 'statement',
+      'Longer statements (3-4 lines) get left-aligned <code>#[fit]</code> for readability, following the F-pattern reading flow.',
+      `Knowing things.\n\nMaking decisions.\n\nMaking it happen.`
+    );
+
+    // ── 4. Diagonal ──
+    editableComparison(
+      document.getElementById('ex-diagonal'),
+      'Diagonal (Question / Answer)', 'diagonal',
+      'Two paragraphs where at least one ends with "?" become a diagonal layout: top-left and bottom-right. Follows the Z-pattern reading path.',
+      `What is distraction?\n\nArrogance or procrastination?`
+    );
+
+    // ── 5. Z-Pattern ──
+    editableComparison(
+      document.getElementById('ex-z-pattern'),
+      'Z-Pattern (4 blocks)', 'z-pattern',
+      'Four short paragraphs are positioned in the four corners following the Z reading path: top-left, top-right, bottom-left, bottom-right.',
+      `Are we welcoming?\n\nAre we fragile?\n\nAre we growing?\n\nAre we honest?`
+    );
+
+    // ── 6. Alternating Colors ──
+    editableComparison(
+      document.getElementById('ex-alternating'),
+      'Alternating Colors', 'alternating',
+      'Three or more short paragraphs get alternating accent colors automatically. No <code>[.alternating-colors: true]</code> needed.',
+      `Do we recognize effort more than results?\n\nFreedom without consequence empowers?\n\nWe traded firmness for sympathy?`
+    );
+
+    // ── 7. Title Slide ──
+    editableComparison(
+      document.getElementById('ex-title'),
+      'Title Slide (first slide)', 'title',
+      'The first slide with a short title + subtitle structure: title gets <code>#[fit]</code> centered, subtitle stays at normal size.',
+      `Stellar Deck\n\nWrite the story. We handle the stage.\n\nBy Paulo Silveira`
+    );
+
+    // ── 8. Anti-monotony ──
+    const ex8 = document.getElementById('ex-antimonotony');
+    ex8.innerHTML = `
+      <div class="example-header">
+        <h2>Anti-Monotony</h2>
+        <span class="rule-tag">anti-monotony</span>
+      </div>
+      <p>Consecutive slides of the same type get varied positioning. Statements alternate alignment (center, left, right). Diagonals mirror corners. Navigate the deck to see the rhythm.</p>
+      <div id="pg-antimonotony"></div>
+    `;
+    StellarEmbed.playground(document.getElementById('pg-antimonotony'),
+`Think big.
+
+Act small.
+
+---
+
+Move fast.
+
+Break nothing.
+
+---
+
+Know more.
+
+Do more.
+
+---
+
+What drives innovation?
+
+Curiosity and courage.
+
+---
+
+How do we learn?
+
+By making mistakes.`, { mode: 'deck', autoflow: true, label: 'Navigate to see varied positioning across slides' });
+  }); // end window.load
+  </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+---
+/**
+ * StellarEngine — loads engine scripts + init logic.
+ * Include once per page. StellarSlide and StellarDeck include it automatically.
+ * Safe to include multiple times — scripts are deduped by Astro's is:inline.
+ */
+---
+
+<script is:inline src="/engine/slides2.js"></script>
+<script is:inline src="/engine/highlight.min.js"></script>
+<script is:inline src="/engine/autoflow.js"></script>
+<script is:inline src="/engine/deckset-parser.js"></script>
+<script is:inline src="/engine/stellar-embed.js"></script>
+<link rel="stylesheet" href="/engine/slides2.css" />
+<link rel="stylesheet" href="/engine/themes.css" />
+<link rel="stylesheet" href="/engine/layout.css" />
+<link rel="stylesheet" href="/engine/monokai.css" />
+
+<script is:inline>
+  if (!window.__stellarInitQueued) {
+    window.__stellarInitQueued = true;
+    window.addEventListener('DOMContentLoaded', function() {
+      var attempts = 0;
+      var maxAttempts = 50;
+      function tryInit() {
+        if (!window.StellarEmbed) {
+          if (++attempts < maxAttempts) return setTimeout(tryInit, 100);
+          console.error('StellarEmbed not loaded after ' + maxAttempts + ' attempts');
+          return;
+        }
+        // Process StellarSlide components (inline markdown → single slide preview)
+        document.querySelectorAll('script[type="application/json"][data-stellar-slide]').forEach(function(el) {
+          try {
+            var cfg = JSON.parse(el.textContent);
+            var container = document.getElementById(cfg.id);
+            if (container && container.children.length === 0) {
+              // Use renderDeck directly to control slideIndexOffset (renderSlide hardcodes it to 1)
+              StellarEmbed.renderDeck(container, cfg.source, {
+                theme: cfg.theme,
+                autoflow: cfg.autoflow,
+                showControls: false,
+                slideIndexOffset: cfg.slideIndex != null ? cfg.slideIndex : 1,
+              });
+            }
+          } catch(e) { console.error('StellarSlide init error:', e); }
+        });
+        // Process StellarDeck components (full deck + presenter mode)
+        document.querySelectorAll('script[type="application/json"][data-stellar-fulldeck]').forEach(function(el) {
+          try {
+            var cfg = JSON.parse(el.textContent);
+            var container = document.getElementById(cfg.id);
+            if (!container || container.children.length > 0) return;
+
+            if (cfg.mode === 'presenter') {
+              // Presenter mode: render current slide, next slide preview, sync notes
+              var instance = StellarEmbed.renderDeck(container, cfg.source, {
+                theme: cfg.theme, autoflow: cfg.autoflow, showControls: false
+              });
+              // Next slide preview
+              var nextContainer = document.getElementById(cfg.id + '-next');
+              if (nextContainer) {
+                var nextInstance = StellarEmbed.renderDeck(nextContainer, cfg.source, {
+                  theme: cfg.theme, autoflow: cfg.autoflow, showControls: false
+                });
+                // Sync: when current changes, next shows +1
+                var syncNext = function() {
+                  var deck = instance.deck;
+                  var idx = deck.getState ? deck.getState().indexh : 0;
+                  var total = deck.getTotalSlides ? deck.getTotalSlides() : 1;
+                  if (nextInstance.deck.slide) nextInstance.deck.slide(Math.min(idx + 1, total - 1));
+                };
+                instance.deck.on('slidechanged', syncNext);
+                instance.deck.on('ready', function() { setTimeout(syncNext, 500); });
+              }
+              // Notes sync
+              var notesEl = document.getElementById(cfg.id + '-notes');
+              if (notesEl) {
+                var syncNotes = function() {
+                  var deck = instance.deck;
+                  var idx = deck.getState ? deck.getState().indexh : 0;
+                  var sections = container.querySelectorAll('.slides > section');
+                  var note = sections[idx] ? sections[idx].querySelector('aside.notes') : null;
+                  // Notes are display:none in CSS — read textContent anyway
+                  notesEl.innerHTML = note ? note.innerHTML : '<em>No notes for this slide.</em>';
+                };
+                instance.deck.on('slidechanged', syncNotes);
+                instance.deck.on('ready', function() { setTimeout(syncNotes, 500); });
+              }
+              // Click next preview to advance
+              if (nextContainer) {
+                nextContainer.addEventListener('click', function() {
+                  instance.deck.next();
+                });
+              }
+              // Add nav arrows to current slide
+              var prevBtn = document.createElement('button');
+              prevBtn.className = 'sd-embed-nav sd-embed-prev';
+              prevBtn.innerHTML = '&#8249;';
+              prevBtn.onclick = function(e) { e.stopPropagation(); instance.deck.prev(); };
+              var nextBtn = document.createElement('button');
+              nextBtn.className = 'sd-embed-nav sd-embed-next';
+              nextBtn.innerHTML = '&#8250;';
+              nextBtn.onclick = function(e) { e.stopPropagation(); instance.deck.next(); };
+              var reveal = container.querySelector('.reveal');
+              if (reveal) { reveal.appendChild(prevBtn); reveal.appendChild(nextBtn); }
+            } else if (cfg.mode === 'editable') {
+              // Editable mode: deck + textarea, synced on input
+              var instance = StellarEmbed.renderDeck(container, cfg.source, {
+                theme: cfg.theme, autoflow: cfg.autoflow
+              });
+              var editor = document.getElementById(cfg.id + '-editor');
+              if (editor && instance) {
+                var timer;
+                editor.addEventListener('input', function() {
+                  clearTimeout(timer);
+                  timer = setTimeout(function() {
+                    instance.update(editor.value);
+                  }, 300);
+                });
+              }
+            } else {
+              // Standard deck mode
+              StellarEmbed.renderDeck(container, cfg.source, {
+                theme: cfg.theme, autoflow: cfg.autoflow
+              });
+            }
+          } catch(e) { console.error('StellarDeck init error:', e); }
+        });
+      }
+      tryInit();
+    });
+  }
+</script>

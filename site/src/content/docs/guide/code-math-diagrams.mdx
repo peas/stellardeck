@@ -1,0 +1,86 @@
+---
+title: Code, Math & Diagrams
+description: Syntax highlighting, LaTeX math, Mermaid diagrams, and QR codes.
+---
+
+import StellarSlide from '../../../components/StellarSlide.astro';
+
+StellarDeck renders code, math, diagrams, and QR codes directly from markdown — no plugins, no config.
+
+## Code Blocks
+
+Fenced code blocks with a language tag for syntax highlighting. Optionally highlight specific lines with `{n}` after the language name.
+
+````md
+```python {2}
+def greet(name):
+    return f"Hello, {name}!"
+
+greet("StellarDeck")
+```
+````
+
+<StellarSlide showSource={false} source={`# Code Example
+
+\`\`\`python {2}
+def greet(name):
+    return f"Hello, {name}!"
+
+greet("StellarDeck")
+\`\`\``} />
+
+## Tables
+
+Standard GFM tables with column alignment via `:---`, `:---:`, and `---:`.
+
+<StellarSlide source={`# Feature Status
+
+| Feature | Status | Since |
+|---------|--------|-------|
+| Tables | Done | v0.1 |
+| Math | Done | v0.2 |
+| Diagrams | Done | v0.2 |`} />
+
+## Inline Math
+
+Wrap LaTeX in single dollar signs for inline math. Mix freely with regular markdown.
+
+<StellarSlide source={`# Inline Math
+
+The loss function: $L = -\\sum y_i \\log(\\hat{y}_i)$
+
+Euler's identity: $e^{i\\pi} + 1 = 0$`} />
+
+## Display Math
+
+Double dollar signs `$$...$$` on their own line for standalone equations.
+
+<StellarSlide source={`# Display Math
+
+$$E = mc^2$$
+
+The most famous equation in physics.`} />
+
+## Diagrams
+
+Wrap Mermaid syntax in a `:::diagram` block. Renders as SVG with a hand-drawn look.
+
+<StellarSlide source={`# Process
+
+:::diagram
+graph LR
+  A[Write .md] --> B{Feature?}
+  B --> C[QR Code]
+  B --> D[Math]
+  B --> E[Diagram]
+:::`} />
+
+## QR Codes
+
+Use `![qr](url)` for a full-slide QR code, or `![qr, right](url)` to split the slide with text on the left.
+
+<StellarSlide source={`![qr, right](https://stellardeck.dev)
+
+# Try StellarDeck
+
+Scan the QR code to visit the docs.`} />

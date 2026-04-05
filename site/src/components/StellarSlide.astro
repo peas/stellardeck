@@ -1,0 +1,126 @@
+---
+/**
+ * StellarSlide — renders a slide with optional source code display.
+ *
+ * The same markdown is used for both the code block and the preview,
+ * guaranteeing they are always in sync.
+ *
+ * Usage:
+ *   <StellarSlide source={`#[fit] Hello **World**`} />
+ *   <StellarSlide source={`Think **big**.\nAct **small**.`} autoflow />
+ *   <StellarSlide source={`...`} showSource={false} />
+ */
+import StellarEngine from './StellarEngine.astro';
+
+interface Props {
+  /** Markdown source for the slide */
+  source: string;
+  /** Show the markdown source code above the preview (default: true) */
+  showSource?: boolean;
+  /** Enable autoflow layout inference */
+  autoflow?: boolean;
+  /** Slide index for autoflow context (0 = title slide, default: 1) */
+  slideIndex?: number;
+  /** Theme */
+  theme?: string;
+}
+
+const { source, showSource = true, autoflow = false, slideIndex = 1, theme = 'nordic' } = Astro.props;
+const trimmed = source.trim();
+const id = `slide-${Math.random().toString(36).slice(2, 8)}`;
+const dataJson = JSON.stringify({ id, source: trimmed, theme, autoflow, slideIndex });
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+---
+
+<StellarEngine />
+
+<div class="stellar-slide-card">
+  {showSource && (
+    <div class="stellar-slide-source">
+      <div class="stellar-slide-titlebar">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+        <span class="stellar-slide-filename">slide.md</span>
+      </div>
+      <pre class="stellar-slide-code"><code set:html={escapeHtml(trimmed)} /></pre>
+    </div>
+  )}
+  <div id={id} class="stellar-slide-preview"></div>
+</div>
+
+<script type="application/json" data-stellar-slide set:html={dataJson} />
+
+<style>
+  .stellar-slide-card {
+    margin: 1rem 0 1.5rem;
+    max-width: 600px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .stellar-slide-source {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .stellar-slide-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #161b22;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+
+  .stellar-slide-filename {
+    color: #64748b;
+    font-size: 0.65rem;
+    margin-left: 6px;
+    font-family: 'SF Mono', Menlo, 'JetBrains Mono', monospace;
+  }
+
+  .stellar-slide-code {
+    margin: 0;
+    padding: 12px 14px;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: 'SF Mono', Menlo, 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .stellar-slide-code code {
+    background: none;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  .stellar-slide-preview {
+    aspect-ratio: 16 / 9;
+    background: #111;
+  }
+
+  /* Show all fragments in single-slide preview (no navigation to reveal them) */
+  .stellar-slide-preview :global(.fragment) {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+</style>
