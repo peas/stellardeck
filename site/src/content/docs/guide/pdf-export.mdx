@@ -1,0 +1,54 @@
+---
+title: PDF Export
+description: Export slides to PDF from the UI or command line — no external services needed.
+---
+
+StellarDeck exports to PDF entirely offline. Two ways to do it: click a button in the toolbar, or run a CLI command for automation.
+
+## UI Export
+
+In the StellarDeck app (browser or desktop), click the **PDF export** button in the toolbar. A progress overlay shows slide-by-slide capture. When done, the PDF downloads automatically.
+
+The export takes roughly 10-15 seconds for a typical deck. The toolbar and sidebar stay visible during export — only the slide area shows the progress overlay.
+
+## CLI Export
+
+For automation, CI pipelines, or batch processing, use the command line:
+
+```bash
+npm run pdf -- slides.md
+```
+
+This outputs `slides.pdf` in the same directory. To specify an output path:
+
+```bash
+npm run pdf -- slides.md output/my-talk.pdf
+```
+
+### Environment Options
+
+| Variable | Default | Description |
+|:---------|:--------|:------------|
+| `SCALE` | `2` | DPI scale factor. `1` = 72 dpi (smaller files), `2` = 144 dpi (good for print) |
+| `ENGINE` | `stellar` | Rendering engine: `stellar` or `reveal` |
+| `PORT` | `3032` | HTTP server port (auto-starts if needed) |
+
+Example with options:
+
+```bash
+SCALE=2 npm run pdf -- presentations/my-talk.md
+```
+
+Use `SCALE=1` for smaller file sizes when print quality isn't needed. `SCALE=2` (the default) produces 144 dpi output suitable for printing.
+
+## How It Works
+
+Each slide is captured as a PNG using html2canvas, then composed into a multi-page PDF via pdf-lib. The same export code runs in both the UI (inside the browser/WKWebView) and the CLI (inside headless Chromium via Playwright). Dependencies are loaded from CDN on first use — no local install needed.
+
+## Tips
+
+- **Print quality**: the default `SCALE=2` produces 144 dpi PDFs — good enough for most print scenarios.
+- **File size**: a 30-slide deck at scale 2 is typically 5-15 MB depending on image content. Use `SCALE=1` to cut size roughly in half.
+- **Offline**: the export runs entirely in the browser. No files are uploaded to external services.
+- **Fonts**: export uses the same fonts as the slide engine. If a theme font hasn't loaded yet, the export waits for `document.fonts.ready`.
+- **PDFs are gitignored** in the presentations repo — they're regenerable from markdown at any time.

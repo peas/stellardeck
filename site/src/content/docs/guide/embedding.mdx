@@ -1,0 +1,180 @@
+---
+title: Embedding Presentations
+description: Embed live StellarDeck slides in any web page — no PDF or PPTX needed.
+---
+
+Presentations belong on the web. With `stellar-embed.js`, you can embed live slides in any HTML page — a blog post, a docs site, a landing page. The slides stay up-to-date because they render from markdown at load time. No static PDF, no PPTX download.
+
+## Quick Start
+
+Load the dependencies, add a container, call `StellarEmbed.renderDeck()`:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- CSS -->
+  <link rel="stylesheet" href="path/to/css/themes.css">
+  <link rel="stylesheet" href="path/to/css/layout.css">
+  <link rel="stylesheet" href="path/to/slides2.css">
+</head>
+<body>
+  <div id="my-deck" style="width: 100%; aspect-ratio: 16/9;"></div>
+
+  <!-- Dependencies (order matters) -->
+  <script src="path/to/autoflow.js"></script>
+  <script src="path/to/deckset-parser.js"></script>
+  <script src="path/to/slides2.js"></script>
+  <script src="path/to/stellar-embed.js"></script>
+
+  <script>
+    const markdown = `# Hello World
+
+Welcome to StellarDeck.
+
+---
+
+# Second Slide
+
+That's it — two slides from plain markdown.`;
+
+    StellarEmbed.renderDeck(
+      document.getElementById('my-deck'),
+      markdown,
+      { theme: 'nordic', scheme: '1' }
+    );
+  </script>
+</body>
+</html>
+```
+
+No bundler needed. Just `<script>` tags and plain HTML.
+
+## Three Modes
+
+### `renderSlide()` — Single slide
+
+Renders one slide with no navigation controls. Good for inline examples and previews.
+
+```js
+StellarEmbed.renderSlide(container, markdown, {
+  theme: 'nordic',
+  scheme: '1',
+  autoflow: false,
+});
+```
+
+### `renderDeck()` — Navigable deck
+
+Full deck with arrow controls, slide counter, and keyboard navigation.
+
+```js
+StellarEmbed.renderDeck(container, markdown, {
+  theme: 'nordic',
+  scheme: '1',
+  autoflow: true,
+  showControls: true,
+});
+```
+
+### `playground()` — Editor + preview
+
+Side-by-side markdown editor and live preview. Edits update the slide in real time.
+
+```js
+StellarEmbed.playground(container, markdown, {
+  mode: 'single',   // 'single' or 'deck'
+  theme: 'nordic',
+  scheme: '1',
+  autoflow: false,
+  label: 'demo.md', // editor tab title
+});
+```
+
+The playground returns a handle with `getMarkdown()` and `setAutoflow(enabled)` for programmatic control.
+
+## Options Reference
+
+All three modes accept these options:
+
+| Option | Type | Default | Description |
+|:-------|:-----|:--------|:------------|
+| `theme` | string | `'nordic'` | Theme name (lowercase) |
+| `scheme` | string | `'1'` | Color scheme number |
+| `autoflow` | boolean | `false` | Enable autoflow layout inference |
+| `width` | number | `1280` | Canvas width in pixels |
+| `height` | number | `720` | Canvas height in pixels |
+| `showControls` | boolean | `true` | Show navigation arrows (deck mode only) |
+
+## Required Dependencies
+
+`stellar-embed.js` expects these globals to exist before it runs:
+
+| Script | Global | Purpose |
+|:-------|:-------|:--------|
+| `autoflow.js` | `window.applyAutoflow` | Layout inference pipeline |
+| `deckset-parser.js` | `window.parseDecksetMarkdown` | Markdown-to-HTML parser |
+| `slides2.js` | `window.StellarSlides` | Slide engine |
+
+Plus two CSS files:
+- `css/themes.css` — font imports, theme classes, color schemes
+- `css/layout.css` — slide layouts, position grid, autoscale
+
+## Embedding in a Blog
+
+### Plain HTML
+
+The quick start example above works as-is. Host the JS/CSS files alongside your page or on a CDN.
+
+### Astro / MDX
+
+In an Astro component, load the scripts in the `<head>` and render in a client-side `<script>`:
+
+```astro
+---
+// EmbeddedDeck.astro
+const { markdown } = Astro.props;
+---
+<div id="deck-container" style="width:100%;aspect-ratio:16/9;"></div>
+<script is:inline define:vars={{ markdown: undefined }}>
+  // markdown passed via a JSON script element (not define:vars)
+</script>
+```
+
+For Astro, pass markdown via a `<script type="application/json">` element rather than `define:vars` — this avoids escaping issues with backticks and special characters in markdown content.
+
+### Next.js
+
+Use a client component with `useEffect`:
+
+```jsx
+'use client';
+import { useEffect, useRef } from 'react';
+
+export function SlideDeck({ markdown }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current && window.StellarEmbed) {
+      StellarEmbed.renderDeck(ref.current, markdown, {
+        theme: 'nordic',
+      });
+    }
+  }, [markdown]);
+  return <div ref={ref} style={{ width: '100%', aspectRatio: '16/9' }} />;
+}
+```
+
+Load the StellarDeck scripts in `<head>` via `next/script` with `strategy="beforeInteractive"`.
+
+## Live Update
+
+Both `renderDeck()` and `renderSlide()` return an object with an `update(markdown)` method. Call it to re-render without recreating the DOM:
+
+```js
+const deck = StellarEmbed.renderDeck(container, initialMarkdown);
+
+// Later, when markdown changes:
+deck.update(newMarkdown);
+```
+
+The playground uses this internally for its live editor.

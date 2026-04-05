@@ -1,0 +1,54 @@
+---
+title: Command Line
+description: Dev server, testing, PDF export, and desktop app commands.
+---
+
+## Dev Server
+
+Start the development server:
+
+```bash
+npm run serve
+```
+
+Runs `python3 scripts/dev-server.py` on port 3031 with no-cache headers. Open `http://localhost:3031/viewer.html` to load the app. The no-cache headers are important — without them, the browser may serve stale JS/CSS during development.
+
+## PDF Export
+
+Export a markdown deck to PDF:
+
+```bash
+npm run pdf -- slides.md [output.pdf]
+```
+
+Uses headless Chromium (Playwright) to run the same in-browser export code. See [PDF Export](/guide/pdf-export/) for options and details.
+
+## Testing
+
+```bash
+npm test              # 275 unit tests (parser, helpers, autoflow, structure)
+npm run test:e2e      # 70 Playwright E2E tests (chromium)
+npm run test:layout   # 32 layout + consistency tests
+npm run test:visual   # 18 visual regression tests
+npm run test:all      # all of the above (410 total)
+```
+
+`npm test` runs fast in Node.js — no browser needed. The Playwright-based suites (`test:e2e`, `test:layout`, `test:visual`) launch headless Chromium.
+
+To update visual regression baselines after intentional CSS changes:
+
+```bash
+npm run test:visual:update
+```
+
+## Desktop App
+
+Launch the Tauri desktop app:
+
+```bash
+npm run tauri
+```
+
+Runs `cargo tauri dev`, which starts the HTTP dev server and opens the native window (WKWebView on macOS). Rust code hot-reloads on change; for HTML/JS changes, press Cmd+R in the app window.
+
+Requires Rust and the Tauri CLI. See the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for setup.
