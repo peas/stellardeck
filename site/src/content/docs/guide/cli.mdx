@@ -67,6 +67,30 @@ Override deck settings without editing the markdown:
 npm run export -- --theme ostrich --autoflow --scale 3 talk.md
 ```
 
+## Batch Mode
+
+Export an entire directory tree with one command — output mirrors the input structure:
+
+```bash
+npm run export -- --input-dir ./decks --output ./dist
+```
+
+All `.md` files in `./decks/` (recursively) become PDFs in `./dist/`, preserving subdirectories:
+
+```
+decks/intro.md          → dist/intro.pdf
+decks/talks/keynote.md  → dist/talks/keynote.pdf
+```
+
+Works with any format (`--pdf`, `--png`, `--grid`) and inherits all rendering options (`--scale`, `--theme`, `--slides`). The dev server and browser are reused across all files — much faster than running the CLI once per deck.
+
+```bash
+npm run export -- --input-dir decks --output dist --grid --grid-cols 3
+# → one grid image per deck in ./dist/
+```
+
+Skipped directories: `node_modules`, `old/`, `.git`, `reveal.js`, `assets`, hidden dirs.
+
 ## Stdin Input
 
 Pipe markdown directly in by passing `-` as the input:
@@ -117,11 +141,30 @@ npm run export -- --json --pdf talk.md
   "ok": true,
   "slides": 3,
   "totalSlides": 23,
-  "warnings": ["slide 99 out of range (deck has 23 slides)"]
+  "warnings": [
+    "content overflow on slide 2 (text may be clipped — consider [.autoscale: true])",
+    "image failed to load: /assets/missing.webp",
+    "slide 99 out of range (deck has 23 slides)"
+  ]
 }
 ```
 
 The `files` field contains an array of paths for `--png` mode, `null` otherwise. Exit code is `1` on any error (including `ok: false`).
+
+## Warnings
+
+The export succeeds even when problems are detected — warnings surface issues that agents or pipelines can react to without failing the build:
+
+| Warning | When | What to do |
+|:--------|:-----|:-----------|
+| `content overflow on slide N` | Text/elements extend past the 1280×720 frame | Add `[.autoscale: true]` or split the slide |
+| `image failed to load: <url>` | Image resource returned 4xx/5xx or network error | Check the path or remove the reference |
+| `slide N out of range` | `--slides` specified a slide past the deck's end | Fix the range (deck has N slides) |
+| `theme "X" not applied` | `--theme X` was passed but deck rendered with a different theme | Check theme name spelling |
+
+Overflow detection compares every visible element's bounding box against the slide frame with a 20px tolerance — this catches clipped text, oversized images, and broken layouts without triggering on sub-pixel font-rendering differences.
+
+Missing-image detection watches network requests per deck and only reports URLs that never succeeded (dedupes browser retries and fallback path resolution). Viewer chrome assets (logo, icons, favicon) are excluded from detection.
 
 ## Recipes
 
@@ -153,12 +196,23 @@ claude "write a 5-slide deck about X in Deckset markdown" \
   | npm run export -- --pdf --autoflow - out.pdf
 ```
 
-### Agent-friendly workflow
+### Agent-friendly workflow with warnings
 
 ```bash
 result=$(npm run export -- --json --pdf slides.md)
 path=$(echo "$result" | jq -r .output)
-echo "Exported to $path"
+
+# React to warnings — e.g. retry with autoscale if any slide overflows
+if echo "$result" | jq -e '.warnings | any(contains("overflow"))' > /dev/null; then
+  echo "Overflow detected — re-exporting with autoflow"
+  npm run export -- --json --pdf --autoflow slides.md
+fi
+
+# Fail CI if broken images
+if echo "$result" | jq -e '.warnings | any(contains("image failed"))' > /dev/null; then
+  echo "Error: deck has broken images" >&2
+  exit 1
+fi
 ```
 
 ## Other Commands
