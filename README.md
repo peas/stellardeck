@@ -1,39 +1,20 @@
 # StellarDeck
 
-**Markdown presentations for storytellers.**
+Markdown presentations for storytellers.
 
-StellarDeck turns plain markdown into slides without getting in the way. The constraints — short slides, sequential flow, no pixel-fiddling — keep you focused on what you're actually saying. Scan your deck, see if the narrative flows, cut or rearrange in seconds.
+StellarDeck renders a markdown file as slides. Layouts are inferred from the content. The same deck runs in the desktop app (Tauri), a browser, an embedded viewer, or the CLI.
 
-Built on four ideas:
+Four things shape the project:
 
-## Story first
+**Storytelling.** A deck is a sequence of moments. Markdown's constraints (one file, short slides, linear order) keep focus on what you're saying. Reading through the deck feels like reading a script.
 
-A slide is a moment in the story. Markdown's constraints are the feature: one idea per slide, a clear sequence, nothing to tweak. You can read through the whole deck like a script and feel the pacing immediately. The tool stays out of your way so you can work on what matters — the message.
+**Autoflow.** Reads each slide's content and picks a layout. A slide with four short lines gets a Z-pattern. An image next to text becomes a split. Two paragraphs ending in questions become a diagonal. Consecutive slides don't get the same treatment (anti-monotony). Explicit directives always win; opt out globally with `autoflow: false` in the frontmatter.
 
-## Autoflow
+**Agent-native.** Markdown is what LLMs produce. The CLI takes stdin, exports PDF/PNG/grid, runs batch with `--input-dir`, and emits typed JSON diagnostics (content overflow, missing images, theme mismatches) that callers can act on without parsing text. The embed API exposes the same via `onDiagnostics`.
 
-Write text. Get good slides. No directives required.
+**Simple.** Python dev server, a browser. No build step. The `.md` file is the artifact, PDFs are regenerable. Deckset-compatible.
 
-Autoflow reads your content and picks a layout: four short lines become a Z-pattern, one bare image next to text becomes a split, two paragraphs ending in questions become a diagonal. Anti-monotony varies rhythm across slides automatically. Eight rules, convention-over-configuration.
-
-Opt out per slide (explicit directives always win) or globally (`autoflow: false` in frontmatter).
-
-## Agent-native
-
-Markdown is what LLMs generate. StellarDeck treats that as a design input.
-
-- **CLI**: `npm run export -- slides.md` with `--pdf`, `--png`, `--grid`, `--input-dir` (batch), `--slides 1-5` (range)
-- **Stdin**: `cat deck.md | npm run export -- --pdf - out.pdf` — pipe from any generator
-- **Structured warnings** (`--json`): typed diagnostics for content overflow, missing images, theme mismatches, deck-level issues. Agents can react programmatically without string-matching
-- **Embed API**: `StellarEmbed.renderDeck(container, md, { onDiagnostics })` lets host pages surface deck health
-- **Deckset-compatible**: the parser handles an existing open format with no lock-in
-
-## Simple by design
-
-- No build step. No bundler. Dev server + browser.
-- Render parity across Tauri, browser, embed, and CLI — same output everywhere
-- The `.md` file is the artifact. PDFs are regenerable. Git-friendly diffs
-- 9 themes × 4 color schemes, dark/light, no CSS required
+9 themes, 4 color schemes each, dark and light.
 
 ## Try it
 
@@ -58,8 +39,6 @@ python3 scripts/dev-server.py 3031
 # Open http://localhost:3031/viewer.html?file=demo/getting-started.md
 ```
 
-No build step. No bundler. Just a dev server and a browser.
-
 ## Desktop app (Tauri)
 
 ```bash
@@ -72,11 +51,11 @@ Requires [Rust](https://rustup.rs/) and the [Tauri CLI](https://tauri.app/start/
 ## CLI
 
 ```bash
-npm run export -- slides.md                          # → slides.pdf
-npm run export -- --png slides.md                    # → slides-slides/001.png...
-npm run export -- --grid slides.md                   # → slides-grid.png composite
-npm run export -- --input-dir decks --output dist    # batch export a tree
-npm run export -- --json --pdf slides.md             # machine-readable output
+npm run export -- deck.md                            # → deck.pdf
+npm run export -- --png deck.md                      # → deck-slides/001.png, 002.png...
+npm run export -- --grid deck.md                     # → deck-grid.png
+npm run export -- --input-dir decks --output dist    # batch
+npm run export -- --json --pdf deck.md               # machine-readable
 cat deck.md | npm run export -- --pdf - out.pdf      # stdin
 npm run export -- --help                             # full reference
 ```

@@ -19,17 +19,17 @@ hero:
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 import BentoGrid from '../../components/BentoGrid.astro';
 
-StellarDeck turns plain markdown into slides without getting in the way. The constraints — short slides, sequential flow, no pixel-fiddling — keep you focused on what you're actually saying. Scan your deck, see if the narrative flows, cut or rearrange in seconds.
+StellarDeck renders a markdown file as slides. Layouts are inferred from the content. The same deck runs in the desktop app (Tauri), a browser, an embedded viewer, or the CLI.
 
-## Four ideas
+## Four things shape the project
 
-**Story first.** A slide is a moment. Markdown's constraints are the feature: one idea per slide, a clear sequence, nothing to tweak. Read the deck like a script and feel the pacing.
+**Storytelling.** A deck is a sequence of moments. Markdown's constraints (one file, short slides, linear order) keep focus on what you're saying. Reading through the deck feels like reading a script.
 
-**Autoflow.** Write text, get good slides. Four short lines become a Z-pattern, an image next to text becomes a split, two questions become a diagonal. Eight rules, convention over configuration.
+**Autoflow.** Reads each slide's content and picks a layout. A slide with four short lines gets a Z-pattern. An image next to text becomes a split. Two paragraphs ending in questions become a diagonal. Consecutive slides don't get the same treatment (anti-monotony).
 
-**Agent-native.** The CLI exports PDF, PNG, and grid composites; accepts stdin; emits typed JSON diagnostics (overflow, missing images, theme mismatches) that agents can react to. Decks from LLMs just work.
+**Agent-native.** The CLI takes stdin, exports PDF/PNG/grid, runs batch with `--input-dir`, and emits typed JSON diagnostics (content overflow, missing images, theme mismatches) that callers can act on without parsing text. The embed API exposes the same via `onDiagnostics`.
 
-**Simple by design.** No build step. No bundler. Render parity across Tauri, browser, embed, and CLI. The `.md` file is the artifact.
+**Simple.** No build step, no bundler. The `.md` file is the artifact, PDFs are regenerable. Deckset-compatible.
 
 <BentoGrid />
 
