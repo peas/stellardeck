@@ -25,21 +25,24 @@ This outputs `slides.pdf` in the same directory. To specify an output path:
 npm run pdf -- slides.md output/my-talk.pdf
 ```
 
-### Environment Options
+### Options
 
-| Variable | Default | Description |
-|:---------|:--------|:------------|
-| `SCALE` | `2` | DPI scale factor. `1` = 72 dpi (smaller files), `2` = 144 dpi (good for print) |
-| `ENGINE` | `stellar` | Rendering engine: `stellar` or `reveal` |
-| `PORT` | `3032` | HTTP server port (auto-starts if needed) |
+| Flag | Default | Description |
+|:-----|:--------|:------------|
+| `--scale <n>` | `2` | DPI scale factor. `1` = 72 dpi (smaller files), `2` = 144 dpi (good for print), `3` = 216 dpi |
+| `--theme <name>` | deck default | Override theme (e.g. `nordic`, `ostrich`, `fira`) |
+| `--scheme <n>` | deck default | Override color scheme number |
+| `--autoflow` | off | Enable autoflow layout inference |
+| `--port <n>` | `3032` | HTTP server port (auto-starts if needed) |
 
 Example with options:
 
 ```bash
-SCALE=2 npm run pdf -- presentations/my-talk.md
+npm run pdf -- --theme ostrich --autoflow presentations/my-talk.md
+npm run pdf -- --scale 3 slides.md ~/Desktop/high-dpi.pdf
 ```
 
-Use `SCALE=1` for smaller file sizes when print quality isn't needed. `SCALE=2` (the default) produces 144 dpi output suitable for printing.
+Run `npm run pdf -- --help` for the full reference.
 
 ## How It Works
 
@@ -47,8 +50,8 @@ Each slide is captured as a PNG using html2canvas, then composed into a multi-pa
 
 ## Tips
 
-- **Print quality**: the default `SCALE=2` produces 144 dpi PDFs — good enough for most print scenarios.
-- **File size**: a 30-slide deck at scale 2 is typically 5-15 MB depending on image content. Use `SCALE=1` to cut size roughly in half.
+- **Print quality**: the default `--scale 2` produces 144 dpi PDFs — good enough for most print scenarios.
+- **File size**: a 30-slide deck at scale 2 is typically 5-15 MB depending on image content. Use `--scale 1` to cut size roughly in half.
 - **Offline**: the export runs entirely in the browser. No files are uploaded to external services.
 - **Fonts**: export uses the same fonts as the slide engine. If a theme font hasn't loaded yet, the export waits for `document.fonts.ready`.
 - **PDFs are gitignored** in the presentations repo — they're regenerable from markdown at any time.

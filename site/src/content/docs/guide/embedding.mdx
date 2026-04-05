@@ -136,12 +136,18 @@ In an Astro component, load the scripts in the `<head>` and render in a client-s
 const { markdown } = Astro.props;
 ---
 <div id="deck-container" style="width:100%;aspect-ratio:16/9;"></div>
-<script is:inline define:vars={{ markdown: undefined }}>
-  // markdown passed via a JSON script element (not define:vars)
+<script type="application/json" id="deck-data" set:html={JSON.stringify({ markdown })} />
+<script is:inline>
+  const data = JSON.parse(document.getElementById('deck-data').textContent);
+  StellarEmbed.renderDeck(
+    document.getElementById('deck-container'),
+    data.markdown,
+    { theme: 'nordic' }
+  );
 </script>
 ```
 
-For Astro, pass markdown via a `<script type="application/json">` element rather than `define:vars` — this avoids escaping issues with backticks and special characters in markdown content.
+Pass markdown via a `<script type="application/json">` element — never use `define:vars` for markdown content, as backticks and special characters break the escaping.
 
 ### Next.js
 
