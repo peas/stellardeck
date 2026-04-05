@@ -1,54 +1,179 @@
 ---
 title: Command Line
-description: Dev server, testing, PDF export, and desktop app commands.
+description: Export decks to PDF, PNG, or grid images. Agent-friendly with --json mode and stdin support.
 ---
 
-## Dev Server
+StellarDeck ships a CLI for rendering decks from the terminal — batch exports, CI pipelines, or agent workflows. The same rendering engine the desktop app uses, run headless via Playwright.
 
-Start the development server:
-
-```bash
-npm run serve
-```
-
-Runs `python3 scripts/dev-server.py` on port 3031 with no-cache headers. Open `http://localhost:3031/viewer.html` to load the app. The no-cache headers are important — without them, the browser may serve stale JS/CSS during development.
-
-## PDF Export
-
-Export a markdown deck to PDF:
+## Quick Start
 
 ```bash
-npm run pdf -- slides.md [output.pdf]
+npm run export -- slides.md              # → slides.pdf (default)
+npm run export -- --png slides.md        # → slides-slides/001.png, 002.png...
+npm run export -- --grid slides.md       # → slides-grid.png
+npm run export -- --help                 # full reference
 ```
 
-Uses headless Chromium (Playwright) to run the same in-browser export code. See [PDF Export](/guide/pdf-export/) for options and details.
-
-## Testing
+Or for short PDF-only usage:
 
 ```bash
-npm test              # 275 unit tests (parser, helpers, autoflow, structure)
-npm run test:e2e      # 70 Playwright E2E tests (chromium)
-npm run test:layout   # 32 layout + consistency tests
-npm run test:visual   # 18 visual regression tests
-npm run test:all      # all of the above (410 total)
+npm run pdf -- slides.md
 ```
 
-`npm test` runs fast in Node.js — no browser needed. The Playwright-based suites (`test:e2e`, `test:layout`, `test:visual`) launch headless Chromium.
+## Export Formats
 
-To update visual regression baselines after intentional CSS changes:
+Pick one format per invocation. Default is `--pdf`.
+
+| Flag | Output | Use case |
+|:-----|:-------|:---------|
+| `--pdf` | Single PDF file | Share, print, send |
+| `--png` | Directory with one PNG per slide (`001.png`, `002.png`...) | Blog posts, thumbnails, social media |
+| `--grid` | Single composite image of all slides | Deck overview, preview cards |
+| `--grid-cols <n>` | Columns for grid layout (default: 4) | Control grid dimensions |
+
+**Examples:**
 
 ```bash
-npm run test:visual:update
+npm run export -- --pdf talk.md ~/Desktop/talk.pdf
+npm run export -- --png talk.md ~/Desktop/talk-slides
+npm run export -- --grid --grid-cols 3 talk.md overview.png
 ```
 
-## Desktop App
+## Slide Selection
 
-Launch the Tauri desktop app:
+Use `--slides` to export a subset. Accepts ranges, lists, or mixes:
 
 ```bash
-npm run tauri
+npm run export -- --slides 1-5 talk.md intro.pdf       # slides 1 through 5
+npm run export -- --slides 1,3,5 talk.md picks.pdf     # slides 1, 3, and 5
+npm run export -- --slides 1-3,7,9-11 talk.md mix.pdf  # mixed ranges
 ```
 
-Runs `cargo tauri dev`, which starts the HTTP dev server and opens the native window (WKWebView on macOS). Rust code hot-reloads on change; for HTML/JS changes, press Cmd+R in the app window.
+Slides are 1-indexed. Out-of-range slides produce warnings but don't fail the export.
 
-Requires Rust and the Tauri CLI. See the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for setup.
+## Rendering Options
+
+Override deck settings without editing the markdown:
+
+| Flag | Default | Description |
+|:-----|:--------|:------------|
+| `--scale <n>` | `2` | DPI scale factor (1 = 72 dpi, 2 = 144 dpi, 3 = 216 dpi) |
+| `--theme <name>` | deck default | Override theme (e.g. `nordic`, `ostrich`, `fira`) |
+| `--scheme <n>` | deck default | Override color scheme number |
+| `--autoflow` | off | Enable autoflow layout inference |
+| `--port <n>` | `3032` | Dev server port (auto-starts if needed) |
+
+```bash
+npm run export -- --theme ostrich --autoflow --scale 3 talk.md
+```
+
+## Stdin Input
+
+Pipe markdown directly in by passing `-` as the input:
+
+```bash
+echo "# Hello\n\nWorld" | npm run export -- --pdf - hello.pdf
+cat draft.md | npm run export -- --png - ./thumbs
+```
+
+Useful for generating decks from templates, LLM outputs, or scripts.
+
+## JSON Output Mode
+
+Use `--json` for machine-readable output — ideal for agent workflows and CI pipelines:
+
+```bash
+npm run export -- --json --pdf talk.md
+```
+
+**Success response:**
+
+```json
+{
+  "ok": true,
+  "format": "pdf",
+  "output": "/path/to/talk.pdf",
+  "files": null,
+  "slides": 23,
+  "totalSlides": 23,
+  "bytes": 1847293,
+  "warnings": []
+}
+```
+
+**Error response:**
+
+```json
+{
+  "ok": false,
+  "error": "File not found: nonexistent.md"
+}
+```
+
+**With warnings:**
+
+```json
+{
+  "ok": true,
+  "slides": 3,
+  "totalSlides": 23,
+  "warnings": ["slide 99 out of range (deck has 23 slides)"]
+}
+```
+
+The `files` field contains an array of paths for `--png` mode, `null` otherwise. Exit code is `1` on any error (including `ok: false`).
+
+## Recipes
+
+### Batch export all presentations
+
+```bash
+for deck in presentations/*.md; do
+  npm run export -- --pdf "$deck" "dist/$(basename "$deck" .md).pdf"
+done
+```
+
+### Generate blog thumbnails
+
+```bash
+npm run export -- --png --slides 1 --scale 1 talk.md ./thumb
+# → ./thumb/001.png (72 dpi, just the title slide)
+```
+
+### Create deck overview card
+
+```bash
+npm run export -- --grid --grid-cols 3 --slides 1-9 talk.md card.png
+```
+
+### Generate deck from LLM output
+
+```bash
+claude "write a 5-slide deck about X in Deckset markdown" \
+  | npm run export -- --pdf --autoflow - out.pdf
+```
+
+### Agent-friendly workflow
+
+```bash
+result=$(npm run export -- --json --pdf slides.md)
+path=$(echo "$result" | jq -r .output)
+echo "Exported to $path"
+```
+
+## Other Commands
+
+```bash
+npm run serve              # python3 dev-server.py 3031 (no-cache headers)
+npm test                   # 275 unit tests (~2s)
+npm run test:e2e           # 70 Playwright E2E tests
+npm run test:layout        # 32 layout + consistency tests
+npm run test:visual        # 18 visual regression tests
+npm run tauri              # cargo tauri dev (desktop app)
+```
+
+## How It Works
+
+The CLI launches headless Chromium via Playwright, loads the same `viewer.html` the desktop app uses, renders each slide, and captures it with html2canvas. PDF mode composes via pdf-lib; PNG mode writes individual files; grid mode composes a single image via sharp.
+
+The same code that runs in the toolbar PDF button runs here — no duplication, identical output. See [PDF Export](/guide/pdf-export/) for more on the UI side.
