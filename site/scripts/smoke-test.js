@@ -58,9 +58,9 @@ try {
 
     const checks = [
       ['has JSON data element', html.includes('application/json')],
-      ['loads slides2.js', html.includes('/engine/slides2.js')],
+      ['loads stellar-slides.js', html.includes('/engine/stellar-slides.js')],
       ['loads stellar-embed.js', html.includes('/engine/stellar-embed.js')],
-      ['loads deckset-parser.js', html.includes('/engine/deckset-parser.js')],
+      ['loads stellar-parser.js', html.includes('/engine/stellar-parser.js')],
     ];
 
     if (isExample) {

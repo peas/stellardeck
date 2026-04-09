@@ -51,22 +51,22 @@ Everything below this is how you build one of these on your own page.
 
 ## Quick start (CDN)
 
-The fastest way: load the engine files from `stellardeck.dev`. One HTML file, no install, no bundler.
+The fastest way: load the engine files from `stellardeck.dev`. One HTML file, no install, no bundler. All public files are prefixed `stellar-` to avoid collisions with your site's own `themes.css` or `layout.css`.
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="https://stellardeck.dev/engine/themes.css">
-  <link rel="stylesheet" href="https://stellardeck.dev/engine/layout.css">
-  <link rel="stylesheet" href="https://stellardeck.dev/engine/slides2.css">
+  <link rel="stylesheet" href="https://stellardeck.dev/engine/stellar-themes.css">
+  <link rel="stylesheet" href="https://stellardeck.dev/engine/stellar-layout.css">
+  <link rel="stylesheet" href="https://stellardeck.dev/engine/stellar-slides.css">
 </head>
 <body>
   <div id="my-deck" style="width:100%; aspect-ratio:16/9;"></div>
 
-  <script src="https://stellardeck.dev/engine/autoflow.js"></script>
-  <script src="https://stellardeck.dev/engine/deckset-parser.js"></script>
-  <script src="https://stellardeck.dev/engine/slides2.js"></script>
+  <script src="https://stellardeck.dev/engine/stellar-autoflow.js"></script>
+  <script src="https://stellardeck.dev/engine/stellar-parser.js"></script>
+  <script src="https://stellardeck.dev/engine/stellar-slides.js"></script>
   <script src="https://stellardeck.dev/engine/stellar-embed.js"></script>
 
   <script>
@@ -82,6 +82,30 @@ The fastest way: load the engine files from `stellardeck.dev`. One HTML file, no
 
 Save as `deck.html`, open in a browser. No server needed.
 
+## Loading markdown from a file
+
+For real decks you usually want the markdown in its own `.md` file, not inline in HTML. Fetch it and pass the text to `renderDeck()`:
+
+```html
+<div id="my-deck" style="width:100%; aspect-ratio:16/9;"></div>
+
+<script>
+  fetch('slides.md')
+    .then(r => r.text())
+    .then(md => {
+      StellarEmbed.renderDeck(
+        document.getElementById('my-deck'),
+        md,
+        { theme: 'nordic', autoflow: true }
+      );
+    });
+</script>
+```
+
+Now your deck lives in `slides.md` alongside the HTML, version-controlled separately and diffable. Edit the `.md`, refresh the page, the deck updates. This is the pattern used across all StellarDeck examples.
+
+If your markdown references images with relative paths (like `![right](images/photo.jpg)`), make sure those paths resolve relative to the HTML page, not the `.md` file — the engine doesn't rewrite paths.
+
 ## Self-hosted
 
 If you want to vendor the files (stable versions, no CDN dependency), copy them from [peas/stellardeck](https://github.com/peas/stellardeck):
@@ -89,12 +113,12 @@ If you want to vendor the files (stable versions, no CDN dependency), copy them 
 ```
 your-site/
 ├── engine/
-│   ├── themes.css
-│   ├── layout.css
-│   ├── slides2.css
-│   ├── slides2.js
-│   ├── autoflow.js
-│   ├── deckset-parser.js
+│   ├── stellar-themes.css
+│   ├── stellar-layout.css
+│   ├── stellar-slides.css
+│   ├── stellar-slides.js
+│   ├── stellar-autoflow.js
+│   ├── stellar-parser.js
 │   └── stellar-embed.js
 └── deck.html
 ```
@@ -164,14 +188,16 @@ All three modes accept these options:
 
 | Script | Global | Purpose |
 |:-------|:-------|:--------|
-| `autoflow.js` | `window.applyAutoflow` | Layout inference pipeline |
-| `deckset-parser.js` | `window.parseDecksetMarkdown` | Markdown-to-HTML parser |
-| `slides2.js` | `window.StellarSlides` | Slide engine |
+| `stellar-autoflow.js` | `window.applyAutoflow` | Layout inference pipeline |
+| `stellar-parser.js` | `window.parseDecksetMarkdown` | Markdown-to-HTML parser |
+| `stellar-slides.js` | `window.StellarSlides` | Slide engine |
 
 Plus three CSS files:
-- `themes.css` — font imports, theme classes, color schemes
-- `layout.css` — slide layouts, position grid, autoscale
-- `slides2.css` — engine visibility, backgrounds, fragments
+- `stellar-themes.css` — font imports, theme classes, color schemes
+- `stellar-layout.css` — slide layouts, position grid, autoscale
+- `stellar-slides.css` — engine visibility, backgrounds, fragments
+
+The `stellar-` prefix keeps these from colliding with your own site's CSS.
 
 ## Embedding in a blog
 

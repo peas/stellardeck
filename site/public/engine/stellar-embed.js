@@ -442,3 +442,8 @@ const StellarEmbed = (() => {
 
   return { renderSlide, renderDeck, playground, setupHighlighting };
 })();
+
+// Expose as a global so pages loading this file via <script> can access it.
+// (const at top-level of a classic script creates a lexical binding but does
+// NOT set window.StellarEmbed — we need to do it explicitly.)
+if (typeof window !== 'undefined') window.StellarEmbed = StellarEmbed;

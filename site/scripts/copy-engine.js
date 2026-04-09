@@ -15,16 +15,20 @@ const dest = join(__dirname, '..', 'public', 'engine');
 
 mkdirSync(dest, { recursive: true });
 
+// Rename public-facing files to have a "stellar-" prefix so they don't
+// collide with users' own themes.css / layout.css / autoflow.js when
+// self-hosting. Source files keep their original names for internal
+// consistency; the rename happens at copy time.
 const files = [
-  ['slides2.js', 'slides2.js'],
-  ['slides2.css', 'slides2.css'],
-  ['deckset-parser.js', 'deckset-parser.js'],
-  ['autoflow.js', 'autoflow.js'],
+  ['slides2.js', 'stellar-slides.js'],
+  ['slides2.css', 'stellar-slides.css'],
+  ['deckset-parser.js', 'stellar-parser.js'],
+  ['autoflow.js', 'stellar-autoflow.js'],
   ['embed/stellar-embed.js', 'stellar-embed.js'],
-  ['css/themes.css', 'themes.css'],
-  ['css/layout.css', 'layout.css'],
+  ['css/themes.css', 'stellar-themes.css'],
+  ['css/layout.css', 'stellar-layout.css'],
   ['vendor/highlight/highlight.min.js', 'highlight.min.js'],
-  ['vendor/highlight/monokai.css', 'monokai.css'],
+  ['vendor/highlight/monokai.css', 'stellar-monokai.css'],
 ];
 
 for (const [src, destName] of files) {
