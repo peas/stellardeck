@@ -24,6 +24,45 @@ const StellarEmbed = (() => {
   const DEFAULT_H = (_C && _C.HEIGHT) || 720;
   const SLIDE_PAD = 64;
 
+  // Inline style for nav arrow buttons — no CSS file dependency.
+  const NAV_BTN_STYLE = [
+    'position:absolute',
+    'top:50%',
+    'transform:translateY(-50%)',
+    'z-index:10',
+    'width:40px',
+    'height:40px',
+    'border-radius:50%',
+    'border:none',
+    'background:rgba(0,0,0,0.45)',
+    'color:white',
+    'font-size:28px',
+    'line-height:1',
+    'cursor:pointer',
+    'display:flex',
+    'align-items:center',
+    'justify-content:center',
+    'opacity:0',
+    'transition:opacity 0.15s',
+    'font-family:system-ui,sans-serif',
+  ].join(';') + ';';
+  // Show arrows on container hover/focus — added via a single style tag below.
+  let _navStyleInjected = false;
+  function injectNavStyles() {
+    if (_navStyleInjected) return;
+    _navStyleInjected = true;
+    const style = document.createElement('style');
+    style.textContent = `
+      [tabindex]:hover > button[aria-label="Previous slide"],
+      [tabindex]:hover > button[aria-label="Next slide"],
+      [tabindex]:focus > button[aria-label="Previous slide"],
+      [tabindex]:focus > button[aria-label="Next slide"] { opacity: 1 !important; }
+      button[aria-label="Previous slide"]:hover,
+      button[aria-label="Next slide"]:hover { background: rgba(0,0,0,0.7) !important; }
+    `;
+    document.head.appendChild(style);
+  }
+
   // ============================================================
   // Markdown syntax highlighting (overlay approach)
   // ============================================================
@@ -297,6 +336,11 @@ const StellarEmbed = (() => {
     injectEmbedStyles();
     const { theme = 'nordic', scheme = '1', autoflow = false, showControls = true, slideIndexOffset = 0, width = DEFAULT_W, height = DEFAULT_H, onDiagnostics = null } = options;
 
+    // Make the container focusable so keydown events fire on it when clicked.
+    container.tabIndex = 0;
+    container.style.outline = 'none';
+    container.style.position = container.style.position || 'relative';
+
     container.innerHTML = `
       <div class="reveal theme-${theme} scheme-${scheme}" style="width:100%;height:100%;border-radius:8px;overflow:hidden;">
         <div class="slides" id="stellar-deck-slides"></div>
@@ -314,15 +358,54 @@ const StellarEmbed = (() => {
       height: height,
       margin: 0.04,
       transition: 'none',
-      controls: showControls,
+      controls: false, // StellarSlides doesn't render controls — we add our own below
       progress: !isSingle,
       slideNumber: isSingle ? false : 'c/t',
-      keyboard: !isSingle,
+      keyboard: false, // host container keydown listener instead — doesn't steal page-wide keys
       overview: false,
       center: true,
       hash: false,
     };
     const deck = new window.StellarSlides(reveal, deckConfig);
+
+    // Scoped nav arrows + keyboard — only when the embed wants controls
+    if (showControls) {
+      injectNavStyles();
+      const prev = document.createElement('button');
+      prev.type = 'button';
+      prev.setAttribute('aria-label', 'Previous slide');
+      prev.textContent = '\u2039'; // ‹
+      prev.style.cssText = NAV_BTN_STYLE + 'left:8px;';
+      prev.addEventListener('click', (e) => { e.stopPropagation(); deck.prev(); });
+
+      const next = document.createElement('button');
+      next.type = 'button';
+      next.setAttribute('aria-label', 'Next slide');
+      next.textContent = '\u203a'; // ›
+      next.style.cssText = NAV_BTN_STYLE + 'right:8px;';
+      next.addEventListener('click', (e) => { e.stopPropagation(); deck.next(); });
+
+      container.appendChild(prev);
+      container.appendChild(next);
+
+      // Scoped keyboard: only fires when container is focused
+      container.addEventListener('click', () => container.focus());
+      container.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          e.preventDefault(); e.stopPropagation();
+          deck.next();
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault(); e.stopPropagation();
+          deck.prev();
+        } else if (e.key === 'Home') {
+          e.preventDefault(); e.stopPropagation();
+          deck.slide(0);
+        } else if (e.key === 'End') {
+          e.preventDefault(); e.stopPropagation();
+          deck.slide(deck.getTotalSlides() - 1);
+        }
+      });
+    }
 
     const runFitText = () => {
       syncMeasurerFont(reveal);
