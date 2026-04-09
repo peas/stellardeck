@@ -3,6 +3,9 @@ node_modules/
 .DS_Store
 *.stellar.json
 
+# Local Claude Code instructions (per-developer, not committed)
+CLAUDE.local.md
+
 # Tauri build artifacts
 src-tauri/target/
 
