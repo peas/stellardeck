@@ -157,7 +157,7 @@ test('06-statement: 3 short statement slides all fire statement', () => {
 // ============================================================
 console.log('\n── Fixture: 07-bare-image-rotate ──');
 
-test('07-bare-image-rotate: 4 bare images cycle center → left → right → center', () => {
+test('07-bare-image-rotate: 4 bare images cycle inline → left → right → inline', () => {
   const r = runFixture('07-bare-image-rotate.deck.md');
   assert.equal(r.slideCount, 5);  // cover + 4 bare-image slides
   // All 4 should fire bare-image-rotate
@@ -165,10 +165,10 @@ test('07-bare-image-rotate: 4 bare images cycle center → left → right → ce
     assert.equal(r.rules[i], 'bare-image-rotate', `slide ${i} should fire bare-image-rotate`);
   }
   // Check the rotation in detail
-  assert.ok(r.details[1].includes('center'), '1st bare image: center');
+  assert.ok(r.details[1].includes('inline'), '1st bare image: inline');
   assert.ok(r.details[2].includes('left'), '2nd bare image: left');
   assert.ok(r.details[3].includes('right'), '3rd bare image: right');
-  assert.ok(r.details[4].includes('center'), '4th bare image: cycle wraps to center');
+  assert.ok(r.details[4].includes('inline'), '4th bare image: cycle wraps to inline');
 });
 
 // ============================================================

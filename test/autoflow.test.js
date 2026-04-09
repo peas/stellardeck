@@ -359,16 +359,15 @@ console.log('\n── Rule: Bare Image Rotate ──');
 
 const { createContext } = require('../autoflow.js');
 
-test('first bare image + text → center (rotation start)', () => {
+test('first bare image + text → inline (rotation start)', () => {
   const input = lines('![](photo.jpg)\n\n# Title\n\nSome text');
   const result = applyAutoflow(input, 0);
   assert.equal(result.rule, 'bare-image-rotate');
-  // First in cycle = center: emits the position directive, doesn't rewrite the image
-  assert.ok(result.lines.some(l => l.trim() === '[.bare-image-position: center]'));
-  assert.ok(result.lines.some(l => l.includes('![](photo.jpg)')));
+  // First in cycle = inline: rewrites the image as ![inline](src)
+  assert.ok(result.lines.some(l => l.includes('![inline](photo.jpg)')));
 });
 
-test('rotation across 3 slides: center → left → right', () => {
+test('rotation across 3 slides: inline → left → right', () => {
   const ctx = createContext();
   const slides = [
     lines('![](a.jpg)\n\nText A'),
@@ -381,25 +380,32 @@ test('rotation across 3 slides: center → left → right', () => {
   assert.equal(r0.rule, 'bare-image-rotate');
   assert.equal(r1.rule, 'bare-image-rotate');
   assert.equal(r2.rule, 'bare-image-rotate');
-  assert.ok(r0.lines.some(l => l.trim() === '[.bare-image-position: center]'));
+  assert.ok(r0.lines.some(l => l.includes('![inline](a.jpg)')));
   assert.ok(r1.lines.some(l => l.includes('![left](b.jpg)')));
   assert.ok(r2.lines.some(l => l.includes('![right](c.jpg)')));
 });
 
-test('rotation wraps after 3: 4th bare image is center again', () => {
+test('rotation wraps after 3: 4th bare image is inline again', () => {
   const ctx = createContext();
-  const slides = [
-    lines('![](a.jpg)\n\nText A'),
-    lines('![](b.jpg)\n\nText B'),
-    lines('![](c.jpg)\n\nText C'),
-    lines('![](d.jpg)\n\nText D'),
-  ];
-  slides.forEach((s, i) => applyAutoflow(s, i, undefined, undefined, ctx));
-  // Re-run the 4th and check it's center again
-  const ctx2 = createContext();
-  ctx2.state.lastBareImageSide = 'right'; // simulate after 3 calls
-  const r4 = applyAutoflow(slides[3], 3, undefined, undefined, ctx2);
-  assert.ok(r4.lines.some(l => l.trim() === '[.bare-image-position: center]'));
+  ctx.state.lastBareImageSide = 'right';
+  const r4 = applyAutoflow(lines('![](d.jpg)\n\nText D'), 3, undefined, undefined, ctx);
+  assert.ok(r4.lines.some(l => l.includes('![inline](d.jpg)')));
+});
+
+test('rotation observes explicit ![left] in skipped slides', () => {
+  // Slide 1: bare → inline (lastSide = inline)
+  // Slide 2: ![left](src) explicit → autoflow skipped, but lastSide is observed and updated to 'left'
+  // Slide 3: bare → next after 'left' = 'right' (NOT 'left' again — this is the bug fix)
+  const ctx = createContext();
+  const r1 = applyAutoflow(lines('![](a.jpg)\n\nText A'), 0, undefined, undefined, ctx);
+  const r2 = applyAutoflow(lines('![left](b.jpg)\n\nText B'), 1, undefined, undefined, ctx);
+  const r3 = applyAutoflow(lines('![](c.jpg)\n\nText C'), 2, undefined, undefined, ctx);
+  assert.equal(r1.rule, 'bare-image-rotate');
+  assert.equal(r2.rule, 'explicit', 'slide 2 with explicit modifier should skip autoflow');
+  assert.equal(r3.rule, 'bare-image-rotate');
+  // The critical assertion: slide 3 must NOT be left again
+  assert.ok(r3.lines.some(l => l.includes('![right](c.jpg)')),
+    `Expected slide 3 to be ![right] (next after observed left), got: ${r3.lines.join('|')}`);
 });
 
 test('image with modifiers is NOT bare-image-rotate (explicit)', () => {

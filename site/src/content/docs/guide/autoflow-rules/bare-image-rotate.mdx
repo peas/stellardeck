@@ -22,23 +22,46 @@ the **previous bare image** in the deck and rotates to the next.
 
 ## What it does
 
-The rule reads `ctx.state.lastBareImageSide` and picks the next position:
+The rule reads `ctx.state.lastBareImageSide` and picks the next position
+in the cycle:
 
 ```
-1st bare image in deck → center  (large hero, text above)
-2nd bare image in deck → left    (image left, text right split)
-3rd bare image in deck → right   (image right, text left split)
-4th → center,  5th → left,  6th → right, ...
+1st bare image in deck → inline  (image in flow, text above)
+2nd bare image in deck → left    (split, image left + text right)
+3rd bare image in deck → right   (split, image right + text left)
+4th → inline,  5th → left,  6th → right, ...
 ```
 
-- `center` emits `[.bare-image-position: center]` so the parser/CSS lays
-  the image as a hero with text above.
-- `left` / `right` rewrite `![](src)` → `![left](src)` / `![right](src)`,
-  reusing the existing split parser.
+All three are existing parser primitives — the rule rewrites the bare
+`![](src)` into one of `![inline](src)` / `![left](src)` / `![right](src)`
+and the parser handles the rest.
 
 The rotation persists across the **entire deck** via `ctx.state`, not just
 within the current slide. Even if other rules fire between two bare-image
 slides, the rotation continues from where it left off.
+
+## Cross-slide observation: explicit images count too
+
+The autoflow also **observes** explicit `![left]` / `![right]` / `![inline]`
+images on every slide — even on slides that the autoflow itself skips
+(because of `#[fit]`, code blocks, etc). The state is updated as if the
+rotation had picked that side.
+
+Why: a user-placed `![left](photo.jpg)` and a bare `![](next-photo.jpg)`
+on the next slide should not both end up on the left. Without this
+observation, the bare-image rotation would happily ignore the explicit one
+and could pick the same side. With it, the rule treats explicit and bare
+images as one continuous rotation history.
+
+Concrete example:
+
+```
+slide 1: ![](a.jpg)        → rule rewrites to ![inline](a.jpg)   (lastSide = inline)
+slide 2: ![left](b.jpg)    → autoflow skips (explicit), but observes  (lastSide = left)
+slide 3: ![](c.jpg)        → rule picks NEXT after left = right       (lastSide = right)
+```
+
+Slide 3 would have been `left` again without the observation step.
 
 ## Why this rule
 
@@ -50,7 +73,7 @@ rhythm without any thinking from the author.
 ## Live fixture
 
 The fixture below has 4 bare-image slides in a row. Watch the position
-cycle through center → left → right → center as you flip through.
+cycle through inline → left → right → inline as you flip through.
 
 <StellarDeck source={fixture.md} autoflow={true} />
 
@@ -63,7 +86,7 @@ cycle through center → left → right → center as you flip through.
 ## Future enhancement
 
 A planned upgrade: measure the image at render time (`naturalWidth/Height`)
-and prefer **portrait → split** vs **landscape → centered hero** instead of
-strict rotation. The CSS classes would be applied via a small JS helper in
-`js/render.js`, not in autoflow itself (which is sync markdown→markdown).
-Tracked in the roadmap.
+and prefer **portrait → split** vs **landscape → inline hero** instead of
+strict round-robin rotation. The CSS classes would be applied via a small
+JS helper in `js/render.js`, not in autoflow itself (which is sync
+markdown→markdown). Tracked in the roadmap.

@@ -419,19 +419,23 @@ const statementRule = {
  * (no right/left/inline/qr/fit/filtered/bg modifier) AND has text alongside,
  * pick a position for the image based on rotation history:
  *
- *   1st bare image in deck → center  (large hero, text above)
+ *   1st bare image in deck → inline  (image in flow, text above)
  *   2nd bare image in deck → left    (split, image left + text right)
  *   3rd bare image in deck → right   (split, image right + text left)
- *   4th → center, 5th → left, 6th → right, ...
+ *   4th → inline, 5th → left, 6th → right, ...
  *
- * State persists in ctx.state.lastBareImageSide across the deck.
+ * State persists in ctx.state.lastBareImageSide across the deck. The state
+ * is also updated by `observeImageSides()` whenever the autoflow sees an
+ * EXPLICIT layout image (`![left]`, `![right]`, `![inline]`) — even on
+ * slides where autoflow itself is skipped — so the rotation never repeats
+ * the same side as the previous slide.
  *
- * The 'center' variant emits a directive `[.bare-image-position: center]` so
- * the parser/CSS can lay it out as a hero (image fills slide, text floats
- * above). The 'left'/'right' variants rewrite `![](src)` → `![left/right](src)`
- * so the existing split parser handles them.
+ * All three positions are existing parser primitives:
+ *   ![inline](src) → centered inline image (deckset-inline-single)
+ *   ![left](src)   → split, image left
+ *   ![right](src)  → split, image right
  */
-const SIDES = ['center', 'left', 'right'];
+const SIDES = ['inline', 'left', 'right'];
 
 const bareImageRotateRule = {
   name: 'bare-image-rotate',
@@ -449,19 +453,34 @@ const bareImageRotateRule = {
     ctx.state.lastBareImageSide = next;
 
     const img = info.bareImages[0];
-    if (next === 'center') {
-      return {
-        lines: ['[.bare-image-position: center]', ...info.rawLines],
-        detail: 'bare image → center hero (1st of cycle)',
-      };
-    }
     const newImgMd = `![${next}](${img.src})`;
     return {
       lines: info.rawLines.map(l => l.includes(img.full) ? l.replace(img.full, newImgMd) : l),
-      detail: `bare image → ${next} split`,
+      detail: `bare image → ${next}`,
     };
   },
 };
+
+/**
+ * Observe explicit layout-positioned images on a slide and update the
+ * rotation state accordingly. Runs on EVERY slide (including skipped ones)
+ * so that a manually-placed `![left]` or `![right]` is treated as if the
+ * rotation had picked it — preventing two consecutive slides from landing
+ * on the same side when one is bare and the other is explicit.
+ *
+ * Order matters: a single slide with multiple images updates state to the
+ * LAST one seen (so the next slide sees the most recent commitment).
+ *
+ * Modifiers checked: left, right, inline. Other modifiers (fit, filtered,
+ * bg, qr) don't affect bare-image rotation.
+ */
+function observeImageSides(info, ctx) {
+  for (const img of info.images) {
+    if (img.modifiers.includes('left')) ctx.state.lastBareImageSide = 'left';
+    else if (img.modifiers.includes('right')) ctx.state.lastBareImageSide = 'right';
+    else if (img.modifiers.includes('inline')) ctx.state.lastBareImageSide = 'inline';
+  }
+}
 
 const autoscaleRule = {
   name: 'autoscale',
@@ -524,6 +543,11 @@ function applyAutoflow(slideLines, slideIndex, options, prevRules, ctx) {
   const usedCtx = ctx || createContext(options);
   const prev = prevRules || usedCtx.history.map(h => h.ruleApplied);
   const info = analyzeSlide(slideLines, slideIndex, 0, options);
+
+  // Observe explicit image sides on EVERY slide (even ones we'll skip)
+  // so cross-slide rotation state stays accurate when the user mixes
+  // bare ![](src) and explicit ![left]/![right]/![inline] images.
+  observeImageSides(info, usedCtx);
 
   // Skip checks — bypass pipeline entirely
   for (const skip of SKIP_CHECKS) {

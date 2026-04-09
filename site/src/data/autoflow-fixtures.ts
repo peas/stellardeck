@@ -75,7 +75,7 @@ export const autoflowFixtures: Record<string, AutoflowFixture> = {
     rule: 'bare-image-rotate',
     title: 'Bare image rotate (history-based)',
     priority: 70,
-    description: 'A bare ![](src) rotates position across the deck: center → left → right → ...',
+    description: 'A bare ![](src) rotates position across the deck: inline → left → right → ...',
     md: bareImageRotate,
   },
   autoscale: {
