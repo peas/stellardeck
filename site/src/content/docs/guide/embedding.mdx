@@ -47,11 +47,9 @@ Add \`![right](image.jpg)\` before a heading and autoflow builds the split.
 
 Two files, one script tag, done`} theme="nordic" autoflow />
 
-Everything below this is how you build one of these on your own page.
+## The code that produced the deck above
 
-## Quick start (CDN)
-
-The fastest way: load the engine files from `stellardeck.dev`. One HTML file, no install, no bundler. All public files are prefixed `stellar-` to avoid collisions with your site's own `themes.css` or `layout.css`.
+Here's the exact HTML that renders that deck. One file, no install, no bundler. All public files are prefixed `stellar-` to avoid collisions with your site's own `themes.css` or `layout.css`.
 
 ```html
 <!DOCTYPE html>
@@ -72,8 +70,42 @@ The fastest way: load the engine files from `stellardeck.dev`. One HTML file, no
   <script>
     StellarEmbed.renderDeck(
       document.getElementById('my-deck'),
-      `# Hello\n\nLive from markdown\n\n---\n\n# Second slide\n\nAutoflow picked the layout`,
-      { theme: 'nordic', scheme: '1', autoflow: true }
+      `#[fit] Embedded slides
+
+From markdown
+rendered live on the page
+
+---
+
+# How it works
+
+Pure HTML and JavaScript
+
+No iframe, no bundler
+
+---
+
+# What you get
+
+- Navigation (arrow keys)
+- All StellarDeck features
+- Autoflow, themes, color schemes
+- Same engine the desktop app uses
+
+---
+
+![right](https://stellardeck.dev/bento/split-layout.png)
+
+# Split layouts
+
+Add \`![right](image.jpg)\` before a heading and autoflow builds the split.
+
+---
+
+#[fit] That's it
+
+Two files, one script tag, done`,
+      { theme: 'nordic', autoflow: true }
     );
   </script>
 </body>
