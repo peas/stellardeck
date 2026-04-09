@@ -1,0 +1,121 @@
+---
+title: Claude Code Skill
+description: Turn a source text into a StellarDeck presentation using the stellardeck skill for Claude Code.
+---
+
+StellarDeck ships a [Claude Code](https://claude.com/claude-code) skill that turns a source text — a blog post, talk transcript, tweet thread, meeting notes — into a StellarDeck presentation.
+
+The skill is agent-native: it understands the Deckset-compatible markdown format, knows when autoflow handles a layout, picks themes and schemes, validates the result via the CLI, and scores the deck against benchmarks from 331 real presentations. It's focused on one thing — generating valid `.md` files from real content. Exporting, embedding, and running the desktop app are handled by the CLI and the docs.
+
+## Install
+
+The skill lives in the repository at [`.claude/skills/stellardeck/SKILL.md`](https://github.com/peas/stellardeck/blob/main/.claude/skills/stellardeck/SKILL.md).
+
+Clone the repo and Claude Code picks it up automatically when you work inside the project:
+
+```bash
+git clone https://github.com/peas/stellardeck.git
+cd stellardeck
+claude  # inside the repo, the stellardeck skill is available
+```
+
+To use the skill in any other project, copy the file into your own `.claude/skills/` directory:
+
+```bash
+mkdir -p /your/project/.claude/skills/stellardeck
+cp stellardeck/.claude/skills/stellardeck/SKILL.md \
+   /your/project/.claude/skills/stellardeck/SKILL.md
+```
+
+Or install it globally under `~/.claude/skills/stellardeck/SKILL.md` so it's available in every session.
+
+## What it does
+
+The skill transforms a **complete source text** into Deckset markdown. It requires real content to work from — a draft you already have, a transcript, an article, a thread. It will refuse a request like "create a presentation about X" without a source, because the alternative is inventing facts.
+
+When given a source text, the skill:
+
+1. **Reads the whole thing** before generating anything.
+2. **Identifies the spine**: the hook, 3-5 main points, the ending.
+3. **Outlines the deck**: 15-30 slides (Paulo's median is 18).
+4. **Drafts markdown**, preserving the author's original words. Edits allowed: filler conjunctions, spelling, grammar, excessive abbreviations. Edits not allowed: paraphrasing, adding examples, filling gaps with new claims.
+5. **Picks a theme and color scheme** based on content tone.
+6. **Validates** the output via `npm run export -- --validate deck.md` and fixes overflow, missing images, theme mismatches.
+7. **Scores** the result 0-100 across four dimensions and suggests improvements to both the deck and the source text.
+
+## The four principles
+
+### Preserve the author's words
+Slide text is a recognizable fragment of the original. The skill doesn't paraphrase; it restructures. The author's voice stays intact.
+
+### One idea per slide
+Long paragraphs become multiple slides. Median target: 9 words per slide (matching real decks). A single dense sentence with three distinct ideas becomes three slides.
+
+### Autoflow handles layout
+Default `autoflow: true`. The skill relies on autoflow to pick layouts from content shape (Z-pattern, split, diagonal, divider) instead of adding explicit directives. Directives like `![right]`, `:::columns`, `[.background-color]` are used only when the content genuinely needs them.
+
+### Balance visuals
+Target ~50% image density — matches Paulo's real decks. When the source mentions a person, tool, or concept with an obvious image, the skill suggests `![right](path)` or `![inline](path)`. It doesn't invent stock photo references.
+
+## Scoring
+
+At the end of generation, the skill prints a 0-100 score across four dimensions (each 0-25):
+
+- **Conciseness** — median words per slide, penalty for slides over 50 words
+- **Visual balance** — image density 30-60% is ideal, `![right]`:`![left]` ratio
+- **Narrative structure** — title slide, closing slide, mix of content types
+- **Autoflow readiness** — no manual directives, `#[fit]` on 20-40% of slides
+
+The feedback is split into two sections. **"To improve the DECK"** lists slide-level fixes (add an image, split a dense slide, add a closer). **"To improve the SOURCE TEXT"** suggests changes the author can make to the original text so the next generation scores higher:
+
+- "The section about market size (slides 5-7) is dense prose. Splitting it into three short observations in your text would let autoflow do more with it."
+- "Your text has no visual references. Mentioning specific tools, people, or charts by name would give the skill something to turn into images."
+- "The text ends mid-argument. A concluding sentence would become a natural closing slide."
+
+This lets you iterate on what you own — your text — instead of only patching the output.
+
+## Example
+
+Source text (an excerpt from a blog post):
+
+```
+Na minha visão, nos próximos anos vamos ver uma explosão de desenvolvedores
+que não vieram da formação tradicional. Gente de marketing, de produto, de
+design, todos usando ferramentas de IA para criar software.
+```
+
+What the skill produces:
+
+```markdown
+---
+
+Nos próximos anos vamos ver uma explosão
+de desenvolvedores fora da formação tradicional
+
+---
+
+Gente de marketing, de produto, de design
+
+Todos usando IA para criar software
+```
+
+The author's words are preserved. "Na minha visão" (filler) is removed. The dense paragraph becomes two slides, each with one idea. Autoflow will apply `#[fit]` to the first (statement pattern) and `[.alternating-colors: true]` to the second (three short lines).
+
+## Use the skill
+
+Inside any project with the skill installed, ask Claude Code:
+
+> "I have a blog post draft at `draft.md`. Turn it into a StellarDeck deck."
+
+Or pipe a source directly:
+
+> "Read this Twitter thread at `thread.txt` and generate a conference deck from it using the stellardeck skill."
+
+The skill will refuse if the source isn't substantial enough, and will tell you what's missing if the score is low.
+
+## Related
+
+- [Format spec](https://github.com/peas/stellardeck/blob/main/docs/format-spec.yaml) — full 66-feature Deckset syntax reference
+- [Autoflow](/guide/autoflow/) — how the layout inference rules work
+- [Themes & colors](/guide/themes-colors/) — the 10 themes the skill picks from
+- [CLI](/guide/cli/) — the `--validate`, `--list-themes`, `--list-schemes` commands the skill uses

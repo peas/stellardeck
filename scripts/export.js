@@ -13,7 +13,7 @@ const { chromium } = require('@playwright/test');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { CDN, SLIDE } = require('../constants.js');
+const { CDN, SLIDE, THEMES } = require('../constants.js');
 
 const PROJECT_DIR = path.resolve(__dirname, '..');
 const SLIDE_W = SLIDE.WIDTH;
@@ -22,11 +22,14 @@ const SLIDE_H = SLIDE.HEIGHT;
 // ── Help ─────────────────────────────────────────────────────
 
 const HELP = `
-  stellardeck export — Markdown → PDF, PNG, or grid image
+  stellardeck export — Markdown → PDF, PNG, grid image, or validation report
 
   Usage:
     node scripts/export.js [options] <input.md> [output]
     node scripts/export.js --input-dir <dir> --output <dir> [options]
+    node scripts/export.js --validate <input.md>
+    node scripts/export.js --list-themes
+    node scripts/export.js --list-schemes <theme>
     cat deck.md | node scripts/export.js [options] - [output]
     npm run export -- [options] <input.md> [output]
 
@@ -39,6 +42,12 @@ const HELP = `
     --png              Export one PNG per slide to a directory
     --grid             Export single image with all slides in a grid
     --grid-cols <n>    Columns for grid layout (default: 4)
+
+  Validation & introspection:
+    --validate         Render deck and collect warnings without exporting.
+                       Returns {ok, slides, totalSlides, warnings} as JSON.
+    --list-themes      Print available themes (JSON array). No browser needed.
+    --list-schemes <theme>  Print color schemes for a theme (JSON array).
 
   Batch mode:
     --input-dir <dir>  Process all .md files recursively in <dir>
@@ -57,7 +66,7 @@ const HELP = `
     --autoflow         Enable autoflow layout inference
 
   Output:
-    --json             Machine-readable JSON output (for pipelines/agents)
+    --json             Machine-readable JSON output (implicit for --validate/--list-*)
     --port <n>         Dev server port (default: 3032)
     -h, --help         Show this help
 
@@ -65,9 +74,11 @@ const HELP = `
     node scripts/export.js talk.md                           # → talk.pdf
     node scripts/export.js --png talk.md                     # → talk-slides/001.png...
     node scripts/export.js --grid talk.md                    # → talk-grid.png
-    node scripts/export.js --slides 1-3 talk.md intro.pdf    # only first 3 slides
-    node scripts/export.js --input-dir decks --output dist   # batch export tree
-    node scripts/export.js --json --pdf talk.md              # JSON output
+    node scripts/export.js --validate talk.md                # warnings only, no export
+    node scripts/export.js --list-themes                     # available themes as JSON
+    node scripts/export.js --list-schemes nordic             # schemes for a theme
+    node scripts/export.js --slides 1-3 talk.md intro.pdf    # first 3 slides
+    node scripts/export.js --input-dir decks --output dist   # batch
     cat deck.md | node scripts/export.js --pdf - deck.pdf    # stdin
 `.trimStart();
 
@@ -76,6 +87,7 @@ const HELP = `
 function parseArgs(argv) {
   const args = argv.slice(2);
   const opts = {
+    mode: 'export',  // 'export' | 'validate' | 'list-themes' | 'list-schemes'
     format: 'pdf',
     gridCols: 4,
     scale: 2, port: 3032,
@@ -83,6 +95,7 @@ function parseArgs(argv) {
     slides: null,
     json: false,
     inputDir: null,
+    listSchemesTheme: null,
   };
   const positional = [];
   let outputFlag = null;
@@ -95,6 +108,12 @@ function parseArgs(argv) {
     else if (a === '--grid') opts.format = 'grid';
     else if (a === '--json') opts.json = true;
     else if (a === '--autoflow') opts.autoflow = true;
+    else if (a === '--validate') opts.mode = 'validate';
+    else if (a === '--list-themes') opts.mode = 'list-themes';
+    else if (a === '--list-schemes') {
+      opts.mode = 'list-schemes';
+      opts.listSchemesTheme = requireValue(args[++i], '--list-schemes');
+    }
     else if (a === '--grid-cols') opts.gridCols = requireInt(args[++i], '--grid-cols');
     else if (a === '--scale') opts.scale = requireInt(args[++i], '--scale');
     else if (a === '--port') opts.port = requireInt(args[++i], '--port');
@@ -106,6 +125,20 @@ function parseArgs(argv) {
     else if (a === '-') positional.push('-');
     else if (a.startsWith('-')) errorExit(`unknown option "${a}". Run with --help for usage.`);
     else positional.push(a);
+  }
+
+  // Introspection modes — no input file needed
+  if (opts.mode === 'list-themes' || opts.mode === 'list-schemes') {
+    opts.json = true;
+    return opts;
+  }
+
+  // Validate mode — needs input but no output
+  if (opts.mode === 'validate') {
+    opts.json = true;
+    if (positional.length === 0) throw new CLIError('--validate requires an input file');
+    opts.input = positional[0];
+    return opts;
   }
 
   // Batch mode
@@ -271,7 +304,7 @@ async function stopSession(session) {
 
 async function captureInSession(session, relativePath, options) {
   const { port, page } = session;
-  const { scale, theme, scheme, autoflow, slides: slideFilter } = options;
+  const { scale, theme, scheme, autoflow, slides: slideFilter, skipCapture = false } = options;
   const warnings = [];
 
   // Track image loads to detect missing ones. An image is "missing" only if every
@@ -313,9 +346,12 @@ async function captureInSession(session, relativePath, options) {
   // Theme mismatch check is now handled by StellarDiagnostics.diagnoseDeck()
   // (see page.evaluate below).
 
-  // Re-inject html2canvas after each navigation (page context reset)
-  await page.addScriptTag({ url: CDN.HTML2CANVAS });
-  await page.waitForFunction(() => typeof html2canvas !== 'undefined', { timeout: 10000 });
+  // Re-inject html2canvas after each navigation (page context reset).
+  // Skip for --validate mode since we don't capture images.
+  if (!skipCapture) {
+    await page.addScriptTag({ url: CDN.HTML2CANVAS });
+    await page.waitForFunction(() => typeof html2canvas !== 'undefined', { timeout: 10000 });
+  }
 
   const totalSlides = await page.evaluate(() => Reveal.getTotalSlides());
 
@@ -342,7 +378,7 @@ async function captureInSession(session, relativePath, options) {
   }
 
   // Capture each selected slide + collect per-slide diagnostics via StellarDiagnostics
-  const captureResult = await page.evaluate(async ({ indices, scale, W, H, theme }) => {
+  const captureResult = await page.evaluate(async ({ indices, scale, W, H, theme, skipCapture }) => {
     // Full-hide print mode (CLI: headless browser, hide everything)
     window.StellarPrintMode.enter({ width: W, height: H, full: true });
     await new Promise(r => setTimeout(r, 500));
@@ -361,6 +397,8 @@ async function captureInSession(session, relativePath, options) {
         window.StellarDiagnostics.currentSection(), slideNum
       ));
 
+      if (skipCapture) continue; // --validate mode: don't capture pixels
+
       const canvas = await html2canvas(document.querySelector('.reveal'), {
         width: W, height: H, scale, useCORS: true, backgroundColor: null, logging: false,
       });
@@ -371,7 +409,7 @@ async function captureInSession(session, relativePath, options) {
       images.push(btoa(binary));
     }
     return { images, diagnostics };
-  }, { indices, scale, W: SLIDE_W, H: SLIDE_H, theme });
+  }, { indices, scale, W: SLIDE_W, H: SLIDE_H, theme, skipCapture });
 
   // Merge DOM warnings with network-level background-image failures.
   // CLI-only: network tracking catches CSS background images (DOM check only sees <img>).
@@ -394,7 +432,9 @@ async function captureInSession(session, relativePath, options) {
   warnings.push(...captureResult.diagnostics);
 
   return {
-    slides: indices.map((idx, i) => ({ index: idx, buffer: Buffer.from(captureResult.images[i], 'base64') })),
+    slides: skipCapture
+      ? indices.map(idx => ({ index: idx, buffer: null }))
+      : indices.map((idx, i) => ({ index: idx, buffer: Buffer.from(captureResult.images[i], 'base64') })),
     totalSlides,
     warnings,
   };
@@ -496,6 +536,59 @@ async function run(opts, onProgress = null) {
   }
 }
 
+/**
+ * Validate a deck: render, collect diagnostics, skip capture. Much faster
+ * than a full export — agents use this as a pre-flight check before export.
+ */
+async function runValidate(opts, onProgress = null) {
+  const inputInfo = await resolveInput(opts.input);
+  try {
+    const { totalSlides, warnings } = await captureSlides(
+      inputInfo.relative,
+      { ...opts, skipCapture: true },
+      onProgress
+    );
+    return {
+      ok: !warnings.some(w => w.severity === 'error'),
+      mode: 'validate',
+      input: inputInfo.relative,
+      totalSlides,
+      warnings,
+    };
+  } finally {
+    inputInfo.cleanup();
+  }
+}
+
+/**
+ * List available themes (no browser needed — reads from constants.js).
+ * Returns a JSON array of { name, label, schemeCount }.
+ */
+function listThemes() {
+  return Object.entries(THEMES).map(([name, meta]) => ({
+    name: name || 'default',
+    label: meta.label,
+    schemeCount: meta.schemes.length,
+  }));
+}
+
+/**
+ * List color schemes for a given theme. Throws if theme doesn't exist.
+ */
+function listSchemes(themeName) {
+  const key = themeName === 'default' ? '' : themeName;
+  if (!(key in THEMES)) {
+    const available = Object.keys(THEMES).map(k => k || 'default').join(', ');
+    throw new CLIError(`unknown theme "${themeName}". Available: ${available}`);
+  }
+  const meta = THEMES[key];
+  return {
+    theme: themeName,
+    label: meta.label,
+    schemes: meta.schemes.map(s => ({ id: s.id, bg: s.bg, fg: s.fg })),
+  };
+}
+
 async function runBatch(opts, onProgress = null) {
   const inputDir = path.isAbsolute(opts.inputDir) ? opts.inputDir : path.resolve(PROJECT_DIR, opts.inputDir);
   if (!fs.existsSync(inputDir)) throw new Error(`Input directory not found: ${opts.inputDir}`);
@@ -576,6 +669,25 @@ async function main() {
   const onProgress = mkProgress(opts.json);
 
   try {
+    // Introspection modes — no browser, no render
+    if (opts.mode === 'list-themes') {
+      console.log(JSON.stringify({ ok: true, themes: listThemes() }, null, 2));
+      return;
+    }
+    if (opts.mode === 'list-schemes') {
+      console.log(JSON.stringify({ ok: true, ...listSchemes(opts.listSchemesTheme) }, null, 2));
+      return;
+    }
+
+    // Validation mode — render but skip capture
+    if (opts.mode === 'validate') {
+      const result = await runValidate(opts, onProgress);
+      if (!opts.json) process.stdout.write('\r' + ' '.repeat(40) + '\r');
+      console.log(JSON.stringify(result, null, 2));
+      if (result.warnings.some(w => w.severity === 'error')) process.exit(1);
+      return;
+    }
+
     if (opts.inputDir) {
       const results = await runBatch(opts, onProgress);
       if (!opts.json) process.stdout.write('\r' + ' '.repeat(80) + '\r');
@@ -650,6 +762,9 @@ module.exports = {
   exportByFormat,
   run,
   runBatch,
+  runValidate,
+  listThemes,
+  listSchemes,
   CLIError,
   HelpRequested,
 };

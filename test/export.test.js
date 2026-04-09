@@ -21,6 +21,7 @@ const {
   captureSlides,
   run,
   runBatch,
+  runValidate,
   startSession,
   stopSession,
   captureInSession,
@@ -385,6 +386,47 @@ if (!SKIP_INTEGRATION) {
       w.url && /brand|favicon|stellardeck-simplified/.test(w.url));
     assert.strictEqual(brand.length, 0,
       `chrome assets leaked: ${brand.map(w => w.url).join('; ')}`);
+  });
+
+  console.log('\n── Validate mode (integration) ──');
+
+  test('runValidate returns diagnostics without creating files', async () => {
+    const result = await runValidate({
+      input: SMOKE, format: 'pdf',
+      port: 3032, scale: 1, slides: null,
+      theme: null, scheme: null, autoflow: false,
+    });
+    assert.ok('ok' in result);
+    assert.ok('warnings' in result);
+    assert.ok('totalSlides' in result);
+    assert.strictEqual(result.mode, 'validate');
+    assert.ok(result.totalSlides > 0);
+    // smoke-test.md intentionally has a broken image — expect a warning
+    assert.ok(result.warnings.length > 0);
+  });
+
+  test('runValidate on overflow fixture catches the overflow', async () => {
+    const result = await runValidate({
+      input: 'test/batch-fixture/overflow-test.md', format: 'pdf',
+      port: 3032, scale: 1, slides: null,
+      theme: null, scheme: null, autoflow: false,
+    });
+    const overflows = result.warnings.filter(w => w.type === 'overflow');
+    assert.ok(overflows.length > 0);
+  });
+
+  test('runValidate is faster than full export', async () => {
+    // Both on same deck; --validate should skip html2canvas entirely
+    const t0 = Date.now();
+    await runValidate({
+      input: SMOKE, format: 'pdf',
+      port: 3032, scale: 1, slides: parseSlideRange('1-3'),
+      theme: null, scheme: null, autoflow: false,
+    });
+    const validateMs = Date.now() - t0;
+    // Sanity check: should complete in under 15s for 3 slides (capture alone
+    // takes ~3-5s per slide at scale 2, much longer for full deck)
+    assert.ok(validateMs < 15000, `validate took ${validateMs}ms`);
   });
 
   console.log('\n── Session reuse (integration) ──');

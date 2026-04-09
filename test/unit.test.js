@@ -11,6 +11,8 @@ const assert = require('assert');
 const {
   parseArgs,
   resolveInput,
+  listThemes,
+  listSchemes,
   CLIError,
   HelpRequested,
 } = require('../scripts/export.js');
@@ -125,6 +127,36 @@ test('combining many flags', () => {
   assert.strictEqual(opts.output, 'out.pdf');
 });
 
+console.log('\n── parseArgs: introspection modes ──');
+
+test('--list-themes sets mode and implies json', () => {
+  const opts = parseArgs(argv('--list-themes'));
+  assert.strictEqual(opts.mode, 'list-themes');
+  assert.strictEqual(opts.json, true);
+});
+
+test('--list-schemes <theme> captures theme name', () => {
+  const opts = parseArgs(argv('--list-schemes', 'nordic'));
+  assert.strictEqual(opts.mode, 'list-schemes');
+  assert.strictEqual(opts.listSchemesTheme, 'nordic');
+  assert.strictEqual(opts.json, true);
+});
+
+test('--list-schemes without theme throws', () => {
+  assert.throws(() => parseArgs(argv('--list-schemes')), CLIError);
+});
+
+test('--validate <file> sets mode and implies json', () => {
+  const opts = parseArgs(argv('--validate', 'deck.md'));
+  assert.strictEqual(opts.mode, 'validate');
+  assert.strictEqual(opts.input, 'deck.md');
+  assert.strictEqual(opts.json, true);
+});
+
+test('--validate without input throws', () => {
+  assert.throws(() => parseArgs(argv('--validate')), CLIError);
+});
+
 console.log('\n── parseArgs: batch mode ──');
 
 test('--input-dir + --output (flag form)', () => {
@@ -220,6 +252,53 @@ test('nonexistent absolute path rejects', async () => {
 // ─────────────────────────────────────────────────────────────
 // diagnostics: merge + groupWarnings (pure functions)
 // ─────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────
+// listThemes / listSchemes — pure functions over constants.js
+// ─────────────────────────────────────────────────────────────
+
+console.log('\n── listThemes / listSchemes ──');
+
+test('listThemes returns array with at least 10 themes', () => {
+  const themes = listThemes();
+  assert.ok(Array.isArray(themes));
+  assert.ok(themes.length >= 10);
+});
+
+test('listThemes entries have name, label, schemeCount', () => {
+  const [first] = listThemes();
+  assert.ok('name' in first);
+  assert.ok('label' in first);
+  assert.ok('schemeCount' in first);
+  assert.ok(typeof first.schemeCount === 'number');
+});
+
+test('listThemes includes "default" (renamed from empty string)', () => {
+  const names = listThemes().map(t => t.name);
+  assert.ok(names.includes('default'));
+});
+
+test('listSchemes("nordic") returns schemes with bg/fg', () => {
+  const result = listSchemes('nordic');
+  assert.strictEqual(result.theme, 'nordic');
+  assert.ok(Array.isArray(result.schemes));
+  assert.ok(result.schemes.length >= 3);
+  assert.ok('bg' in result.schemes[0]);
+  assert.ok('fg' in result.schemes[0]);
+});
+
+test('listSchemes("default") works with renamed default theme', () => {
+  const result = listSchemes('default');
+  assert.strictEqual(result.theme, 'default');
+  assert.ok(result.schemes.length >= 1);
+});
+
+test('listSchemes unknown theme throws CLIError with available list', () => {
+  assert.throws(
+    () => listSchemes('nonexistent'),
+    (err) => err instanceof CLIError && err.message.includes('Available:')
+  );
+});
 
 console.log('\n── diagnostics.merge ──');
 

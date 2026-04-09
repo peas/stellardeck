@@ -28,6 +28,7 @@ export default defineConfig({
             { label: 'Embedding Presentations', slug: 'guide/embedding' },
             { label: 'PDF Export', slug: 'guide/pdf-export' },
             { label: 'Command Line', slug: 'guide/cli' },
+            { label: 'Claude Code Skill', slug: 'guide/skill' },
           ],
         },
         {

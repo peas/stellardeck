@@ -3,54 +3,105 @@ title: Embedding Presentations
 description: Embed live StellarDeck slides in any web page — no PDF or PPTX needed.
 ---
 
-Presentations belong on the web. With `stellar-embed.js`, you can embed live slides in any HTML page — a blog post, a docs site, a landing page. The slides stay up-to-date because they render from markdown at load time. No static PDF, no PPTX download.
+import StellarDeck from '../../../components/StellarDeck.astro';
 
-## Quick Start
+Presentations belong on the web. With `stellar-embed.js`, you can embed live slides in any HTML page — a blog post, a docs site, a landing page. The slides render from markdown at load time, so they stay up to date when the source changes.
 
-Load the dependencies, add a container, call `StellarEmbed.renderDeck()`:
+## See it working
+
+This deck is embedded in the page you're reading, rendered from markdown at load time:
+
+<StellarDeck source={`#[fit] Embedded slides
+
+From markdown
+rendered live on the page
+
+---
+
+# How it works
+
+Pure HTML and JavaScript
+
+No iframe, no bundler
+
+---
+
+# What you get
+
+- Navigation (arrow keys)
+- All StellarDeck features
+- Autoflow, themes, color schemes
+- Same engine the desktop app uses
+
+---
+
+![right](https://stellardeck.dev/bento/split-layout.png)
+
+# Split layouts
+
+Add \`![right](image.jpg)\` before a heading and autoflow builds the split.
+
+---
+
+#[fit] That's it
+
+Two files, one script tag, done`} theme="nordic" autoflow />
+
+Everything below this is how you build one of these on your own page.
+
+## Quick start (CDN)
+
+The fastest way: load the engine files from `stellardeck.dev`. One HTML file, no install, no bundler.
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
-  <!-- CSS -->
-  <link rel="stylesheet" href="path/to/css/themes.css">
-  <link rel="stylesheet" href="path/to/css/layout.css">
-  <link rel="stylesheet" href="path/to/slides2.css">
+  <link rel="stylesheet" href="https://stellardeck.dev/engine/themes.css">
+  <link rel="stylesheet" href="https://stellardeck.dev/engine/layout.css">
+  <link rel="stylesheet" href="https://stellardeck.dev/engine/slides2.css">
 </head>
 <body>
-  <div id="my-deck" style="width: 100%; aspect-ratio: 16/9;"></div>
+  <div id="my-deck" style="width:100%; aspect-ratio:16/9;"></div>
 
-  <!-- Dependencies (order matters) -->
-  <script src="path/to/autoflow.js"></script>
-  <script src="path/to/deckset-parser.js"></script>
-  <script src="path/to/slides2.js"></script>
-  <script src="path/to/stellar-embed.js"></script>
+  <script src="https://stellardeck.dev/engine/autoflow.js"></script>
+  <script src="https://stellardeck.dev/engine/deckset-parser.js"></script>
+  <script src="https://stellardeck.dev/engine/slides2.js"></script>
+  <script src="https://stellardeck.dev/engine/stellar-embed.js"></script>
 
   <script>
-    const markdown = `# Hello World
-
-Welcome to StellarDeck.
-
----
-
-# Second Slide
-
-That's it — two slides from plain markdown.`;
-
     StellarEmbed.renderDeck(
       document.getElementById('my-deck'),
-      markdown,
-      { theme: 'nordic', scheme: '1' }
+      `# Hello\n\nLive from markdown\n\n---\n\n# Second slide\n\nAutoflow picked the layout`,
+      { theme: 'nordic', scheme: '1', autoflow: true }
     );
   </script>
 </body>
 </html>
 ```
 
-No bundler needed. Just `<script>` tags and plain HTML.
+Save as `deck.html`, open in a browser. No server needed.
 
-## Three Modes
+## Self-hosted
+
+If you want to vendor the files (stable versions, no CDN dependency), copy them from [peas/stellardeck](https://github.com/peas/stellardeck):
+
+```
+your-site/
+├── engine/
+│   ├── themes.css
+│   ├── layout.css
+│   ├── slides2.css
+│   ├── slides2.js
+│   ├── autoflow.js
+│   ├── deckset-parser.js
+│   └── stellar-embed.js
+└── deck.html
+```
+
+Then swap `https://stellardeck.dev/engine/...` for `engine/...` in the HTML above.
+
+## Three modes
 
 ### `renderSlide()` — Single slide
 
@@ -87,26 +138,27 @@ StellarEmbed.playground(container, markdown, {
   theme: 'nordic',
   scheme: '1',
   autoflow: false,
-  label: 'demo.md', // editor tab title
+  label: 'demo.md',
 });
 ```
 
 The playground returns a handle with `getMarkdown()` and `setAutoflow(enabled)` for programmatic control.
 
-## Options Reference
+## Options reference
 
 All three modes accept these options:
 
 | Option | Type | Default | Description |
 |:-------|:-----|:--------|:------------|
-| `theme` | string | `'nordic'` | Theme name (lowercase) |
+| `theme` | string | `'nordic'` | Theme name (see [Themes](/guide/themes-colors/)) |
 | `scheme` | string | `'1'` | Color scheme number |
 | `autoflow` | boolean | `false` | Enable autoflow layout inference |
 | `width` | number | `1280` | Canvas width in pixels |
 | `height` | number | `720` | Canvas height in pixels |
 | `showControls` | boolean | `true` | Show navigation arrows (deck mode only) |
+| `onDiagnostics` | function | — | Callback for structured warnings (overflow, missing images, etc.) |
 
-## Required Dependencies
+## Required dependencies
 
 `stellar-embed.js` expects these globals to exist before it runs:
 
@@ -116,23 +168,19 @@ All three modes accept these options:
 | `deckset-parser.js` | `window.parseDecksetMarkdown` | Markdown-to-HTML parser |
 | `slides2.js` | `window.StellarSlides` | Slide engine |
 
-Plus two CSS files:
-- `css/themes.css` — font imports, theme classes, color schemes
-- `css/layout.css` — slide layouts, position grid, autoscale
+Plus three CSS files:
+- `themes.css` — font imports, theme classes, color schemes
+- `layout.css` — slide layouts, position grid, autoscale
+- `slides2.css` — engine visibility, backgrounds, fragments
 
-## Embedding in a Blog
-
-### Plain HTML
-
-The quick start example above works as-is. Host the JS/CSS files alongside your page or on a CDN.
+## Embedding in a blog
 
 ### Astro / MDX
 
-In an Astro component, load the scripts in the `<head>` and render in a client-side `<script>`:
+Pass markdown through a JSON script element — never `define:vars`, since backticks and special characters break its escaping:
 
 ```astro
 ---
-// EmbeddedDeck.astro
 const { markdown } = Astro.props;
 ---
 <div id="deck-container" style="width:100%;aspect-ratio:16/9;"></div>
@@ -142,12 +190,12 @@ const { markdown } = Astro.props;
   StellarEmbed.renderDeck(
     document.getElementById('deck-container'),
     data.markdown,
-    { theme: 'nordic' }
+    { theme: 'nordic', autoflow: true }
   );
 </script>
 ```
 
-Pass markdown via a `<script type="application/json">` element — never use `define:vars` for markdown content, as backticks and special characters break the escaping.
+Load the engine scripts in `<head>` of your site layout (BaseLayout.astro or similar).
 
 ### Next.js
 
@@ -163,6 +211,7 @@ export function SlideDeck({ markdown }) {
     if (ref.current && window.StellarEmbed) {
       StellarEmbed.renderDeck(ref.current, markdown, {
         theme: 'nordic',
+        autoflow: true,
       });
     }
   }, [markdown]);
@@ -172,7 +221,11 @@ export function SlideDeck({ markdown }) {
 
 Load the StellarDeck scripts in `<head>` via `next/script` with `strategy="beforeInteractive"`.
 
-## Live Update
+### Plain HTML
+
+The quick-start example at the top of this page works as-is. Drop it in a file, open in a browser.
+
+## Live update
 
 Both `renderDeck()` and `renderSlide()` return an object with an `update(markdown)` method. Call it to re-render without recreating the DOM:
 
@@ -184,3 +237,19 @@ deck.update(newMarkdown);
 ```
 
 The playground uses this internally for its live editor.
+
+## Diagnostics callback
+
+For agent workflows or CI checks, pass `onDiagnostics` to receive structured warnings (content overflow, missing images, theme mismatches) as the deck renders:
+
+```js
+StellarEmbed.renderDeck(container, markdown, {
+  onDiagnostics: (warnings) => {
+    warnings.forEach(w => {
+      console.log(`[${w.type}] slide ${w.slide}: ${w.message}`);
+    });
+  },
+});
+```
+
+Requires `diagnostics.js` loaded alongside the other engine files. See the [CLI guide](/guide/cli/#warnings) for the full warning schema.
