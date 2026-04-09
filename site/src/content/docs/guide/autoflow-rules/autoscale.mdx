@@ -4,6 +4,7 @@ description: Long slides (9+ lines or 80+ words) shrink to fit.
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
 import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
 
 export const fixture = autoflowFixtures['autoscale'];
@@ -39,6 +40,5 @@ prevent overflow by shrinking the text. It's the rule of last resort.
 
 ## Source
 
-```markdown
-{fixture.md}
-```
+<Code code={fixture.md} lang="markdown" />
+

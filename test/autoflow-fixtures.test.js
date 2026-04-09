@@ -153,18 +153,18 @@ test('06-statement: 3 short statement slides all fire statement', () => {
 });
 
 // ============================================================
-// Fixture: 07-bare-image-rotate (the history-based one)
+// Fixture: 07-bare-image-position-variation (the history-based one)
 // ============================================================
-console.log('\n── Fixture: 07-bare-image-rotate ──');
+console.log('\n── Fixture: 07-bare-image-position-variation ──');
 
-test('07-bare-image-rotate: 4 bare images cycle inline → left → right → inline', () => {
-  const r = runFixture('07-bare-image-rotate.deck.md');
+test('07-bare-image-position-variation: 4 bare images cycle inline → left → right → inline', () => {
+  const r = runFixture('07-bare-image-position-variation.deck.md');
   assert.equal(r.slideCount, 5);  // cover + 4 bare-image slides
-  // All 4 should fire bare-image-rotate
+  // All 4 should fire bare-image-position-variation
   for (let i = 1; i <= 4; i++) {
-    assert.equal(r.rules[i], 'bare-image-rotate', `slide ${i} should fire bare-image-rotate`);
+    assert.equal(r.rules[i], 'bare-image-position-variation', `slide ${i} should fire the rule`);
   }
-  // Check the rotation in detail
+  // Check the variation in detail
   assert.ok(r.details[1].includes('inline'), '1st bare image: inline');
   assert.ok(r.details[2].includes('left'), '2nd bare image: left');
   assert.ok(r.details[3].includes('right'), '3rd bare image: right');
@@ -180,6 +180,23 @@ test('08-autoscale: long-text slide fires autoscale', () => {
   const r = runFixture('08-autoscale.deck.md');
   assert.equal(r.slideCount, 2);  // cover + long autoscale
   assert.equal(r.rules[1], 'autoscale');
+});
+
+// ============================================================
+// Fixture: 09-phrase-bullets (palette anti-monotony)
+// ============================================================
+console.log('\n── Fixture: 09-phrase-bullets ──');
+
+test('09-phrase-bullets: 4 slides cycle through cards → pills → alternating → staggered', () => {
+  const r = runFixture('09-phrase-bullets.deck.md');
+  assert.equal(r.slideCount, 5);  // cover + 4 phrase-bullets
+  for (let i = 1; i <= 4; i++) {
+    assert.equal(r.rules[i], 'phrase-bullets', `slide ${i} should fire phrase-bullets`);
+  }
+  assert.ok(r.details[1].includes('cards'), '1st: cards');
+  assert.ok(r.details[2].includes('pills'), '2nd: pills');
+  assert.ok(r.details[3].includes('alternating'), '3rd: alternating');
+  assert.ok(r.details[4].includes('staggered'), '4th: staggered');
 });
 
 // ============================================================

@@ -91,6 +91,91 @@
       background: rgba(255,255,255,0.08); font-weight: 600;
     }
 
+    /* Speaker notes — never visible in slide view, only in presenter mode */
+    .sd-slide aside.notes,
+    .sd-slide aside.note { display: none; }
+
+    /* ===== phrase + bullets palette (autoflow rule) ===== */
+    /* All 4 variants assume an h1 headline + a single ul of 2-3 short bullets.
+       The autoflow rule cycles through the 4 layouts across the deck for
+       anti-monotony. Each variant is data-bullets-layout="..." on .sd-slide. */
+
+    /* (1) cards — bullets become horizontal cards side by side */
+    .sd-slide[data-bullets-layout="cards"] ul {
+      list-style: none;
+      padding: 0;
+      margin: 2rem 0 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+    .sd-slide[data-bullets-layout="cards"] ul li {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+      font-size: 1.4em;
+      line-height: 1.3;
+    }
+    .sd-slide[data-bullets-layout="cards"] ul li::marker { content: none; }
+
+    /* (2) pills — bullets become inline horizontal tags below a #[fit] headline */
+    .sd-slide[data-bullets-layout="pills"] ul {
+      list-style: none;
+      padding: 0;
+      margin: 2rem 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem 1rem;
+    }
+    .sd-slide[data-bullets-layout="pills"] ul li {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      padding: 0.5rem 1.25rem;
+      font-size: 1.1em;
+      color: var(--sd-accent-bold-color, inherit);
+    }
+    .sd-slide[data-bullets-layout="pills"] ul li::marker { content: none; }
+
+    /* (3) alternating — bullets alternate heading color and accent color */
+    .sd-slide[data-bullets-layout="alternating"] ul {
+      list-style: none;
+      padding: 0;
+      margin: 1.5rem 0 0;
+    }
+    .sd-slide[data-bullets-layout="alternating"] ul li {
+      padding: 0.4rem 0;
+      font-size: 1.4em;
+      line-height: 1.3;
+    }
+    .sd-slide[data-bullets-layout="alternating"] ul li::marker { content: none; }
+    .sd-slide[data-bullets-layout="alternating"] ul li:nth-child(odd) {
+      color: var(--sd-accent-bold-color, inherit);
+    }
+    .sd-slide[data-bullets-layout="alternating"] ul li:nth-child(even) {
+      color: var(--r-heading-color, inherit);
+    }
+
+    /* (4) staggered — bullets each indented differently for visual rhythm */
+    .sd-slide[data-bullets-layout="staggered"] ul {
+      list-style: none;
+      padding: 0;
+      margin: 2rem 0 0;
+    }
+    .sd-slide[data-bullets-layout="staggered"] ul li {
+      font-size: 1.3em;
+      line-height: 1.3;
+      padding: 0.5rem 0;
+    }
+    .sd-slide[data-bullets-layout="staggered"] ul li::marker { content: none; }
+    .sd-slide[data-bullets-layout="staggered"] ul li:nth-child(1) { padding-left: 25%; }
+    .sd-slide[data-bullets-layout="staggered"] ul li:nth-child(2) { padding-left: 5%; }
+    .sd-slide[data-bullets-layout="staggered"] ul li:nth-child(3) { padding-left: 35%; }
+    .sd-slide[data-bullets-layout="staggered"] ul li:nth-child(4) { padding-left: 15%; }
+
     /* ===== Accent color patterns ===== */
     .sd-slide strong { color: var(--sd-accent-bold-color, inherit); }
     .sd-slide del {
@@ -108,11 +193,13 @@
     .deckset-pos-group {
       display: grid;
       grid-template: "tl t tr" auto "l c r" 1fr "bl b br" auto / 1fr 1fr 1fr;
+      gap: 1.5rem 2rem;
       height: 100%;
       width: 100%;
       position: absolute;
       top: 0; left: 0;
-      padding: 2rem;
+      /* Generous breathing room — items in the corners shouldn't kiss the slide edge */
+      padding: 4.5rem 5.5rem;
       box-sizing: border-box;
       pointer-events: none;
     }

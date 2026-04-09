@@ -4,6 +4,7 @@ description: When autoflow does NOTHING — explicit directives, code blocks, cu
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
 import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
 
 export const fixture = autoflowFixtures['skip-checks'];
@@ -31,6 +32,5 @@ The user already told autoflow what they want. Don't override intent.
 
 ## Source
 
-```markdown
-{fixture.md}
-```
+<Code code={fixture.md} lang="markdown" />
+

@@ -1,18 +1,23 @@
 ---
-title: 'Autoflow rule: bare-image-rotate'
-description: A bare ![](src) rotates position across the deck — center → left → right → ...
+title: 'Autoflow rule: bare-image-position-variation'
+description: A bare ![](src) varies position across the deck — inline → left → right → ...
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
 import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
 
-export const fixture = autoflowFixtures['bare-image-rotate'];
+export const fixture = autoflowFixtures['bare-image-position-variation'];
 
 **Priority {fixture.priority}** · {fixture.description}
 
 This is **the only rule that uses cross-slide state**. Every other rule
 treats each slide independently. This one looks at the position used for
-the **previous bare image** in the deck and rotates to the next.
+the **previous bare image** in the deck and picks the next position in
+the cycle.
+
+The name says "position variation" because it varies the **image position**
+across slides — it doesn't rotate the image itself.
 
 ## When it fires
 
@@ -22,8 +27,8 @@ the **previous bare image** in the deck and rotates to the next.
 
 ## What it does
 
-The rule reads `ctx.state.lastBareImageSide` and picks the next position
-in the cycle:
+The rule reads `ctx.state.lastBareImagePosition` and picks the next
+position in the cycle:
 
 ```
 1st bare image in deck → inline  (image in flow, text above)
@@ -36,29 +41,29 @@ All three are existing parser primitives — the rule rewrites the bare
 `![](src)` into one of `![inline](src)` / `![left](src)` / `![right](src)`
 and the parser handles the rest.
 
-The rotation persists across the **entire deck** via `ctx.state`, not just
-within the current slide. Even if other rules fire between two bare-image
-slides, the rotation continues from where it left off.
+The variation persists across the **entire deck** via `ctx.state`, not
+just within the current slide. Even if other rules fire between two
+bare-image slides, the variation continues from where it left off.
 
 ## Cross-slide observation: explicit images count too
 
 The autoflow also **observes** explicit `![left]` / `![right]` / `![inline]`
 images on every slide — even on slides that the autoflow itself skips
 (because of `#[fit]`, code blocks, etc). The state is updated as if the
-rotation had picked that side.
+variation had picked that position.
 
 Why: a user-placed `![left](photo.jpg)` and a bare `![](next-photo.jpg)`
 on the next slide should not both end up on the left. Without this
-observation, the bare-image rotation would happily ignore the explicit one
-and could pick the same side. With it, the rule treats explicit and bare
-images as one continuous rotation history.
+observation, the bare-image variation would happily ignore the explicit
+one and could pick the same position. With it, the rule treats explicit
+and bare images as one continuous variation history.
 
 Concrete example:
 
 ```
-slide 1: ![](a.jpg)        → rule rewrites to ![inline](a.jpg)   (lastSide = inline)
-slide 2: ![left](b.jpg)    → autoflow skips (explicit), but observes  (lastSide = left)
-slide 3: ![](c.jpg)        → rule picks NEXT after left = right       (lastSide = right)
+slide 1: ![](a.jpg)        → rule rewrites to ![inline](a.jpg)         (lastPosition = inline)
+slide 2: ![left](b.jpg)    → autoflow skips (explicit), but observes   (lastPosition = left)
+slide 3: ![](c.jpg)        → rule picks NEXT after left = right        (lastPosition = right)
 ```
 
 Slide 3 would have been `left` again without the observation step.
@@ -66,9 +71,9 @@ Slide 3 would have been `left` again without the observation step.
 ## Why this rule
 
 Without it, an author with several plain `![](src)` slides would have to
-manually decide a side for each one. Forgetting to vary results in every
-photo on the same side, which feels mechanical. The rotation gives natural
-rhythm without any thinking from the author.
+manually decide a position for each one. Forgetting to vary results in
+every photo on the same side, which feels mechanical. The variation gives
+natural rhythm without any thinking from the author.
 
 ## Live fixture
 
@@ -79,14 +84,12 @@ cycle through inline → left → right → inline as you flip through.
 
 ## Source
 
-```markdown
-{fixture.md}
-```
+<Code code={fixture.md} lang="markdown" />
 
 ## Future enhancement
 
 A planned upgrade: measure the image at render time (`naturalWidth/Height`)
 and prefer **portrait → split** vs **landscape → inline hero** instead of
-strict round-robin rotation. The CSS classes would be applied via a small
+strict round-robin variation. The CSS classes would be applied via a small
 JS helper in `js/render.js`, not in autoflow itself (which is sync
 markdown→markdown). Tracked in the roadmap.

@@ -58,7 +58,7 @@
 const VIDEO_EXTS = ['.mp4', '.mov', '.m4v', '.webm', '.ogg'];
 const AUDIO_EXTS = ['.mp3', '.m4a', '.ogg', '.wav', '.aac'];
 
-const FRONTMATTER_KEYS = /^(footer|slidenumbers|theme|autoscale|autoflow|build-lists|slide-transition|slidenumbers|slidecount):/i;
+const FRONTMATTER_KEYS = /^(footer|slidenumbers|theme|scheme|autoscale|autoflow|build-lists|slide-transition|slidecount):/i;
 
 const DIRECTIVE_RE = /^\[\.([a-z-]+)(?::\s*([^\]]*))?\]$/i;
 
@@ -356,6 +356,11 @@ function sectionAttrsFromDirectives(directives) {
   // [.heading-align: center|left|right] — override heading text alignment
   if (directives['heading-align']) {
     styles.push(`--sd-heading-align: ${directives['heading-align']}`);
+  }
+  // [.bullets-layout: cards|pills|staggered|alternating] — variant layouts for
+  // headline + 2-3 bullet slides. Used by the phrase-bullets autoflow rule.
+  if (directives['bullets-layout']) {
+    attrs += ` data-bullets-layout="${directives['bullets-layout']}"`;
   }
   if (styles.length > 0) {
     attrs += ` style="${styles.join('; ')}"`;

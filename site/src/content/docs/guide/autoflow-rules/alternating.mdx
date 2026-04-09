@@ -4,6 +4,7 @@ description: 3+ short paragraphs alternate between heading color and accent.
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
 import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
 
 export const fixture = autoflowFixtures['alternating'];
@@ -33,6 +34,5 @@ alternating colors instead.
 
 ## Source
 
-```markdown
-{fixture.md}
-```
+<Code code={fixture.md} lang="markdown" />
+

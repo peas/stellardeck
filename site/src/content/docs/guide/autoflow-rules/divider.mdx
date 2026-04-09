@@ -4,6 +4,7 @@ description: A 1-2 word slide becomes a giant section break.
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
 import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
 
 export const fixture = autoflowFixtures['divider'];
@@ -35,6 +36,5 @@ prior dividers to break visual monotony.
 
 ## Source
 
-```markdown
-{fixture.md}
-```
+<Code code={fixture.md} lang="markdown" />
+

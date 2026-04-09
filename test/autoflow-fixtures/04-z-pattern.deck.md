@@ -17,12 +17,16 @@ EFFECT:
   - 4 paragraphs are placed at top-left, top-right, bottom-left, bottom-right
   - Reads as a Z scan pattern across the slide
   - Used for "four pillars" / "four steps" content
+
+NOTE: single-word paragraphs like "Speed" / "Taste" render very small
+and look cramped at the corners. Use 3-6 word phrases per corner so
+the slide actually breathes.
 -->
 
-Curiosity
+Pull on threads
 
-Taste
+Reject mediocre output
 
-Judgment
+Ship the small thing
 
-Speed
+Throw away when wrong

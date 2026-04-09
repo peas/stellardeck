@@ -10,8 +10,9 @@ import diagonal from '../../../test/autoflow-fixtures/03-diagonal.deck.md?raw';
 import zPattern from '../../../test/autoflow-fixtures/04-z-pattern.deck.md?raw';
 import alternating from '../../../test/autoflow-fixtures/05-alternating.deck.md?raw';
 import statement from '../../../test/autoflow-fixtures/06-statement.deck.md?raw';
-import bareImageRotate from '../../../test/autoflow-fixtures/07-bare-image-rotate.deck.md?raw';
+import bareImagePositionVariation from '../../../test/autoflow-fixtures/07-bare-image-position-variation.deck.md?raw';
 import autoscale from '../../../test/autoflow-fixtures/08-autoscale.deck.md?raw';
+import phraseBullets from '../../../test/autoflow-fixtures/09-phrase-bullets.deck.md?raw';
 
 export interface AutoflowFixture {
   rule: string;
@@ -71,12 +72,19 @@ export const autoflowFixtures: Record<string, AutoflowFixture> = {
     description: '1-4 short lines (≤8 words each) get the #[fit] treatment.',
     md: statement,
   },
-  'bare-image-rotate': {
-    rule: 'bare-image-rotate',
-    title: 'Bare image rotate (history-based)',
+  'bare-image-position-variation': {
+    rule: 'bare-image-position-variation',
+    title: 'Bare image position variation (history-based)',
     priority: 70,
-    description: 'A bare ![](src) rotates position across the deck: inline → left → right → ...',
-    md: bareImageRotate,
+    description: 'A bare ![](src) varies position across the deck: inline → left → right → ...',
+    md: bareImagePositionVariation,
+  },
+  'phrase-bullets': {
+    rule: 'phrase-bullets',
+    title: 'Phrase + bullets (palette)',
+    priority: 75,
+    description: 'Headline + 2-3 short bullets cycles through 4 layouts: cards → pills → alternating → staggered.',
+    md: phraseBullets,
   },
   autoscale: {
     rule: 'autoscale',

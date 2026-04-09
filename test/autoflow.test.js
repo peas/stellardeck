@@ -353,16 +353,16 @@ test('paragraph with >10 words is NOT diagonal', () => {
 });
 
 // ============================================================
-// Unit tests: Rule — Bare Image Rotate (replaces old `split`)
+// Unit tests: Rule — Bare Image Position Variation (replaces old `split`)
 // ============================================================
-console.log('\n── Rule: Bare Image Rotate ──');
+console.log('\n── Rule: Bare Image Position Variation ──');
 
 const { createContext } = require('../autoflow.js');
 
 test('first bare image + text → inline (rotation start)', () => {
   const input = lines('![](photo.jpg)\n\n# Title\n\nSome text');
   const result = applyAutoflow(input, 0);
-  assert.equal(result.rule, 'bare-image-rotate');
+  assert.equal(result.rule, 'bare-image-position-variation');
   // First in cycle = inline: rewrites the image as ![inline](src)
   assert.ok(result.lines.some(l => l.includes('![inline](photo.jpg)')));
 });
@@ -377,9 +377,9 @@ test('rotation across 3 slides: inline → left → right', () => {
   const r0 = applyAutoflow(slides[0], 0, undefined, undefined, ctx);
   const r1 = applyAutoflow(slides[1], 1, undefined, undefined, ctx);
   const r2 = applyAutoflow(slides[2], 2, undefined, undefined, ctx);
-  assert.equal(r0.rule, 'bare-image-rotate');
-  assert.equal(r1.rule, 'bare-image-rotate');
-  assert.equal(r2.rule, 'bare-image-rotate');
+  assert.equal(r0.rule, 'bare-image-position-variation');
+  assert.equal(r1.rule, 'bare-image-position-variation');
+  assert.equal(r2.rule, 'bare-image-position-variation');
   assert.ok(r0.lines.some(l => l.includes('![inline](a.jpg)')));
   assert.ok(r1.lines.some(l => l.includes('![left](b.jpg)')));
   assert.ok(r2.lines.some(l => l.includes('![right](c.jpg)')));
@@ -387,7 +387,7 @@ test('rotation across 3 slides: inline → left → right', () => {
 
 test('rotation wraps after 3: 4th bare image is inline again', () => {
   const ctx = createContext();
-  ctx.state.lastBareImageSide = 'right';
+  ctx.state.lastBareImagePosition = 'right';
   const r4 = applyAutoflow(lines('![](d.jpg)\n\nText D'), 3, undefined, undefined, ctx);
   assert.ok(r4.lines.some(l => l.includes('![inline](d.jpg)')));
 });
@@ -400,9 +400,9 @@ test('rotation observes explicit ![left] in skipped slides', () => {
   const r1 = applyAutoflow(lines('![](a.jpg)\n\nText A'), 0, undefined, undefined, ctx);
   const r2 = applyAutoflow(lines('![left](b.jpg)\n\nText B'), 1, undefined, undefined, ctx);
   const r3 = applyAutoflow(lines('![](c.jpg)\n\nText C'), 2, undefined, undefined, ctx);
-  assert.equal(r1.rule, 'bare-image-rotate');
+  assert.equal(r1.rule, 'bare-image-position-variation');
   assert.equal(r2.rule, 'explicit', 'slide 2 with explicit modifier should skip autoflow');
-  assert.equal(r3.rule, 'bare-image-rotate');
+  assert.equal(r3.rule, 'bare-image-position-variation');
   // The critical assertion: slide 3 must NOT be left again
   assert.ok(r3.lines.some(l => l.includes('![right](c.jpg)')),
     `Expected slide 3 to be ![right] (next after observed left), got: ${r3.lines.join('|')}`);
@@ -417,13 +417,13 @@ test('image with modifiers is NOT bare-image-rotate (explicit)', () => {
 test('image-only slide is NOT bare-image-rotate (no text)', () => {
   const input = lines('![](photo.jpg)');
   const result = applyAutoflow(input, 0);
-  assert.notEqual(result.rule, 'bare-image-rotate');
+  assert.notEqual(result.rule, 'bare-image-position-variation');
 });
 
 test('two images is NOT bare-image-rotate', () => {
   const input = lines('![](a.jpg)\n![](b.jpg)\nSome text');
   const result = applyAutoflow(input, 0);
-  assert.notEqual(result.rule, 'bare-image-rotate');
+  assert.notEqual(result.rule, 'bare-image-position-variation');
 });
 
 // ============================================================

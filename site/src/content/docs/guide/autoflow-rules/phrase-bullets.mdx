@@ -1,0 +1,83 @@
+---
+title: 'Autoflow rule: phrase-bullets'
+description: A short headline + 2-3 short bullets cycles through 4 layouts (palette) to break monotony.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['phrase-bullets'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+The "1 short headline + 2-3 short bullets" shape is everywhere in real
+decks and renders flat as "title + bulleted list". This rule detects the
+shape and **cycles through a 4-variant palette across the deck** so two
+consecutive matches don't pick the same layout. Anti-monotony as a rule.
+
+## When it fires
+
+- The slide has **exactly 1 heading line** (h1/h2/h3)
+- **2-3 bullet items**, each ≤6 words
+- The headline ≤8 words
+- No images, no extra paragraphs (just heading + bullets)
+
+## What it does
+
+The rule reads `ctx.state.lastPhraseBulletsLayout` and picks the next
+variant in the palette:
+
+```
+1st phrase+bullets in deck → cards        (horizontal cards side by side)
+2nd                         → pills        (#[fit] headline + tag pills)
+3rd                         → alternating  (bullets alternate accent)
+4th                         → staggered    (bullets indented differently)
+5th → cards, 6th → pills, ...
+```
+
+The autoflow injects `[.bullets-layout: <variant>]` into the slide. The
+parser converts that to `data-bullets-layout="..."` on the section, and
+CSS in `css/layout.css` renders each variant.
+
+## The 4 variants
+
+### 1. cards
+
+Bullets become horizontal cards side by side, like a "categories" or
+"dimensions" slide. Each bullet gets a subtle border and background.
+
+### 2. pills
+
+Headline becomes `#[fit]` (giant) and the bullets become inline pill
+tags below it. Strong impact + light context tags. Good for "the X we're
+focusing on" slides.
+
+### 3. alternating
+
+Bullets alternate between heading color and accent color (no special
+layout — just color rhythm). Works as a subtle anti-monotony shift
+without changing the overall feel of the deck.
+
+### 4. staggered
+
+Each bullet gets a different indent (25% / 5% / 35% / 15%), creating a
+visual zigzag down the slide. Makes a flat list feel kinetic.
+
+## Live fixture
+
+The fixture below has 4 phrase+bullets slides — one per palette variant.
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+<Code code={fixture.md} lang="markdown" />
+
+## Why a palette instead of one layout
+
+A single anti-monotony layout still becomes monotonous if it fires 5x in
+a deck. Cycling through 4 variants means even a deck with many "headline
++ bullets" slides keeps shifting visually. The rule with state proves
+its value here — without `ctx.state`, every slide would land on the same
+default layout.

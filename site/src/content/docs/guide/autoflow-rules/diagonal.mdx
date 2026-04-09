@@ -4,6 +4,7 @@ description: Two short paragraphs (one ending in ?) get pulled across the slide.
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
 import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
 
 export const fixture = autoflowFixtures['diagonal'];
@@ -34,6 +35,5 @@ so two consecutive diagonals don't read identically. This is what the rule's
 
 ## Source
 
-```markdown
-{fixture.md}
-```
+<Code code={fixture.md} lang="markdown" />
+

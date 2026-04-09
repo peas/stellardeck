@@ -4,6 +4,7 @@ description: Four short paragraphs land at the four corners of the slide.
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
 import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
 
 export const fixture = autoflowFixtures['z-pattern'];
@@ -33,6 +34,5 @@ Reads as a Z scan pattern. Used for "four pillars" or "four steps" content.
 
 ## Source
 
-```markdown
-{fixture.md}
-```
+<Code code={fixture.md} lang="markdown" />
+

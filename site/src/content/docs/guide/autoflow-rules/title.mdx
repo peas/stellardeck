@@ -4,6 +4,7 @@ description: First slide of the deck gets a centered #[fit] title with subtitle 
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
+import { Code } from '@astrojs/starlight/components';
 import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
 
 export const fixture = autoflowFixtures['title'];
@@ -32,6 +33,5 @@ This is the exact deck used by the test suite:
 
 ## Source
 
-```markdown
-{fixture.md}
-```
+<Code code={fixture.md} lang="markdown" />
+

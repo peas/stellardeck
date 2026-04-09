@@ -17,7 +17,7 @@
  *                       result { rule, lines, detail }
  *
  *   ctx carries:
- *     - state: mutable across slides (lastBareImageSide, lastSplitSide, ...)
+ *     - state: mutable across slides (lastBareImagePosition, lastSplitSide, ...)
  *     - history: [{slideIndex, ruleApplied, info}, ...]
  *
  *   Adding a rule = adding one object to RULES. No imperative if/else trees.
@@ -118,7 +118,7 @@ function consecutiveCount(rule, prevRules) {
 }
 
 // ============================================================
-// 3. Image extraction — used by analyzeSlide and bare-image-rotate
+// 3. Image extraction — used by analyzeSlide and bare-image-position-variation
 // ============================================================
 
 const LAYOUT_MODIFIERS = ['right', 'left', 'inline', 'fit', 'filtered', 'bg', 'qr'];
@@ -413,28 +413,35 @@ const statementRule = {
 };
 
 /**
- * NEW: bare-image-rotate
+ * NEW: bare-image-position-variation
  *
  * Replaces the old `split` rule. Whenever a slide has exactly ONE bare image
  * (no right/left/inline/qr/fit/filtered/bg modifier) AND has text alongside,
- * pick a position for the image based on rotation history:
+ * pick a position for the image by cycling through positions across the deck:
  *
- *   1st bare image in deck → center  (large hero, text above)
+ *   1st bare image in deck → inline  (image in flow, text above)
  *   2nd bare image in deck → left    (split, image left + text right)
  *   3rd bare image in deck → right   (split, image right + text left)
- *   4th → center, 5th → left, 6th → right, ...
+ *   4th → inline, 5th → left, 6th → right, ...
  *
- * State persists in ctx.state.lastBareImageSide across the deck.
+ * State persists in ctx.state.lastBareImagePosition across the deck. The
+ * state is also updated by `observeImageSides()` whenever the autoflow
+ * sees an EXPLICIT layout image (`![left]`, `![right]`, `![inline]`) —
+ * even on slides where autoflow itself is skipped — so the variation never
+ * repeats the same position as the previous slide.
  *
- * The 'center' variant emits a directive `[.bare-image-position: center]` so
- * the parser/CSS can lay it out as a hero (image fills slide, text floats
- * above). The 'left'/'right' variants rewrite `![](src)` → `![left/right](src)`
- * so the existing split parser handles them.
+ * All three positions are existing parser primitives:
+ *   ![inline](src) → centered inline image (deckset-inline-single)
+ *   ![left](src)   → split, image left
+ *   ![right](src)  → split, image right
+ *
+ * The name says "position variation" because the rule varies the IMAGE
+ * POSITION across slides — it doesn't rotate the image itself.
  */
-const SIDES = ['center', 'left', 'right'];
+const POSITIONS = ['inline', 'left', 'right'];
 
-const bareImageRotateRule = {
-  name: 'bare-image-rotate',
+const bareImagePositionVariationRule = {
+  name: 'bare-image-position-variation',
   priority: 70,
   match(info, ctx) {
     if (info.bareImages.length !== 1) return false;
@@ -443,22 +450,104 @@ const bareImageRotateRule = {
     return nonImageContent.length > 0;
   },
   transform(info, ctx) {
-    const last = ctx.state.lastBareImageSide;
-    const lastIdx = SIDES.indexOf(last);
-    const next = SIDES[(lastIdx + 1) % SIDES.length];
-    ctx.state.lastBareImageSide = next;
+    const last = ctx.state.lastBareImagePosition;
+    const lastIdx = POSITIONS.indexOf(last);
+    const next = POSITIONS[(lastIdx + 1) % POSITIONS.length];
+    ctx.state.lastBareImagePosition = next;
 
     const img = info.bareImages[0];
-    if (next === 'center') {
-      return {
-        lines: ['[.bare-image-position: center]', ...info.rawLines],
-        detail: 'bare image → center hero (1st of cycle)',
-      };
-    }
     const newImgMd = `![${next}](${img.src})`;
     return {
       lines: info.rawLines.map(l => l.includes(img.full) ? l.replace(img.full, newImgMd) : l),
-      detail: `bare image → ${next} split`,
+      detail: `bare image → ${next}`,
+    };
+  },
+};
+
+/**
+ * Observe explicit layout-positioned images on a slide and update the
+ * position-variation state accordingly. Runs on EVERY slide (including
+ * skipped ones) so that a manually-placed `![left]` or `![right]` is
+ * treated as if the variation had picked it — preventing two consecutive
+ * slides from landing on the same position when one is bare and the
+ * other is explicit.
+ *
+ * Order matters: a single slide with multiple images updates state to
+ * the LAST one seen (so the next slide sees the most recent commitment).
+ *
+ * Modifiers checked: left, right, inline. Other modifiers (fit, filtered,
+ * bg, qr) don't affect bare-image position variation.
+ */
+function observeImagePositions(info, ctx) {
+  for (const img of info.images) {
+    if (img.modifiers.includes('left')) ctx.state.lastBareImagePosition = 'left';
+    else if (img.modifiers.includes('right')) ctx.state.lastBareImagePosition = 'right';
+    else if (img.modifiers.includes('inline')) ctx.state.lastBareImagePosition = 'inline';
+  }
+}
+
+/**
+ * NEW: phrase-bullets (anti-monotony palette)
+ *
+ * The "1 short headline + 2-3 short bullets" shape is everywhere in real
+ * decks and renders flat as title + bulleted list. This rule detects that
+ * shape and picks a layout from a 4-variant palette, cycling across the
+ * deck so two consecutive matches don't pick the same one.
+ *
+ * Palette (cycled via ctx.state.lastPhraseBulletsLayout):
+ *   1. cards       — bullets become horizontal cards side by side
+ *   2. pills       — bullets become inline tag-pills below the headline
+ *   3. alternating — bullets alternate heading color and accent color
+ *   4. staggered   — bullets each indented differently for visual rhythm
+ *
+ * The autoflow injects [.bullets-layout: <variant>] which the parser
+ * converts to data-bullets-layout="..." on the section. CSS in
+ * css/layout.css renders each variant.
+ *
+ * Match conditions:
+ *   - Exactly 1 heading line (h1/h2/h3)
+ *   - 2-3 bullet items, each ≤6 words
+ *   - The headline ≤8 words
+ *   - No images, no other content
+ */
+const PHRASE_BULLETS_PALETTE = ['cards', 'pills', 'alternating', 'staggered'];
+
+const phraseBulletsRule = {
+  name: 'phrase-bullets',
+  priority: 75,  // after bare-image-position-variation (70), before autoscale (80)
+  match(info, ctx) {
+    if (info.headingLines !== 1) return false;
+    if (info.bulletLines < 2 || info.bulletLines > 3) return false;
+    if (info.images.length > 0) return false;
+    // The slide should be ONLY a heading and bullets — no extra paragraphs
+    const headingsAndBullets = info.headingLines + info.bulletLines;
+    if (info.contentLines.length !== headingsAndBullets) return false;
+    // Headline ≤8 words
+    const heading = info.contentLines.find(isHeading);
+    if (!heading) return false;
+    if (wordCount(heading.replace(/^#{1,6}\s*/, '')) > 8) return false;
+    // Each bullet ≤6 words
+    const bullets = info.contentLines.filter(isListItem);
+    return bullets.every(b => wordCount(b.replace(/^\s*[-*+]\s*/, '')) <= 6);
+  },
+  transform(info, ctx) {
+    const last = ctx.state.lastPhraseBulletsLayout;
+    const lastIdx = PHRASE_BULLETS_PALETTE.indexOf(last);
+    const next = PHRASE_BULLETS_PALETTE[(lastIdx + 1) % PHRASE_BULLETS_PALETTE.length];
+    ctx.state.lastPhraseBulletsLayout = next;
+
+    // For 'pills' variant, also #[fit] the headline so it dominates
+    let lines = [`[.bullets-layout: ${next}]`, ...info.rawLines];
+    if (next === 'pills') {
+      const heading = info.contentLines.find(isHeading);
+      if (heading) {
+        const stripped = heading.replace(/^(#{1,6})\s*/, '$1[fit] ');
+        lines = lines.map(l => l === heading ? stripped : l);
+      }
+    }
+    return {
+      lines,
+      detail: `headline + ${info.bulletLines} bullets → ${next}`,
     };
   },
 };
@@ -485,7 +574,8 @@ const RULES = [
   zPatternRule,
   alternatingRule,
   statementRule,
-  bareImageRotateRule,
+  bareImagePositionVariationRule,
+  phraseBulletsRule,
   autoscaleRule,
 ];
 
@@ -497,13 +587,14 @@ const RULES_BY_PRIORITY = [...RULES].sort((a, b) => a.priority - b.priority);
 
 /**
  * Create a fresh autoflow context. Pass this to applyAutoflow across slides
- * of the same deck so cross-slide state (lastBareImageSide, etc) persists.
+ * of the same deck so cross-slide state (lastBareImagePosition, etc) persists.
  */
 function createContext(options) {
   return {
     state: {
-      lastBareImageSide: null,
+      lastBareImagePosition: null,
       lastSplitSide: null,
+      lastPhraseBulletsLayout: null,
     },
     history: [],          // [{slideIndex, ruleApplied, info}, ...]
     options: options || {},
@@ -524,6 +615,11 @@ function applyAutoflow(slideLines, slideIndex, options, prevRules, ctx) {
   const usedCtx = ctx || createContext(options);
   const prev = prevRules || usedCtx.history.map(h => h.ruleApplied);
   const info = analyzeSlide(slideLines, slideIndex, 0, options);
+
+  // Observe explicit image positions on EVERY slide (even ones we'll skip)
+  // so cross-slide variation state stays accurate when the user mixes
+  // bare ![](src) and explicit ![left]/![right]/![inline] images.
+  observeImagePositions(info, usedCtx);
 
   // Skip checks — bypass pipeline entirely
   for (const skip of SKIP_CHECKS) {
@@ -619,15 +715,15 @@ function detectAlternating(contentLines, allLines, config) {
   return alternatingRule.transform(info, ctx);
 }
 
-// detectSplit is gone — replaced by bare-image-rotate. Provide an adapter
-// that calls bareImageRotateRule against a fresh ctx so the rule still
-// reachable for tests that import it directly. The output side will always
-// be 'center' on a fresh ctx (rotation index 0).
+// detectSplit is gone — replaced by bare-image-position-variation. Provide
+// an adapter that calls bareImagePositionVariationRule against a fresh ctx
+// so the rule still reachable for tests that import it directly. The output
+// position will always be 'inline' on a fresh ctx (variation index 0).
 function detectSplit(contentLines, allLines, config) {
   const info = makeLegacyInfo(contentLines, allLines, config);
   const ctx = createContext(config);
-  if (!bareImageRotateRule.match(info, ctx)) return null;
-  return bareImageRotateRule.transform(info, ctx);
+  if (!bareImagePositionVariationRule.match(info, ctx)) return null;
+  return bareImagePositionVariationRule.transform(info, ctx);
 }
 
 function detectAutoscale(contentLines, allLines, config) {
@@ -669,7 +765,7 @@ if (typeof module !== 'undefined' && module.exports) {
     // Constants
     AUTOFLOW_DEFAULTS,
     LAYOUT_MODIFIERS,
-    SIDES,
+    POSITIONS,
     RULES,
 
     // Rule objects (for tests + introspection)
@@ -679,7 +775,8 @@ if (typeof module !== 'undefined' && module.exports) {
     zPatternRule,
     alternatingRule,
     statementRule,
-    bareImageRotateRule,
+    bareImagePositionVariationRule,
+    phraseBulletsRule,
     autoscaleRule,
   };
 } else if (typeof window !== 'undefined') {
