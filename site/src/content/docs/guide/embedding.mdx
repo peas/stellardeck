@@ -264,6 +264,18 @@ deck.update(newMarkdown);
 
 The playground uses this internally for its live editor.
 
+## Navigation controls
+
+When `showControls: true` (the default for `renderDeck`), the embed:
+
+- Adds two circular arrow buttons (`‹` / `›`) on the left and right of the container. They fade in on hover/focus.
+- Makes the container focusable (`tabindex="0"`). Click the embed to focus it, then use keys: `←` / `→`, `PageUp` / `PageDown`, `Space`, `Home`, `End`.
+- Keyboard events are scoped to the focused container — they don't steal keys from the host page's scroll or navigation.
+
+Arrow styles are inline (no external CSS dependency). To change the color, size, or position, edit the `NAV_BTN_STYLE` constant near the top of [`embed/stellar-embed.js`](https://github.com/peas/stellardeck/blob/main/embed/stellar-embed.js). Hover/focus visibility is in `injectNavStyles()` in the same file.
+
+If you pass `showControls: false` (or use `renderSlide()`), no arrows and no keyboard listener are added — the embed is a static slide the host page fully controls.
+
 ## Diagnostics callback
 
 For agent workflows or CI checks, pass `onDiagnostics` to receive structured warnings (content overflow, missing images, theme mismatches) as the deck renders:
