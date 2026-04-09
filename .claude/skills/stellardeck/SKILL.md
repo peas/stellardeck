@@ -189,6 +189,101 @@ Use `![right]` 2-3x more often than `![left]` (matches real-world pattern of 2.4
 - New CTO hired
 ```
 
+### Pattern: accent bold for emphasis
+
+**Key trick**: `**word**` (bold in markdown) automatically renders in the theme's accent color. This is how you punch a word or phrase inside longer text. Use it liberally — it's the main visual tool when you can't add an image.
+
+**Source:**
+> "The thing nobody tells you about raising a Series A is that it takes about six months of your life, most of which is spent answering the same questions in slightly different ways."
+
+**Slide:**
+```markdown
+---
+
+Raising a Series A takes about **six months** of your life
+
+Most of which is spent answering the **same questions** in slightly different ways
+```
+
+Two slides. Two strong phrases pulled out as accent color. Autoflow treats short-paragraph slides as statements.
+
+### Pattern: long quote block (when the source quote is too good to split)
+
+Sometimes the source has a passage that works best as one block. Use `> ` blockquote syntax with bold accents on the key phrases. The long quote becomes the center of the slide; the attribution gets its own small line.
+
+**Source:**
+> From a 2018 interview: "What I learned from building three companies is that the first year is always about finding a market that cares, the second year is about finding customers who pay, and the third year is finally about building the thing they asked for."
+
+**Slide:**
+```markdown
+---
+
+> What I learned from building three companies
+> is that the **first year** is about finding a market that cares,
+> the **second year** is about finding customers who pay,
+> and the **third year** is finally about building the thing they asked for.
+
+— 2018 interview
+```
+
+Autoflow detects the long block and applies `[.autoscale: true]` automatically so the text fits. The bold phrases pull visual attention. Use this sparingly — maximum one or two quote-block slides per deck, or they lose impact.
+
+### Pattern: text-only deck (no image references)
+
+Most sources won't mention specific images. That's fine — text-only decks work. The visual variety comes from:
+
+1. **Mixing slide types**: statements, bullets, quote blocks, dividers. Autoflow does most of this for you if the content shape varies.
+2. **Accent bold**: pull key phrases with `**`. Every slide can have 1-3 accent phrases.
+3. **`#[fit]` for punch**: short phrases get giant treatment.
+4. **Dividers**: a single-word slide between sections becomes a huge transition moment via autoflow's `divider` rule.
+5. **Background colors**: `[.background-color: #hex]` on section-divider slides breaks up the rhythm without needing images.
+
+**Example text-only deck shape** (no images at all):
+
+```markdown
+---
+
+#[fit] The Middle Path
+
+Between speed and craft
+
+---
+
+# Speed without craft
+
+Ships things that break
+
+Feels productive for a week
+
+---
+
+# Craft without speed
+
+Ships things that rot
+
+Feels productive for a month
+
+---
+
+[.background-color: #1e3a5f]
+
+#[fit] The middle path
+
+---
+
+# What it looks like
+
+- Write tests **before** you need them
+- Refactor **while** the context is fresh
+- Ship **small pieces** often
+
+---
+
+#[fit] Craft is a **rhythm**, not a ritual
+```
+
+Notice: seven slides, zero images, varied visual rhythm from the mix of fit-titles, bullets, background-color divider, and accent bolds. This is the default shape for most decks generated from long text.
+
 ### Pattern: alternating colors from prose
 
 **Source:**
@@ -206,6 +301,48 @@ Vibe coders who don't have CS degrees
 
 Companies hiring by problem-solving, not keywords
 ```
+
+### Pattern: breaking a dense paragraph into multiple slides
+
+**Source** (a single dense paragraph from a blog post):
+> "Most engineering managers fail at the first promotion because they don't realize that their job is no longer to write code. They feel unproductive because they don't ship commits anymore, so they start micromanaging. Their team feels the pressure and either pushes back or goes passive. Either way, trust erodes and the manager blames themselves for not being technical enough when the real issue is that they never let go of being an IC."
+
+One slide would overflow. Six short slides, each one idea, words preserved:
+
+```markdown
+---
+
+# Why most new managers fail
+
+---
+
+Their job is **no longer** to write code
+
+But nobody told them that
+
+---
+
+They feel unproductive
+because they don't ship commits anymore
+
+So they start **micromanaging**
+
+---
+
+The team either **pushes back** or goes **passive**
+
+Either way, trust erodes
+
+---
+
+The manager blames themselves for not being technical enough
+
+---
+
+But the real issue is they **never let go** of being an IC
+```
+
+One dense paragraph → 6 slides, ~15 words each. Original words preserved. Accent bold highlights the key turn in each slide. Autoflow will pick statement/diagonal layouts from the content shape.
 
 Autoflow sees 3+ short paragraphs → applies `[.alternating-colors: true]`.
 
