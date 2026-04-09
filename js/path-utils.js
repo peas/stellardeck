@@ -5,7 +5,12 @@
 export function convertFileSrc(filePath) {
   // Encode each path segment individually, keep slashes intact
   const encoded = filePath.split('/').map(s => encodeURIComponent(s)).join('/');
-  return navigator.userAgent.includes('Windows')
+  // navigator is undefined in Node <21; fall back to non-Windows scheme.
+  // In the browser/WKWebView this branch is always taken.
+  const isWindows = typeof navigator !== 'undefined'
+    && navigator.userAgent
+    && navigator.userAgent.includes('Windows');
+  return isWindows
     ? `https://localfile.localhost${encoded}`
     : `localfile://localhost${encoded}`;
 }

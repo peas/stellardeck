@@ -51,24 +51,30 @@ Long paragraphs become multiple slides. A typical slide has **1–4 short lines*
 From 331 real decks we analyzed: **median 9 words per slide**, 50% of slides have ≤9 words, only 3.6% exceed 50 words. Aim for that density.
 
 ### 3. Autoflow handles layout — by default
-Default `autoflow: true` in frontmatter. Autoflow picks layouts from content shape:
+Autoflow picks layouts from content shape:
 - Four short lines → Z-pattern
 - Single image next to text → split layout
 - Two paragraphs ending in questions → diagonal
-- 1-word slide → giant divider
+- 1-2 word slide → giant divider
 - First slide with short title + subtitle → centered title
+- 3+ short paragraphs → alternating colors
 
-**When in doubt, trust autoflow.** The rules may evolve, but the principle holds: short, clean content + `autoflow: true` produces good layouts. Explicit directives always override autoflow — use them only when the content genuinely needs a specific layout (split photo, diagram, code).
+**The #1 failure mode of this skill is over-directing.** Earlier iterations sprinkled `[.alternating-colors: true]`, `[.autoscale: true]`, `#[top-left]`, and per-slide directives everywhere. Result: every slide showed "autoflow skipped: has explicit directives" and the deck became visually monotonous because autoflow's anti-monotony engine never ran.
+
+**Rule**: do NOT emit `[.alternating-colors]`, `[.autoscale]`, `[.heading-align]`, `[.background-color]`, `#[top-left]`, `#[bottom-right]`, etc. unless the content genuinely cannot trigger the right autoflow rule from its shape alone. Trust autoflow. Make the content shape right (short paragraphs, question marks, single-word slides, image-next-to-text) and let autoflow do its job.
+
+Frontmatter is also optional and unusual in real decks — Paulo's actual presentations have NO frontmatter at all. Only add `theme:` / `footer:` / `slidenumbers:` if the user explicitly asks. Autoflow is on by default in StellarDeck; you do not need `autoflow: true`.
 
 ### 4. Balance visuals with text
 Aim for **~50% image density** across the deck (Paulo's benchmark from real decks). If the source mentions a person, product, tool, or concept with an obvious image, suggest `![right](path/to/image.jpg)` or `![inline](path/to/image.jpg)`. Don't invent stock photos — only reference images that make sense for the content.
 
 ## Deckset markdown reference
 
+Frontmatter is OPTIONAL and uncommon in real decks. The example below shows what's available, but Paulo's actual presentations skip frontmatter entirely and let StellarDeck pick defaults. Only add frontmatter when the user asks for a specific theme or footer.
+
 ```markdown
 footer: Conference 2026
 slidenumbers: true
-autoflow: true
 theme: nordic
 scheme: 1
 
@@ -162,7 +168,7 @@ Execution eats culture for lunch
 ```markdown
 ---
 
-![right](images/coaches/emmet-louis.webp)
+![right fit](images/coaches/emmet-louis.webp)
 
 # Emmet Louis
 
@@ -171,7 +177,9 @@ Top mobility coach
 Ten years training circus artists in Montreal
 ```
 
-Use `![right]` 2-3x more often than `![left]` (matches real-world pattern of 2.4:1).
+The `fit` modifier (`![right fit]`) is what Paulo uses 90% of the time — it contains the image inside its half without cropping. Plain `![right]` covers the half (good for full-bleed portraits, bad for charts).
+
+**Side choice — cluster, don't ping-pong.** Real decks don't strictly alternate `![right]` / `![left]` slide-by-slide. Sides cluster by section: a stretch of 3-5 right-split slides, then a section break, then a couple of left-splits. Use `![right]` 2-3× more often than `![left]` overall (real ratio 2.4:1), but keep neighboring split slides on the same side unless there's a section transition between them.
 
 ### Pattern: bullets (from a list)
 
@@ -189,9 +197,13 @@ Use `![right]` 2-3x more often than `![left]` (matches real-world pattern of 2.4
 - New CTO hired
 ```
 
-### Pattern: accent bold for emphasis
+### Pattern: accent bold and italic emphasis
 
-**Key trick**: `**word**` (bold in markdown) automatically renders in the theme's accent color. This is how you punch a word or phrase inside longer text. Use it liberally — it's the main visual tool when you can't add an image.
+**Two related tricks:**
+- `**word**` (bold) → renders in the theme's accent color. Strong emphasis.
+- `*word*` (italic) → quoted terms, foreign words, contrast pairs. Subtler.
+
+These are the main visual tools when you can't add an image. Use them sparingly — 1-3 per slide max. Real decks use them strategically inside longer prose, not on every word.
 
 **Source:**
 > "The thing nobody tells you about raising a Series A is that it takes about six months of your life, most of which is spent answering the same questions in slightly different ways."
@@ -205,7 +217,17 @@ Raising a Series A takes about **six months** of your life
 Most of which is spent answering the **same questions** in slightly different ways
 ```
 
-Two slides. Two strong phrases pulled out as accent color. Autoflow treats short-paragraph slides as statements.
+Italic example (from Paulo's `ia/transformacao.md`, contrast pair from the Agile Manifesto):
+
+```markdown
+---
+
+#[fit]*Indivíduos e Interações*
+#[fit]versus
+#[fit]*Processos e Ferramentas*
+```
+
+Three stacked `#[fit]` headings, italics on the contrasted phrases. The `versus` line is a bridge.
 
 ### Pattern: long quote block (when the source quote is too good to split)
 
@@ -375,6 +397,81 @@ Usually by how fast the team ships
 
 Two paragraphs, one ends with `?` → autoflow applies diagonal layout automatically.
 
+### Pattern: question series (parallel questions)
+
+Paulo's actual style: instead of pairing questions with answers on the same slide, he poses **a series of parallel questions across consecutive slides**, building expectation. The "answer" arrives 2-5 slides later as evidence (image, quote, or counter-argument). This is a stronger move than the diagonal Q→A pair.
+
+**From `ia/ia-educacao.md` slides 6-13:**
+
+```markdown
+---
+
+# Qual skill você ganhou nos últimos 5 anos?
+
+---
+
+#[fit]Desde que o *Wikipedia* surgiu,
+#[fit]o que você aprendeu + rápido?
+
+---
+
+#[fit]Desde que o *Smartphone* surgiu,
+#[fit]o que você aprendeu + rápido?
+
+---
+
+#[fit]Desde que o *ChatGPT* surgiu,
+#[fit]o que você aprendeu + rápido?
+```
+
+Three structurally identical questions, only the noun changes. Autoflow renders them as title-style. The repetition itself is the rhetorical device. Look for patterns like this in the source: "What if X? What if Y? What if Z?" → emit each as its own slide.
+
+### Pattern: divider (multi-line #[fit] negation)
+
+Paulo's dividers are NOT single words — they're 3-5 word phrases, often negations, often a sequence repeated with the noun changing.
+
+**From `ia/transformacao.md`:**
+
+```markdown
+---
+
+#[fit]Transformação digital
+#[fit]__*não é*__
+#[fit]Agile
+
+---
+
+#[fit]Transformação digital
+#[fit]__*não é*__
+#[fit]Cloud
+
+---
+
+#[fit]Transformação digital
+#[fit]__*não é*__
+#[fit]Blockchain
+```
+
+Pattern: stack 3 `#[fit]` lines. Middle line has the negation in `__*italic-bold*__` for visual contrast. Repeat the structure with only the last word changing. This is one of Paulo's signature moves for section breaks that also make an argument.
+
+### Pattern: bio slide (slide 2)
+
+Almost every Paulo deck has a bio slide as slide 2 (after a filtered-image opening). It's 1 line for the name + 2-4 short lines of credentials.
+
+```markdown
+---
+
+# Paulo Silveira
+
+CEO Grupo Alun
+
+Alura · FIAP · PM3 · StartSe
+
+[@paulo_caelum](https://x.com/paulo_caelum)
+```
+
+Don't elaborate. The audience reads it in 3 seconds and you move on.
+
 ### Pattern: YouTube video reference
 
 StellarDeck doesn't render inline YouTube embeds, but for conference talks it's common to reference a video. Use a QR code or a link:
@@ -413,16 +510,19 @@ paulo.com.br
 
 ### Pattern: closing slide
 
-Every deck should end with something. A closer slide from the source, a reference, or contact info:
+Paulo's actual closing pattern (used in nearly every deck): a full-bleed applause/celebration image + `#[fit]` greeting + smaller `####` lines for contact. The `####` (h4) is the signature — it gives the contact lines a quieter weight than the main thank-you.
 
 ```markdown
 ---
 
-#[fit] Obrigado
+![](../assets/applause_jpg.webp)
+#[fit]Obrigado
 
-[@paulo_caelum](https://x.com/paulo_caelum)
-paulo.com.br
+####paulo.silveira@alura.com.br
+####@paulo_caelum
 ```
+
+Some decks add 1-2 "bonus" slides AFTER the close — usually a philosophical quote (Bill Gates, Karl Popper, Clarice Lispector) or a signature concept slide (e.g. the T-shaped skill set). These work as encore moments while the audience claps.
 
 ## Theme and color scheme selection
 
@@ -445,20 +545,77 @@ Guide to picking based on content:
 
 **Default choice**: if unsure, `theme: nordic` with `scheme: 1` works for most business/tech content. Only pick something else if the content has a clear tonal fit.
 
+## Macro rhythm — what a real deck spine looks like
+
+Before drafting, plan the **spine** of the deck — a one-line summary of each slide in order. The goal is variety: no three consecutive slides should be the same type. Paulo's actual spine for a 27-slide AI-in-education talk (`ia/ia-educacao.md`):
+
+```
+ 1. [filtered image]              — emotional opening
+ 2. # Paulo Silveira              — bio (name + credentials)
+ 3. [right portrait]              — section setup
+ 4. #[fit] Human in the Loop      — concept divider (3 words)
+ 5. # Code, infra, deploy         — bullets (3 items)
+ 6. # Qual skill nos últimos 5 anos? — open question (no answer)
+ 7. #[fit] Desde *Wikipedia*…?    — parallel question 1
+ 8. #[fit] Desde *Smartphone*…?   — parallel question 2
+ 9. [right portrait]              — bridge
+10. > Paulo Blikstein quote       — long quote slide
+11. [right image]                 — chart
+12. > Sebastian Thrun quote       — long quote slide
+13. #[fit] Desde *ChatGPT*…?      — parallel question 3 (closes trilogy)
+14-16. [3 chart images in a row] — visual evidence stack
+17-18. # Shots, Contexts          — heading + prose
+19. # Isso vai ajudar? + sublinha — statement + counter
+20. [filtered image]              — visual break
+21. - bullets (3 timeline items) — list
+22. ![right] + #[fit] Disrupção?  — split + fit question
+23. ![right] + concept            — split
+24. #[fit] Ensinar / Aprender     — concept divider
+25. - bullets (5 learning methods) — list
+26. # Próximos passos             — heading + 3 bullets
+27. ![] + #[fit] Obrigado + ####  — closing
+```
+
+What to notice:
+- **Variety per pair**: image → text → image → text. Almost never two same-type slides in a row.
+- **Question trilogy interrupted by quotes** (slides 7→13). Tension built and resolved over 6 slides, not on one slide.
+- **Visual evidence stack** (14-16) — three image-only slides on the same idea.
+- **Two dividers** placed strategically (slides 4 and 24) to mark sections.
+- **Closes with applause image + #[fit] Obrigado + #### contact**.
+
+When you build your spine, mark each line with the slide TYPE: `[image] [bio] [bullets] [statement] [#[fit]] [divider] [quote] [split-right] [split-left] [close]`. Then count: if any one type is more than ~30% of the deck, redistribute.
+
 ## Process: source text → deck
 
 1. **Read the source end to end.** Don't generate yet.
-2. **Identify the spine.** What's the hook? What are the 3-5 main points? What's the ending?
-3. **Write a rough outline** — one line per slide, 15-30 slides total (Paulo's median is 18).
+2. **Identify the spine.** What's the hook? What are the 3-5 main points? What's the ending? Look for: rhetorical questions, contrast pairs, lists of 3, long quotes, counter-arguments. These all map to specific slide patterns.
+3. **Write the spine as a typed list** — one line per slide, type tag in brackets. Aim 15-30 slides total (Paulo's median is 18). **Walk through it and check**: no three consecutive slides of the same type, at least one divider per major section, ends with a closer.
 4. **Draft the markdown.** For each slide:
    - Use original words from the source
    - Keep text short (aim for ≤10 words, max 30)
-   - Add `![right](image.jpg)` / `![inline](image.jpg)` when the source references something visual
-   - Use `#[fit]` for 1-2 word titles and statement slides
-   - Let autoflow handle the rest (don't add explicit directives unless the layout really needs them)
-5. **Validate**: run `npm run export -- --validate deck.md` and read the warnings.
-6. **Fix warnings**: overflow → split the slide or shorten. Missing image → fix path or remove reference. Theme mismatch → correct the theme name.
-7. **Score and report.** See next section.
+   - Add `![right fit](image.jpg)` / `![inline](image.jpg)` when the source references something visual
+   - Use `#[fit]` for short titles, dividers, and statement slides
+   - Cluster split sides per section (3-5 right-splits, then a break, then maybe a few left-splits — don't ping-pong every slide)
+   - **Emit content shapes that trigger autoflow rules** (see Rhythm checklist below) — do NOT emit `[.alternating-colors]`, `[.autoscale]`, `[.heading-align]`, `#[top-left]`, etc.
+5. **Run the Rhythm checklist** (next section). If any check fails, edit before validating.
+6. **Validate**: run `npm run export -- --validate deck.md` and read the warnings.
+7. **Fix warnings**: overflow → split the slide or shorten. Missing image → fix path or remove reference. Theme mismatch → correct the theme name.
+8. **Score and report.** See Scoring section.
+
+## Rhythm checklist (run before validate)
+
+Walk through this list. Each "no" is a signal to edit before finishing.
+
+- [ ] **Variety**: walking through the deck, do I see at least 5 different slide types? (title, bullets, statement, split, divider, image-only, quote, close)
+- [ ] **No 3-in-a-row of same type**: any stretch of 3 consecutive slides that look the same? Break them up.
+- [ ] **At least 1 divider** per ~10 slides — a 3-5 word `#[fit]` slide marking a section break. Bonus: a parallel-divider series (e.g. "X is not Y / X is not Z / X is not W").
+- [ ] **At least 1 accent bold or italic** per text-heavy slide. Use `**word**` (accent color) or `*word*` (italic) to pull key phrases out of prose.
+- [ ] **At least 1 question slide** — even better, a series of 2-3 parallel questions across consecutive slides.
+- [ ] **No explicit autoflow-disabling directives** — search the deck for `[.alternating-colors`, `[.autoscale`, `[.heading-align`, `#[top-left]`, `#[bottom-right]`. If you find any, ask: can the content shape alone trigger the same layout? Almost always yes — delete the directive.
+- [ ] **Split sides cluster, don't ping-pong** — neighboring `![right]` slides stay on the right; switch sides only at section breaks.
+- [ ] **Closing slide** matches Paulo's pattern — image + `#[fit] Obrigado` (or equivalent) + `####` contact lines.
+- [ ] **No frontmatter unless explicitly asked** — let StellarDeck pick defaults. Real decks don't have it.
+- [ ] **One idea per slide** — no slide has more than ~30 words. If a slide is dense, split it. The remaining slides will feel lighter and the reading flow improves.
 
 ## Scoring
 

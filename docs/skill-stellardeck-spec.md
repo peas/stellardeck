@@ -110,3 +110,79 @@ Based on analysis of 331 real decks (6,930 slides) from presentations-paulo.
 - CLI commands: export (--pdf/--png/--grid), validate, list-themes, list-schemes
 - Interpreting --json: overflow → split or autoscale, missing-image → fix path
 - Theme/scheme guide (when to suggest each)
+
+## TODO — findings from the first real test run (2026-04-09)
+
+Tested the skill on `apresentacao-codex-feature-busca-gnarus.deck.md` (33 slides).
+Output was valid and loaded fine, but the visual result was too uniform and
+didn't use the engine's best tricks. Specific findings to address in the next
+skill iteration:
+
+### 1. Image side alternation
+The generated `.md` had every `![right](...)` on the same side of the deck.
+Real decks alternate split direction — Paulo's real-world ratio is `![right]`
+2.4× more often than `![left]`, but the two still mix. The skill should
+alternate sides across consecutive split slides to create visual rhythm.
+
+**Fix direction**: when emitting multiple split-layout slides in a row,
+track the previous side and flip. Every 3rd-4th split can repeat the dominant
+side; the rest should alternate.
+
+### 2. Monotony across the whole deck
+Slides all felt like the same type (heading + paragraphs). No variety of
+layouts, no rhythm shift. Autoflow's anti-monotony only kicks in when there's
+raw content for it to pick from — but the skill was emitting explicit
+structure that bypassed autoflow entirely ("autoflow skipped: has explicit
+directives" on every slide).
+
+**Fix direction**: the skill should deliberately VARY slide shapes across
+the deck. Target distribution (from 331-deck analysis):
+- ~28% title-like (short, big, `#[fit]`)
+- ~24% bullets
+- ~15% split (image + text)
+- ~11% statement (1-4 short lines, no bullets)
+- ~10% image-only (background)
+- rest: dividers, quotes, others
+The skill should consciously pick different types across consecutive slides.
+
+### 3. Anti-monotony signals to autoflow
+The skill should LEAN ON autoflow instead of writing explicit directives
+everywhere. The first iteration put explicit `#[fit]` and position markers
+on most slides, which disabled autoflow ("has explicit directives" seen in
+the status bar on every slide).
+
+**Fix direction**: default to `autoflow: true` in frontmatter AND avoid
+explicit directives when the content shape alone would trigger the right
+autoflow rule. Only add directives when the author's intent can't be
+inferred from text structure.
+
+### 4. Accents and autoflow effects never showed
+The test deck never used:
+- **Bold accent color** (`**word**` → accent color) — this is the main
+  visual tool when no images. Real decks use it heavily.
+- **`[.alternating-colors: true]`** — 3+ short paragraphs with different
+  accents. Autoflow would have applied this if content wasn't pre-structured.
+- **Z-pattern** layout — 4 short paragraphs get auto-arranged on a grid.
+- **Diagonal** layout — question/answer pairs get auto-positioned on
+  top-left / bottom-right.
+- **Divider slides** — single-word or 2-word slides with autoflow `divider`
+  rule become huge section transitions.
+
+**Fix direction**: the skill should actively look for these patterns in the
+source text and emit content that triggers them. Examples:
+- Find rhetorical questions → two adjacent paragraphs, second ending in `?`
+  → diagonal rule fires
+- Find emphasized words in the source ("the important thing", "what matters")
+  → wrap them in `**bold**` to get the accent color
+- Find 3-4 short related points → emit as 3-4 short paragraphs (not bullets)
+  → alternating-colors rule fires
+- Find section transitions → emit 1-2 word slide → divider rule fires
+
+### 5. Next steps
+When we return to this: read Paulo's real decks in `1bi-devs/`, `vibe-coding/`,
+`storytelling/` to see the patterns he uses, then update the skill's
+"Common patterns" section with concrete snippets that consciously trigger
+each autoflow rule. Add a "Rhythm checklist" near the end of the skill that
+the agent must go through before finishing: "Did you emit at least one
+accent bold? At least one divider slide? Any question→answer diagonal?
+Any 3-short-paragraph alternating slide?"
