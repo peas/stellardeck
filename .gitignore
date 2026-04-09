@@ -6,6 +6,10 @@ node_modules/
 # Local Claude Code instructions (per-developer, not committed)
 CLAUDE.local.md
 
+# Local scratch dirs / symlinks for working on external decks
+scratch/
+codex-tmp
+
 # Tauri build artifacts
 src-tauri/target/
 

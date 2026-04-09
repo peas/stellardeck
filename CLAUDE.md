@@ -134,6 +134,7 @@ Types: `overflow`, `missing-image`, `empty-slide`, `code-no-lang`, `theme-mismat
 - GitHub Actions CI: green
 - Tag v0.9.0 + release
 - Skill `stellardeck`: source text → slides with scoring (in `.claude/skills/stellardeck/`)
+- **Pre-release audit: hunt for any leftover reference to `presentations-paulo`** in code, docs, comments, tests, fixtures, or scripts. If unit/e2e tests pass on a fresh CI clone there shouldn't be any (verified 2026-04-09 with run `24203683873`), but do a final `grep -r presentations-paulo` and `grep -r /Users/peas` over the repo before tagging the first public release. Only `CLAUDE.md` (intentional historical note) and `CLAUDE.local.md` (gitignored) are allowed to mention it.
 
 ### Post-0.9
 - VSCode extension (live preview, IntelliSense, diagnostics)
