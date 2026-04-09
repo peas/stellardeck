@@ -1,0 +1,76 @@
+---
+title: Autoflow Rules
+description: Each autoflow rule explained, with the exact fixture used in tests embedded as a live deck.
+---
+
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+Autoflow runs a small set of rules over each slide. The first rule whose
+predicate matches wins. Each rule injects directives the parser already
+understands — autoflow never invents new content.
+
+Every page in this section embeds a **live fixture deck** that demonstrates
+exactly when the rule fires. **The same `.md` file is used by the test
+suite**: if a rule breaks in the engine, the test fails AND the fixture
+stops looking right. Single source of truth.
+
+## Pipeline order
+
+Rules are tried in priority order. Lower number = tried first.
+
+| Priority | Rule | When it fires |
+|---:|:---|:---|
+| —  | [Skip checks](/guide/autoflow-rules/skip-checks/) | Slide already has explicit directives, code, or custom blocks → bypass everything |
+| 10 | [Title](/guide/autoflow-rules/title/) | First slide, short headline + longer subtitle |
+| 20 | [Divider](/guide/autoflow-rules/divider/) | 1-2 word standalone slide |
+| 30 | [Diagonal](/guide/autoflow-rules/diagonal/) | 2 short paragraphs, one ending in `?` |
+| 40 | [Z-Pattern](/guide/autoflow-rules/z-pattern/) | Exactly 4 short paragraphs |
+| 50 | [Alternating colors](/guide/autoflow-rules/alternating/) | 3+ short paragraphs |
+| 60 | [Statement](/guide/autoflow-rules/statement/) | 1-4 short lines, ≤8 words each |
+| 70 | [Bare image rotate](/guide/autoflow-rules/bare-image-rotate/) | 1 bare `![](src)` + text — **rotates position across deck (history-based)** |
+| 80 | [Autoscale](/guide/autoflow-rules/autoscale/) | 9+ lines or 80+ words (safety net for long slides) |
+
+## How rules are written
+
+Every rule is a plain JavaScript object in `autoflow.js`:
+
+```js
+{
+  name: 'divider',
+  priority: 20,
+  match(info, ctx) {
+    return info.contentLines.length === 1 &&
+           wordCount(info.contentLines[0]) <= 2;
+  },
+  transform(info, ctx) {
+    const w = info.contentLines[0].trim();
+    return {
+      lines: ['[.heading-align: center]', `#[fit] ${w}`],
+      detail: '1 word',
+    };
+  },
+}
+```
+
+The `match(info, ctx)` predicate gets a rich `info` object (paragraphs,
+images, totalWords, etc) and a `ctx` that carries **state across slides**
+(like which side the last bare image landed on, or how many slides ago a
+particular rule fired). This is what lets `bare-image-rotate` rotate across
+a whole deck instead of treating each slide in isolation.
+
+Adding a rule = adding one object. The order is determined by `priority`.
+
+## Browse the rules
+
+<ul>
+  {Object.values(autoflowFixtures)
+    .sort((a, b) => a.priority - b.priority)
+    .map(f => (
+      <li key={f.rule}>
+        <a href={`/guide/autoflow-rules/${f.rule}/`}>
+          <strong>{f.title}</strong>
+        </a>
+        {' — '}{f.description}
+      </li>
+    ))}
+</ul>

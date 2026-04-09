@@ -1,0 +1,38 @@
+---
+title: 'Autoflow rule: alternating'
+description: 3+ short paragraphs alternate between heading color and accent.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['alternating'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+## When it fires
+
+- The slide has **3 or more paragraphs** (4 paragraphs would hit z-pattern first)
+- Each paragraph is short (≤10 words, ≤2 lines)
+
+## What it does
+
+Adds `[.alternating-colors: true]`. Each paragraph alternates between the
+heading color and the accent color, giving rhythm to a "three points" or
+"five forces" slide without any explicit positioning.
+
+## Why 3 (not 4)
+
+If a slide has exactly 4 short paragraphs, the [z-pattern](../z-pattern/)
+rule wins first (priority 40 vs 50). Use 3 or 5+ paragraphs to get
+alternating colors instead.
+
+## Live fixture
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```

@@ -1,0 +1,38 @@
+---
+title: 'Autoflow rule: z-pattern'
+description: Four short paragraphs land at the four corners of the slide.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['z-pattern'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+## When it fires
+
+- The slide has **exactly 4 paragraphs**
+- Each paragraph is short (≤8 words, ≤2 lines)
+
+## What it does
+
+The 4 paragraphs are placed at the 4 corners of the slide:
+
+```
+top-left          top-right
+
+bottom-left   bottom-right
+```
+
+Reads as a Z scan pattern. Used for "four pillars" or "four steps" content.
+
+## Live fixture
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```

@@ -1,0 +1,37 @@
+---
+title: 'Autoflow rule: title'
+description: First slide of the deck gets a centered #[fit] title with subtitle below.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['title'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+## When it fires
+
+- The slide is **slide 0** of the deck (guard: `info.index === 0`)
+- The first paragraph is a single line, ≤6 words, plain text
+- There's at least one more paragraph below it
+- The total subtitle words are **greater than** the title words
+  (otherwise it's a statement, not title+subtitle)
+
+## What it does
+
+- Wraps the title line in `#[fit]`
+- Adds `[.heading-align: center]`
+- Result: a centered, fit-sized title with a subtitle below
+
+## Live fixture
+
+This is the exact deck used by the test suite:
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```

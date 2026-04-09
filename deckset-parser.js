@@ -1386,10 +1386,16 @@ function parseDecksetMarkdown(raw, options) {
     ? options.autoflow === true
     : globalDirectives.autoflow === 'true';
   const autoflowFn = (typeof applyAutoflow === 'function') ? applyAutoflow : null;
+  const createAutoflowCtx = (typeof createAutoflowContext === 'function')
+    ? createAutoflowContext
+    : (typeof require !== 'undefined' ? require('./autoflow.js').createContext : null);
   const slideIndexOffset = (options && options.slideIndexOffset) || 0;
 
   // 5. Parse each slide (with optional autoflow pre-processing)
-  const prevRules = []; // track previous slide rules for anti-monotony
+  // The autoflow ctx persists across slides so rules can use cross-slide
+  // state (e.g. bare-image-rotate's center→left→right rotation history).
+  const prevRules = []; // legacy: list of rule names for vary() functions
+  const autoflowCtx = (autoflowEnabled && createAutoflowCtx) ? createAutoflowCtx(options) : null;
   return rawSlides
     .map(s => s.split('\n'))
     .map(lines => lines.filter(l => !refLinkPattern.test(l)))
@@ -1397,7 +1403,7 @@ function parseDecksetMarkdown(raw, options) {
     .map((lines, index) => {
       let autoflowInfo = null;
       if (autoflowEnabled && autoflowFn) {
-        const result = autoflowFn(lines, slideIndexOffset + index, undefined, prevRules);
+        const result = autoflowFn(lines, slideIndexOffset + index, undefined, prevRules, autoflowCtx);
         prevRules.push(result.rule);
         lines = result.lines;
         autoflowInfo = { rule: result.rule, detail: result.detail || '' };

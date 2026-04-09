@@ -1263,6 +1263,41 @@ function parseSlide(rawLines, globalDirectives) {
     return mediaOnlyHtml;
   }
 
+  // ── CASE 2.5: Background image + text overlay ──
+  // Deckset behavior: a bare ![](src) on its own line at the start of a
+  // slide with other content below becomes the slide background, with the
+  // remaining content rendered on top. Without this, decks like
+  //   ![](closing.jpg)
+  //   #[fit] Obrigado
+  //   #### contact
+  // collapse into a vertical inline column that overflows the slide.
+  const firstNonEmptyIdx = contentLines.findIndex(l => l.trim() !== '');
+  if (firstNonEmptyIdx !== -1) {
+    const firstLine = contentLines[firstNonEmptyIdx];
+    if (isMediaOnly(firstLine)) {
+      const firstLineMedia = findMedia(firstLine);
+      if (firstLineMedia.length === 1) {
+        const m = firstLineMedia[0];
+        const isLayoutModifier = m.modifiers.includes('right') ||
+          m.modifiers.includes('left') ||
+          m.modifiers.includes('inline') ||
+          m.modifiers.includes('qr');
+        if (!isLayoutModifier && !isVideo(m.src) && !parseYouTube(m.src)) {
+          const rest = contentLines.slice(firstNonEmptyIdx + 1);
+          const restHasNonMedia = rest.some(l => l.trim() && !isMediaOnly(l));
+          if (restHasNonMedia) {
+            const size = m.modifiers.includes('fit') || m.modifiers.includes('contain')
+              ? 'contain' : 'cover';
+            const filtered = m.modifiers.includes('filtered')
+              ? ' data-background-opacity="0.5" data-background-color="#000"' : '';
+            const bgAttrs = `${sectionAttrs} data-background-image="${m.src}" data-background-size="${size}"${filtered}`;
+            return renderMixedContent(rest, bgAttrs, notes, buildLists, alternatingColors);
+          }
+        }
+      }
+    }
+  }
+
   // ── CASE 3: Mixed content (text + inline media) ──
   return renderMixedContent(contentLines, sectionAttrs, notes, buildLists, alternatingColors);
 }
@@ -1351,10 +1386,16 @@ function parseDecksetMarkdown(raw, options) {
     ? options.autoflow === true
     : globalDirectives.autoflow === 'true';
   const autoflowFn = (typeof applyAutoflow === 'function') ? applyAutoflow : null;
+  const createAutoflowCtx = (typeof createAutoflowContext === 'function')
+    ? createAutoflowContext
+    : (typeof require !== 'undefined' ? require('./autoflow.js').createContext : null);
   const slideIndexOffset = (options && options.slideIndexOffset) || 0;
 
   // 5. Parse each slide (with optional autoflow pre-processing)
-  const prevRules = []; // track previous slide rules for anti-monotony
+  // The autoflow ctx persists across slides so rules can use cross-slide
+  // state (e.g. bare-image-rotate's center→left→right rotation history).
+  const prevRules = []; // legacy: list of rule names for vary() functions
+  const autoflowCtx = (autoflowEnabled && createAutoflowCtx) ? createAutoflowCtx(options) : null;
   return rawSlides
     .map(s => s.split('\n'))
     .map(lines => lines.filter(l => !refLinkPattern.test(l)))
@@ -1362,7 +1403,7 @@ function parseDecksetMarkdown(raw, options) {
     .map((lines, index) => {
       let autoflowInfo = null;
       if (autoflowEnabled && autoflowFn) {
-        const result = autoflowFn(lines, slideIndexOffset + index, undefined, prevRules);
+        const result = autoflowFn(lines, slideIndexOffset + index, undefined, prevRules, autoflowCtx);
         prevRules.push(result.rule);
         lines = result.lines;
         autoflowInfo = { rule: result.rule, detail: result.detail || '' };

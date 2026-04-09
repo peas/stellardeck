@@ -1,0 +1,42 @@
+---
+title: 'Autoflow rule: statement'
+description: 1-4 short lines get the #[fit] treatment.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['statement'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+## When it fires
+
+- The slide has 1-4 content lines
+- Each line is plain text (no heading, no image, no list)
+- Each line is ≤8 words (configurable via `statementMaxWords`)
+
+## What it does
+
+- Each content line gets wrapped in `#[fit]`
+- For very short slides (≤2 lines, max 5 words each):
+  also adds `[.heading-align: center]`
+
+## Anti-monotony
+
+When several statements fire in a row, the alignment cycles:
+- Short statements: cycle `left` / `right`
+- Longer statements: cycle `center` / `right`
+
+Built into the rule's `vary` function. Uses the count of consecutive prior
+statements as the cycle index.
+
+## Live fixture
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```

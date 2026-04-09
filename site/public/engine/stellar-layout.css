@@ -93,6 +93,10 @@
 
     /* ===== Accent color patterns ===== */
     .sd-slide strong { color: var(--sd-accent-bold-color, inherit); }
+    .sd-slide del {
+      color: var(--sd-accent-bold-color, inherit);
+      text-decoration-color: var(--sd-accent-bold-color, inherit);
+    }
     .sd-slide li::marker { color: var(--sd-accent-bullets-color, inherit); }
     /* Alternating line colors for paragraph-heavy slides */
     .deckset-alternating p:nth-child(even) {

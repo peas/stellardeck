@@ -1,0 +1,36 @@
+---
+title: 'Autoflow rule: skip checks'
+description: When autoflow does NOTHING — explicit directives, code blocks, custom layout blocks.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['skip-checks'];
+
+{fixture.description}
+
+## When they fire
+
+Autoflow runs three skip checks **before** any rule. If any check passes,
+autoflow leaves the slide untouched.
+
+| Check | Trigger |
+|:---|:---|
+| `explicit` | Slide already has `#[fit]`, `![right]`, position modifiers, `[.autoscale]`, or `[.alternating-colors]` |
+| `code` | Slide contains a fenced code block (```` ``` ````) |
+| `custom-block` | Slide contains a `:::columns`, `:::diagram`, `:::steps`, `:::center`, or `:::math` block |
+
+## Why
+
+The user already told autoflow what they want. Don't override intent.
+
+## Live fixture
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```

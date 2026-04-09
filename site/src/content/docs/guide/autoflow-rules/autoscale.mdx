@@ -1,0 +1,44 @@
+---
+title: 'Autoflow rule: autoscale'
+description: Long slides (9+ lines or 80+ words) shrink to fit.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['autoscale'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+## When it fires
+
+- The slide has **9+ content lines**, OR
+- The slide has **80+ total words**
+- AND no earlier rule matched (this is the safety net at priority 80)
+
+## What it does
+
+Adds `[.autoscale: true]` and `[.autoscale-lines: N]`. The CSS reduces the
+font size based on the line count tier:
+
+| Tier | Lines |
+|:---|:---|
+| light | 9-12 |
+| moderate | 13-18 |
+| dense | 19+ |
+
+## Why it's last
+
+Autoscale is a fallback. If a slide has long-form content but doesn't match
+any of the more specific layouts (title, divider, statement, etc), at least
+prevent overflow by shrinking the text. It's the rule of last resort.
+
+## Live fixture
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```

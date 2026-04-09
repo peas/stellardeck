@@ -353,40 +353,71 @@ test('paragraph with >10 words is NOT diagonal', () => {
 });
 
 // ============================================================
-// Unit tests: Rule 4 — Image + Text Split
+// Unit tests: Rule — Bare Image Rotate (replaces old `split`)
 // ============================================================
-console.log('\n── Rule 4: Image + Text Split ──');
+console.log('\n── Rule: Bare Image Rotate ──');
 
-test('bare image + text → right on even index', () => {
+const { createContext } = require('../autoflow.js');
+
+test('first bare image + text → center (rotation start)', () => {
   const input = lines('![](photo.jpg)\n\n# Title\n\nSome text');
   const result = applyAutoflow(input, 0);
-  assert.equal(result.rule, 'split');
-  assert.ok(result.lines.some(l => l.includes('![right](photo.jpg)')));
+  assert.equal(result.rule, 'bare-image-rotate');
+  // First in cycle = center: emits the position directive, doesn't rewrite the image
+  assert.ok(result.lines.some(l => l.trim() === '[.bare-image-position: center]'));
+  assert.ok(result.lines.some(l => l.includes('![](photo.jpg)')));
 });
 
-test('bare image + text → left on odd index', () => {
-  const input = lines('![](photo.jpg)\n\n# Title');
-  const result = applyAutoflow(input, 1);
-  assert.equal(result.rule, 'split');
-  assert.ok(result.lines.some(l => l.includes('![left](photo.jpg)')));
+test('rotation across 3 slides: center → left → right', () => {
+  const ctx = createContext();
+  const slides = [
+    lines('![](a.jpg)\n\nText A'),
+    lines('![](b.jpg)\n\nText B'),
+    lines('![](c.jpg)\n\nText C'),
+  ];
+  const r0 = applyAutoflow(slides[0], 0, undefined, undefined, ctx);
+  const r1 = applyAutoflow(slides[1], 1, undefined, undefined, ctx);
+  const r2 = applyAutoflow(slides[2], 2, undefined, undefined, ctx);
+  assert.equal(r0.rule, 'bare-image-rotate');
+  assert.equal(r1.rule, 'bare-image-rotate');
+  assert.equal(r2.rule, 'bare-image-rotate');
+  assert.ok(r0.lines.some(l => l.trim() === '[.bare-image-position: center]'));
+  assert.ok(r1.lines.some(l => l.includes('![left](b.jpg)')));
+  assert.ok(r2.lines.some(l => l.includes('![right](c.jpg)')));
 });
 
-test('image with modifiers is NOT split (explicit)', () => {
+test('rotation wraps after 3: 4th bare image is center again', () => {
+  const ctx = createContext();
+  const slides = [
+    lines('![](a.jpg)\n\nText A'),
+    lines('![](b.jpg)\n\nText B'),
+    lines('![](c.jpg)\n\nText C'),
+    lines('![](d.jpg)\n\nText D'),
+  ];
+  slides.forEach((s, i) => applyAutoflow(s, i, undefined, undefined, ctx));
+  // Re-run the 4th and check it's center again
+  const ctx2 = createContext();
+  ctx2.state.lastBareImageSide = 'right'; // simulate after 3 calls
+  const r4 = applyAutoflow(slides[3], 3, undefined, undefined, ctx2);
+  assert.ok(r4.lines.some(l => l.trim() === '[.bare-image-position: center]'));
+});
+
+test('image with modifiers is NOT bare-image-rotate (explicit)', () => {
   const input = lines('![fit](photo.jpg)\n\nSome text');
   const result = applyAutoflow(input, 0);
   assert.equal(result.rule, 'explicit');
 });
 
-test('image-only slide is NOT split (no text)', () => {
+test('image-only slide is NOT bare-image-rotate (no text)', () => {
   const input = lines('![](photo.jpg)');
   const result = applyAutoflow(input, 0);
-  assert.notEqual(result.rule, 'split');
+  assert.notEqual(result.rule, 'bare-image-rotate');
 });
 
-test('two images is NOT split', () => {
+test('two images is NOT bare-image-rotate', () => {
   const input = lines('![](a.jpg)\n![](b.jpg)\nSome text');
   const result = applyAutoflow(input, 0);
-  assert.notEqual(result.rule, 'split');
+  assert.notEqual(result.rule, 'bare-image-rotate');
 });
 
 // ============================================================
@@ -741,10 +772,11 @@ test('manual [.autoscale: true] without autoflow gets no tier', () => {
   assert.ok(!html.includes('data-autoscale-tier'), 'Manual autoscale should have no tier (no line count)');
 });
 
-test('autoflow split alternates left/right across slides', () => {
+test('autoflow bare-image-rotate produces split for 2nd bare image (left)', () => {
+  // Slide 1 = center (position directive only, no split). Slide 2 = left (real split).
   const md = '![](a.jpg)\n\nTitle A\n\n---\n\n![](b.jpg)\n\nTitle B';
   const html = parseDecksetMarkdown(md, { autoflow: true });
-  assert.ok(html.includes('deckset-split'), 'Expected split layout');
+  assert.ok(html.includes('deckset-split'), 'Expected split layout from 2nd bare image');
 });
 
 // ============================================================

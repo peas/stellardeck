@@ -4,7 +4,7 @@
   "description": "Markdown presentation engine — Deckset-compatible, autoflow layouts, zero dependencies",
   "scripts": {
     "serve": "python3 scripts/dev-server.py 3031",
-    "test": "node test/deckset-parser.test.js && node test/viewer-helpers.test.js && node test/autoflow.test.js && node test/parser-structure.test.js && node test/unit.test.js",
+    "test": "node test/deckset-parser.test.js && node test/viewer-helpers.test.js && node test/autoflow.test.js && node test/autoflow-fixtures.test.js && node test/parser-structure.test.js && node test/unit.test.js",
     "test:e2e": "npx playwright test --project=chromium test/e2e.test.js",
     "test:layout": "npx playwright test --project=chromium test/layout.test.js test/consistency.test.js",
     "test:visual": "npx playwright test --project=chromium test/visual.test.js",

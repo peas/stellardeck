@@ -1,0 +1,40 @@
+---
+title: 'Autoflow rule: divider'
+description: A 1-2 word slide becomes a giant section break.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['divider'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+## When it fires
+
+- The slide has **exactly 1** non-empty content line
+- That line is plain text (no heading, no image, no list)
+- That line is **≤2 words** (configurable via `dividerMaxWords`)
+
+## What it does
+
+- Wraps the line in `#[fit]`
+- Adds `[.heading-align: center]`
+- The whole slide becomes a giant section break
+
+## Anti-monotony
+
+When several dividers fire **in a row**, the alignment cycles
+`center → left → right → center → ...` (via the rule's `vary` function).
+This is one form of cross-slide history — using the count of consecutive
+prior dividers to break visual monotony.
+
+## Live fixture
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```

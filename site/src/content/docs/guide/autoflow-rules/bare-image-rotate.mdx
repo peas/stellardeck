@@ -1,0 +1,69 @@
+---
+title: 'Autoflow rule: bare-image-rotate'
+description: A bare ![](src) rotates position across the deck — center → left → right → ...
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['bare-image-rotate'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+This is **the only rule that uses cross-slide state**. Every other rule
+treats each slide independently. This one looks at the position used for
+the **previous bare image** in the deck and rotates to the next.
+
+## When it fires
+
+- The slide has **exactly 1 image** with **no layout modifier**
+  (no `right` / `left` / `inline` / `qr` / `fit` / `filtered` / `bg`)
+- The slide also has at least 1 non-image content line (heading or text)
+
+## What it does
+
+The rule reads `ctx.state.lastBareImageSide` and picks the next position:
+
+```
+1st bare image in deck → center  (large hero, text above)
+2nd bare image in deck → left    (image left, text right split)
+3rd bare image in deck → right   (image right, text left split)
+4th → center,  5th → left,  6th → right, ...
+```
+
+- `center` emits `[.bare-image-position: center]` so the parser/CSS lays
+  the image as a hero with text above.
+- `left` / `right` rewrite `![](src)` → `![left](src)` / `![right](src)`,
+  reusing the existing split parser.
+
+The rotation persists across the **entire deck** via `ctx.state`, not just
+within the current slide. Even if other rules fire between two bare-image
+slides, the rotation continues from where it left off.
+
+## Why this rule
+
+Without it, an author with several plain `![](src)` slides would have to
+manually decide a side for each one. Forgetting to vary results in every
+photo on the same side, which feels mechanical. The rotation gives natural
+rhythm without any thinking from the author.
+
+## Live fixture
+
+The fixture below has 4 bare-image slides in a row. Watch the position
+cycle through center → left → right → center as you flip through.
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```
+
+## Future enhancement
+
+A planned upgrade: measure the image at render time (`naturalWidth/Height`)
+and prefer **portrait → split** vs **landscape → centered hero** instead of
+strict rotation. The CSS classes would be applied via a small JS helper in
+`js/render.js`, not in autoflow itself (which is sync markdown→markdown).
+Tracked in the roadmap.

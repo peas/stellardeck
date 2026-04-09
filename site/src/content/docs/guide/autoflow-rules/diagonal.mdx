@@ -1,0 +1,39 @@
+---
+title: 'Autoflow rule: diagonal'
+description: Two short paragraphs (one ending in ?) get pulled across the slide.
+---
+
+import StellarDeck from '../../../../components/StellarDeck.astro';
+import { autoflowFixtures } from '../../../../data/autoflow-fixtures';
+
+export const fixture = autoflowFixtures['diagonal'];
+
+**Priority {fixture.priority}** · {fixture.description}
+
+## When it fires
+
+- The slide has **exactly 2 paragraphs**
+- Each paragraph is short (≤10 words, ≤3 lines)
+- **At least one paragraph ends with `?`**
+
+## What it does
+
+- First paragraph gets `#[top-left]`
+- Second paragraph gets `#[bottom-right]`
+- Reads as a question pulling diagonally to its answer
+
+## Anti-monotony
+
+Every other diagonal slide **mirrors the corners** (top-right + bottom-left)
+so two consecutive diagonals don't read identically. This is what the rule's
+`vary` function does, using the count of consecutive prior diagonals.
+
+## Live fixture
+
+<StellarDeck source={fixture.md} autoflow={true} />
+
+## Source
+
+```markdown
+{fixture.md}
+```
