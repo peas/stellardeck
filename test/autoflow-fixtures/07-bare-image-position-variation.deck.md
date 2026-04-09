@@ -35,7 +35,7 @@ The 4 slides below show one full cycle + wrap:
   slide 4: 4th bare image → inline  (cycle wraps)
 -->
 
-![](../../demo/images/vibe-coding/karpathy-vibe.webp)
+![](/demo/images/vibe-coding/karpathy-vibe.webp)
 
 # First image of the deck
 
@@ -43,7 +43,7 @@ This one becomes inline (image in flow, text above).
 
 ---
 
-![](../../demo/images/vibe-coding/seven-languages-book.webp)
+![](/demo/images/vibe-coding/seven-languages-book.webp)
 
 # Second image
 
@@ -51,7 +51,7 @@ This one varies to left split.
 
 ---
 
-![](../../demo/images/vibe-coding/pragmatic-programmer-tweet.webp)
+![](/demo/images/vibe-coding/pragmatic-programmer-tweet.webp)
 
 # Third image
 
@@ -59,7 +59,7 @@ And this one varies to right split.
 
 ---
 
-![](../../demo/images/vibe-coding/bravenewgeek-you-are-not-paid.webp)
+![](/demo/images/vibe-coding/bravenewgeek-you-are-not-paid.webp)
 
 # Fourth image
 

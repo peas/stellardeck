@@ -22,15 +22,27 @@ export function resolveImageSrcs() {
   if (!state.fileDir) return;
 
   document.querySelectorAll('.reveal img').forEach(img => {
-    const src = img.getAttribute('src');
-    if (isExternal(src)) return;
+    // Capture the ORIGINAL src once per element. After resolveImageSrcs
+    // sets img.src to a resolved path, subsequent reads of getAttribute('src')
+    // return the resolved path (not the original `../assets/...`). Re-running
+    // resolveImageSrcs would then re-resolve against state.fileDir and prepend
+    // the dir AGAIN (e.g. `assets/x.webp` → `test/assets/x.webp`). To avoid
+    // that, we stash the original on first read and always resolve from it.
+    if (!img.dataset.originalSrc) {
+      img.dataset.originalSrc = img.getAttribute('src') || '';
+    }
+    const src = img.dataset.originalSrc;
+    if (!src || isExternal(src)) return;
     const resolved = resolveRelativePath(state.fileDir, src);
     img.src = IS_TAURI ? convertFileSrc(resolved) : resolved;
   });
 
   document.querySelectorAll('section[data-background-image]').forEach(sec => {
-    const bg = sec.getAttribute('data-background-image');
-    if (isExternal(bg)) return;
+    if (!sec.dataset.originalBg) {
+      sec.dataset.originalBg = sec.getAttribute('data-background-image') || '';
+    }
+    const bg = sec.dataset.originalBg;
+    if (!bg || isExternal(bg)) return;
     const resolved = resolveRelativePath(state.fileDir, bg);
     sec.setAttribute('data-background-image', IS_TAURI ? convertFileSrc(resolved) : resolved);
   });

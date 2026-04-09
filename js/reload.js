@@ -20,10 +20,12 @@ export async function fetchMarkdown(file) {
   // Browser mode: fetch via HTTP server
   const resp = await fetch(file + '?t=' + Date.now());
   if (!resp.ok) throw new Error(`${resp.status}`);
-  let md = await resp.text();
-  md = md.replace(/(?:\.\.\/)+assets\//g, 'assets/');
-  md = md.replace(/\.\/assets\//g, 'assets/');
-  return md;
+  return await resp.text();
+  // NOTE: do NOT mutate `../assets/` here. Image path resolution belongs
+  // in js/images.js (resolveImageSrcs), which uses state.fileDir to resolve
+  // each `<img src>` against the deck's directory. Mutating the raw markdown
+  // here used to cause double-resolution: this stripped `../`, then
+  // resolveImageSrcs prepended fileDir on top → wrong path.
 }
 
 export async function smartReload() {

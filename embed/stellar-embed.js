@@ -351,6 +351,33 @@ const StellarEmbed = (() => {
     const slidesEl = reveal.querySelector('.slides');
     slidesEl.innerHTML = parseDecksetMarkdown(markdown, { autoflow, slideIndexOffset });
 
+    // Replace browser-default broken-image icons with the .broken-image
+    // placeholder div (red dashed border + path) so failed loads are obvious
+    // and self-explanatory in embed contexts (no surprise icons from 2002).
+    slidesEl.querySelectorAll('img').forEach(img => {
+      if (img._errorHandled) return;
+      img._errorHandled = true;
+      const swap = () => {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'broken-image';
+        placeholder.textContent = '⚠ Image not found:\n' + img.getAttribute('src');
+        img.replaceWith(placeholder);
+      };
+      if (img.complete && img.naturalWidth === 0) {
+        swap();
+      } else {
+        img.addEventListener('error', swap, { once: true });
+      }
+    });
+    // Background images on <section data-background-image> — flag broken ones
+    slidesEl.querySelectorAll('section[data-background-image]').forEach(sec => {
+      const url = sec.getAttribute('data-background-image');
+      if (!url) return;
+      const test = new Image();
+      test.onerror = () => sec.setAttribute('data-bg-broken', '⚠ ' + url);
+      test.src = url;
+    });
+
     const isSingle = !showControls;
     const deckConfig = {
       embedded: true,
