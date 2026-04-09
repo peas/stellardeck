@@ -83,11 +83,51 @@ async function loadFile(file) {
 // Expose loadFile for keyboard handler (Cmd+O) and native menu (Open Recent)
 window._loadFile = loadFile;
 window._loadFileFromMenu = async (path) => {
-  document.getElementById('welcome-screen')?.classList.remove('visible');
-  document.querySelector('.reveal').style.display = '';
-  await loadFile(path);
-  await renderDeck();
+  const welcome = document.getElementById('welcome-screen');
+  const wasWelcomeVisible = welcome?.classList.contains('visible');
+  const reveal = document.querySelector('.reveal');
+  const prevRevealDisplay = reveal.style.display;
+
+  welcome?.classList.remove('visible');
+  reveal.style.display = '';
+
+  try {
+    await loadFile(path);
+    await renderDeck();
+  } catch (err) {
+    // Show the error as a toast + restore the previous visual state so the
+    // user isn't left staring at a blank screen.
+    const msg = err?.message || String(err);
+    const shortPath = path.split('/').pop();
+    showToast(`Could not open ${shortPath}: ${msg}`, 6000);
+    console.error('_loadFileFromMenu failed:', err);
+    // If the user had nothing open before, bring the welcome screen back.
+    if (wasWelcomeVisible || state.tabs.length === 0) {
+      welcome?.classList.add('visible');
+      reveal.style.display = prevRevealDisplay || 'none';
+    }
+  }
 };
+
+// Fail-loud helper: shows the error screen and returns. Used for any
+// unrecoverable boot error so the user never sees a blank screen.
+function showBootError(context, err) {
+  const msg = err?.message || String(err);
+  console.error(`[StellarDeck] ${context} failed:`, msg);
+  const errorDiv = document.getElementById('error');
+  if (errorDiv) {
+    errorDiv.innerHTML = `
+      <h1>Could not start</h1>
+      <p><strong>${context}:</strong> <code>${msg}</code></p>
+      <p style="color:#94a3b8;margin-top:1rem">Try launching StellarDeck with <code>cargo tauri dev</code> (or <code>npm run tauri</code>) from the project directory.</p>
+    `;
+    errorDiv.style.display = 'block';
+  }
+  const reveal = document.querySelector('.reveal');
+  if (reveal) reveal.style.display = 'none';
+  const welcome = document.getElementById('welcome-screen');
+  if (welcome) welcome.classList.remove('visible');
+}
 
 async function main() {
   const params = new URLSearchParams(window.location.search);
@@ -96,12 +136,20 @@ async function main() {
   // Tauri mode: resolve relative path to absolute, or show file dialog
   if (IS_TAURI) {
     if (file && !file.startsWith('/')) {
-      const cwd = await tauriInvoke('get_project_root');
-      file = cwd + '/' + file;
+      try {
+        const cwd = await tauriInvoke('get_project_root');
+        file = cwd + '/' + file;
+      } catch (err) {
+        // Happens when the binary is launched directly (via `open`) instead
+        // of `cargo tauri dev` — cwd is wrong and the walker can't find
+        // viewer.html. Fall back to the welcome screen instead of hanging.
+        console.warn('[StellarDeck] get_project_root failed, falling back to welcome screen:', err);
+        file = null;
+      }
     }
-    if (!file) {
-      file = await tauriInvoke('open_file_dialog', { currentDir: null });
-    }
+    // Note: we no longer auto-open a file picker on launch — if there's no
+    // file in the URL and no session, fall through to the welcome screen.
+    // Users can open files via Cmd+O or the welcome screen buttons.
   }
 
   // Restore previous session if available (Tauri mode)
@@ -409,4 +457,15 @@ async function main() {
   }
 }
 
-main();
+// Top-level safety net: any boot error that escapes main() should show an
+// error screen, not leave the user with a blank window.
+main().catch(err => showBootError('Boot', err));
+
+// Global unhandled rejection handler — same safety net for stray promises.
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[StellarDeck] unhandled rejection:', e.reason);
+  // Only show the error screen if nothing has rendered yet
+  if (!state.tabs.length && !document.querySelector('.reveal .slides section')) {
+    showBootError('Unhandled error', e.reason);
+  }
+});

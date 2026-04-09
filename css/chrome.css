@@ -237,7 +237,21 @@
 
 
     /* ===== Error state ===== */
-    #error { display: none; color: #f87171; padding: 2rem; font-family: Inter, sans-serif; }
+    #error {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 300;
+      background: #1a1a1f;
+      color: #e2e8f0;
+      padding: 3rem 2rem;
+      font-family: Inter, sans-serif;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      overflow-y: auto;
+    }
+    #error h1 { color: #f87171; font-size: 1.4rem; margin: 0 0 1rem; font-weight: 600; }
+    #error code { background: #2a2a35; color: #fbbf24; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.82rem; }
+    #error p { margin: 0.5rem 0; max-width: 640px; }
 
     /* ===== Welcome screen ===== */
     #welcome-screen {

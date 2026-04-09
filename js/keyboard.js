@@ -20,12 +20,22 @@ export function setupKeyboard() {
         tauriInvoke('open_file_dialog', { currentDir: dir }).then(async (newFile) => {
           if (!newFile) return;
           if (state.isFullscreen) exitFullscreen();
-          // loadFile is on window (set by main.js)
-          await window._loadFile(newFile);
-          Reveal.sync(); syncMeasurer(); setupBrokenImageHandlers();
-          requestAnimationFrame(() => fitText());
-          state.gridBuilt = false;
-          showToast(tabName(newFile));
+          try {
+            // loadFile is on window (set by main.js)
+            await window._loadFile(newFile);
+            Reveal.sync(); syncMeasurer(); setupBrokenImageHandlers();
+            requestAnimationFrame(() => fitText());
+            state.gridBuilt = false;
+            showToast(tabName(newFile));
+          } catch (err) {
+            const msg = err?.message || String(err);
+            const shortPath = newFile.split('/').pop();
+            showToast(`Could not open ${shortPath}: ${msg}`, 6000);
+            console.error('Cmd+O load failed:', err);
+          }
+        }).catch(err => {
+          showToast(`File picker error: ${err?.message || String(err)}`, 6000);
+          console.error('open_file_dialog failed:', err);
         });
       }
       if (e.key === 'e') { e.preventDefault(); openInExternalEditor(); }
