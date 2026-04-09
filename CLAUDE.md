@@ -145,7 +145,7 @@ Types: `overflow`, `missing-image`, `empty-slide`, `code-no-lang`, `theme-mismat
 - `--html` self-contained export
 - `--parallel N` for batch
 - Runtime theme registration
-- **Autoflow rule: lone-URL → QR.** If a slide has only one URL line (and optionally a short label), autoflow renders it as a QR code via the existing `![qr]()` machinery. Open question: collide with slides that just want a clickable link? Prototype behind a flag first.
+- **Autoflow rule: lone-URL → QR + clickable link below.** If a slide has only one URL line (optionally with a short label), autoflow renders the URL as a large centered QR code AND keeps the clickable link rendered below it in small text. Solves both use cases at once: the audience scans, the presenter clicks during demo. Heuristic: trigger when URL is the only meaningful content. No new directive needed — pure autoflow inference. Prototype behind a flag first.
 
 ### 1.0
 - Windows build + CI
@@ -169,3 +169,56 @@ Types: `overflow`, `missing-image`, `empty-slide`, `code-no-lang`, `theme-mismat
 ## Repo origin
 
 This repo is a sync target from `peas/presentations-paulo`, where the engine was originally developed alongside Paulo Silveira's personal decks. As of 2026-04, work is shifting to `peas/stellardeck` as the primary development base. The sync script in the source repo skips `assets/`, `demo/`, `site/`, `LICENSE`, `README.md`, and `.github/` so they remain stable here.
+
+## TODO — Invert source of truth (in progress, 2026-04-09)
+
+The historical flow was: engine developed in `~/presentations-paulo` (Paulo's
+deck repo), `scripts/sync-to-stellardeck.sh` rsync'd engine files to this repo
+on demand. As of 2026-04-09, work is migrating: this repo (`~/stellardeck`)
+becomes the primary development base. Inversion is **not yet executed** — it
+needs a dedicated session because:
+
+1. **Where do the engine files live afterwards?** Today both repos have them.
+   Options:
+   - (a) Delete engine files from presentations-paulo entirely; that repo
+     becomes pure `.md` decks. To preview/export, Paulo opens `~/stellardeck`
+     and runs the CLI from there with `--input-dir ~/presentations-paulo`.
+   - (b) Keep engine files in presentations-paulo as a stale read-only mirror
+     so Paulo can run `npm run serve` locally without leaving the deck dir.
+     Mirror updates via a new `sync-from-stellardeck.sh`.
+   - (c) Make `stellardeck` an npm-installable package and have presentations-
+     paulo `npm install stellardeck` instead of mirroring source.
+
+2. **CLI invocation from presentations-paulo.** Today `npm run export -- deck.md`
+   in presentations-paulo runs the local copy. After inversion, it has to point
+   somewhere — either a globally installed CLI, or a relative `../stellardeck`
+   path, or the npm package.
+
+3. **Tests on real decks.** Some integration tests in this repo use Paulo's
+   real decks as fixtures (via the test/batch-fixture/ dir). After inversion,
+   we may want to add a test mode that points at `$STELLARDECK_DECKS` (env
+   var) or at the path in `CLAUDE.local.md`, so engine changes can still be
+   smoke-tested against real content without committing the decks here.
+
+4. **Skill location.** The `.claude/skills/stellardeck/` dir exists in both
+   repos today (synced). After inversion, this repo is canonical. The
+   presentations-paulo copy can be deleted or kept as a read-only convenience.
+
+5. **CI surface area.** This repo's CI already runs the engine tests on
+   Node 20/22 + e2e (chromium). After inversion, presentations-paulo needs
+   either no CI (just deck content) or a deck-validation CI that uses
+   stellardeck (npm or git submodule) to lint/render the decks.
+
+**Recommended first session of inversion:**
+1. Decide between (a)/(b)/(c) above (favor (a) — simplest, cleanest).
+2. Delete engine files from presentations-paulo on a branch, run all its
+   tests, see what breaks. Most likely: nothing important if presentations-
+   paulo becomes pure decks.
+3. Update presentations-paulo CLAUDE.md to say "decks only — engine lives
+   in `~/stellardeck`".
+4. Delete `scripts/sync-to-stellardeck.sh` from presentations-paulo (it
+   becomes meaningless).
+5. Keep this repo's CI green throughout.
+
+The migration is **not urgent** — the current dual-repo + sync setup works.
+Plan it deliberately when there's time to test thoroughly.
