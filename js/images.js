@@ -4,22 +4,35 @@ import { convertFileSrc, resolveRelativePath } from './path-utils.js';
 
 export { convertFileSrc, resolveRelativePath };
 
-// In Tauri mode, convert all relative image srcs to localfile:// URLs
+// Resolve relative image srcs against the deck's directory.
+// In Tauri mode the resolved path is wrapped in convertFileSrc (localfile://).
+// In browser mode the resolved path is set as-is so the dev-server serves it.
+// Without this, relative paths like `./assets/x.png` get interpreted by the
+// browser relative to viewer.html (the wrong dir).
+function isExternal(s) {
+  return !s
+    || s.startsWith('http')
+    || s.startsWith('data:')
+    || s.startsWith('localfile:')
+    || s.startsWith('blob:')
+    || s.startsWith('/');
+}
+
 export function resolveImageSrcs() {
-  if (!IS_TAURI || !state.fileDir) return;
+  if (!state.fileDir) return;
 
   document.querySelectorAll('.reveal img').forEach(img => {
     const src = img.getAttribute('src');
-    if (src && !src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('localfile:') && !src.startsWith('blob:')) {
-      img.src = convertFileSrc(resolveRelativePath(state.fileDir, src));
-    }
+    if (isExternal(src)) return;
+    const resolved = resolveRelativePath(state.fileDir, src);
+    img.src = IS_TAURI ? convertFileSrc(resolved) : resolved;
   });
 
   document.querySelectorAll('section[data-background-image]').forEach(sec => {
     const bg = sec.getAttribute('data-background-image');
-    if (bg && !bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('localfile:') && !bg.startsWith('blob:')) {
-      sec.setAttribute('data-background-image', convertFileSrc(resolveRelativePath(state.fileDir, bg)));
-    }
+    if (isExternal(bg)) return;
+    const resolved = resolveRelativePath(state.fileDir, bg);
+    sec.setAttribute('data-background-image', IS_TAURI ? convertFileSrc(resolved) : resolved);
   });
 }
 
