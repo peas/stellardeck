@@ -20,6 +20,10 @@ const {
   processContentLines,
   extractDirectives,
   extractNotes,
+  DIRECTIVE_REGISTRY,
+  FRONTMATTER_NAMES,
+  isFrontmatterLine,
+  sectionAttrsFromDirectives,
 } = require('../deckset-parser.js');
 
 // ============================================================
@@ -1179,6 +1183,78 @@ Karl Popper
 
   // Slide 11: YouTube
   assert.ok(html.includes('youtube.com/embed'));
+});
+
+// ============================================================
+// Directive registry
+// ============================================================
+console.log('\n── Directive registry ──');
+
+test('DIRECTIVE_REGISTRY is a non-empty array', () => {
+  assert.ok(Array.isArray(DIRECTIVE_REGISTRY));
+  assert.ok(DIRECTIVE_REGISTRY.length >= 15, `Expected ≥15 directives, got ${DIRECTIVE_REGISTRY.length}`);
+});
+
+test('every entry has name and scope', () => {
+  for (const d of DIRECTIVE_REGISTRY) {
+    assert.ok(d.name, 'entry must have a name');
+    assert.ok(['global', 'slide', 'both'].includes(d.scope), `${d.name}: invalid scope "${d.scope}"`);
+  }
+});
+
+test('FRONTMATTER_NAMES includes core global directives', () => {
+  for (const name of ['theme', 'scheme', 'footer', 'slidenumbers', 'autoflow']) {
+    assert.ok(FRONTMATTER_NAMES.has(name), `Expected "${name}" in FRONTMATTER_NAMES`);
+  }
+});
+
+test('FRONTMATTER_NAMES does NOT include slide-only directives', () => {
+  for (const name of ['background-color', 'heading-align', 'bullets-layout', 'text']) {
+    assert.ok(!FRONTMATTER_NAMES.has(name), `"${name}" should NOT be in FRONTMATTER_NAMES (scope=slide)`);
+  }
+});
+
+test('isFrontmatterLine matches known keys', () => {
+  assert.ok(isFrontmatterLine('theme: nordic'));
+  assert.ok(isFrontmatterLine('scheme: 1'));
+  assert.ok(isFrontmatterLine('footer: hello'));
+  assert.ok(isFrontmatterLine('autoflow: true'));
+});
+
+test('isFrontmatterLine rejects unknown keys and non-key lines', () => {
+  assert.ok(!isFrontmatterLine('# Heading'));
+  assert.ok(!isFrontmatterLine('random text'));
+  assert.ok(!isFrontmatterLine('background-color: #fff'));  // slide-only
+  assert.ok(!isFrontmatterLine(''));
+});
+
+test('sectionAttrsFromDirectives applies background-color', () => {
+  const result = sectionAttrsFromDirectives({ 'background-color': '#1a1a2e' });
+  assert.ok(result.includes('data-background-color="#1a1a2e"'));
+});
+
+test('sectionAttrsFromDirectives applies autoscale with tier', () => {
+  const result = sectionAttrsFromDirectives({ 'autoscale': 'true', 'autoscale-lines': '15' });
+  assert.ok(result.includes('data-autoscale="true"'));
+  assert.ok(result.includes('data-autoscale-tier="moderate"'));
+});
+
+test('sectionAttrsFromDirectives applies heading-align as CSS var', () => {
+  const result = sectionAttrsFromDirectives({ 'heading-align': 'center' });
+  assert.ok(result.includes('--sd-heading-align: center'));
+});
+
+test('sectionAttrsFromDirectives applies bullets-layout', () => {
+  const result = sectionAttrsFromDirectives({ 'bullets-layout': 'cards' });
+  assert.ok(result.includes('data-bullets-layout="cards"'));
+});
+
+test('adding a new directive to registry works (round-trip)', () => {
+  // Simulate: the registry already has bullets-layout, which was added in this session.
+  // Verify that parseDecksetMarkdown correctly handles it end-to-end.
+  const md = '[.bullets-layout: pills]\n\n# Test\n\n- Item 1\n- Item 2';
+  const html = parseDecksetMarkdown(md);
+  assert.ok(html.includes('data-bullets-layout="pills"'), 'Expected bullets-layout data attr in section');
 });
 
 // ============================================================
