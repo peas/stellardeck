@@ -7,8 +7,8 @@ A markdown presentation tool: write Deckset-flavored markdown, get a polished sl
 Built on four ideas:
 
 1. **Storytelling.** Slides are moments. Markdown's constraints keep focus on what you're saying.
-2. **Autoflow.** Convention over configuration. Write content, get layouts. 8+ rules, anti-monotony.
-3. **Agent-native.** CLI with JSON output, stdin, batch mode, structured diagnostics. Agents create decks from source text, export, validate, iterate.
+2. **Autoflow.** Convention over configuration. Write content, get layouts. 9 rules, anti-monotony. Default ON — opt-out with `autoflow: false`.
+3. **Agent-native.** CLI with JSON output, stdin, batch mode, structured diagnostics. `--preview` opens browser, `--serve` starts dev server. Agents create decks from source text, export, validate, iterate.
 4. **Simple.** No build step, no bundler. The `.md` file is the artifact. Render parity across Tauri, browser, embed, CLI.
 
 Design principle: **"Can an LLM generate this?"** If yes, it belongs. If no, it doesn't.
@@ -30,6 +30,19 @@ When I say "open my deck X" or "validate my decks", look there first.
 
 This pattern keeps personal paths out of the public repo while still giving agents enough context to navigate.
 
+**Repo relationship with `~/presentations-paulo`:**
+
+| | This repo (`~/stellardeck`) | `~/presentations-paulo` |
+|---|---|---|
+| **Purpose** | Engine, CLI, tests, samples, site | Paulo's actual talk decks |
+| **Sample decks** | `demo/` (bean-to-bar, hand-balancing, vibe-coding) | NOT here (removed) |
+| **Paulo's talks** | NOT here | `vibe/`, `1bi-dev/`, `vibecoders-builders-hipsters/`, etc. |
+| **Engine code** | Canonical source | Copy (synced via `sync-to-stellardeck.sh`) |
+| **Recent decks index** | N/A | `recent-decks.jsonl` |
+
+When Paulo says "open my talk X" → look in `~/presentations-paulo/recent-decks.jsonl`.
+When editing engine/CLI/autoflow → edit here in `~/stellardeck`.
+
 ## Commands
 
 ```bash
@@ -42,7 +55,9 @@ npm run test:export        # 40 CLI integration tests (PDF, PNG, grid, batch, wa
 npm run test:export:unit   # export unit tests only (no browser)
 npm run test:visual        # 18 visual regression tests
 npm run test:all           # all of the above
+npm run preview -- deck.md # open in browser (starts server, Ctrl+C stops)
 npm run export -- deck.md  # export (--pdf default, --png, --grid, --json, --help)
+npm run export -- --serve  # start dev server + open viewer
 npm run pdf -- deck.md     # alias for --pdf
 npm run tauri              # cargo tauri dev (HTTP server + desktop app)
 ```
