@@ -43,6 +43,7 @@
       pointer-events: none;
     }
     .grid-slide-inner .fragment { opacity: 1 !important; } /* show all fragments in grid */
+    .grid-slide-inner .deckset-fit { overflow: hidden; } /* clip fit text in grid thumbnails */
     .grid-slide-number {
       position: absolute; bottom: 4px; right: 8px;
       font-family: 'Inter', sans-serif;
