@@ -286,7 +286,7 @@ Alan Kay
 
 ---
 
-![](../samples/images/stellardeck-first-talk-startse.jpg)
+![](../demo/images/stellardeck-first-talk-startse.jpg)
 
 # First Talk with StellarDeck
 

@@ -14,7 +14,7 @@ Usage: node scripts/analyze-style.js
 Analyzes all .md presentation files in presentation directories,
 computes statistical patterns, and prints a structured report.
 
-Excludes: test/, docs/, demo/, samples/, site/, old/, node_modules/, .claude/
+Excludes: test/, docs/, demo/, site/, old/, node_modules/, .claude/
 `);
   process.exit(0);
 }

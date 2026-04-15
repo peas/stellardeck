@@ -1025,16 +1025,13 @@ test('marp-example.md parses without errors', () => {
   assert.ok(html.includes('<h1>Marp</h1>'), 'Setext heading should render');
 });
 
-// Sample decks live in `samples/` (presentations-paulo) or `demo/` (stellardeck).
-// Try both locations so the same test runs in both repos.
+// Demo decks live in `demo/`.
 function loadSample(name) {
   const fs = require('fs');
   const path = require('path');
-  for (const dir of ['samples', 'demo']) {
-    const p = path.join(__dirname, '..', dir, name);
-    if (fs.existsSync(p)) return fs.readFileSync(p, 'utf8');
-  }
-  throw new Error(`Sample not found in samples/ or demo/: ${name}`);
+  const p = path.join(__dirname, '..', 'demo', name);
+  if (fs.existsSync(p)) return fs.readFileSync(p, 'utf8');
+  throw new Error(`Demo deck not found: demo/${name}`);
 }
 
 test('hand-balancing.md parses all slides correctly', () => {

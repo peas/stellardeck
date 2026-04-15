@@ -29,7 +29,7 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
 
   Examples:
     node scripts/export-pptx.js test/smoke-test.md
-    node scripts/export-pptx.js vibe/vibecoding.md ~/Desktop/vibe.pptx
+    node scripts/export-pptx.js demo/vibe-coding.md ~/Desktop/vibe.pptx
   `);
   process.exit(0);
 }

@@ -34,7 +34,7 @@ This pattern keeps personal paths out of the public repo while still giving agen
 
 | | This repo (`~/stellardeck`) | `~/presentations-paulo` |
 |---|---|---|
-| **Purpose** | Engine, CLI, tests, samples, site | Paulo's actual talk decks |
+| **Purpose** | Engine, CLI, tests, demo decks, site | Paulo's actual talk decks |
 | **Sample decks** | `demo/` (bean-to-bar, hand-balancing, vibe-coding) | NOT here (removed) |
 | **Paulo's talks** | NOT here | `vibe/`, `1bi-dev/`, `vibecoders-builders-hipsters/`, etc. |
 | **Engine code** | Canonical source | Copy (synced via `sync-to-stellardeck.sh`) |
@@ -80,7 +80,7 @@ npm run tauri              # cargo tauri dev (HTTP server + desktop app)
 ├── test/                     # Unit + integration tests
 ├── docs/                     # format-spec.yaml, autoflow plan, roadmap
 ├── src-tauri/                # Tauri 2.0 desktop app
-├── samples/                  # Sample decks
+├── demo/                     # Demo decks (bean-to-bar, hand-balancing, vibe-coding)
 └── .claude/skills/stellardeck/ # Claude Code skill: source text → slides
 ```
 

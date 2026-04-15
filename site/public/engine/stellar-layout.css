@@ -178,11 +178,28 @@
 
     /* ===== Accent color patterns ===== */
     .sd-slide strong { color: var(--sd-accent-bold-color, inherit); }
+    /* Inside headings, accent often == heading color → bold is invisible.
+       Fix: use main color (body text), which always contrasts with heading. */
+    .sd-slide :is(h1, h2, h3, h4, h5, h6) strong { color: var(--r-main-color); }
     .sd-slide del {
       color: var(--sd-accent-bold-color, inherit);
       text-decoration-color: var(--sd-accent-bold-color, inherit);
     }
+    .sd-slide :is(h1, h2, h3, h4, h5, h6) del { color: var(--r-main-color); text-decoration-color: var(--r-main-color); }
     .sd-slide li::marker { color: var(--sd-accent-bullets-color, inherit); }
+    /* Inline code — monospace + accent color */
+    .sd-slide :not(pre) > code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+      color: var(--sd-accent-bold-color, var(--accent));
+      background: rgba(127,127,127,0.12);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+    .sd-slide :is(h1, h2, h3, h4, h5, h6) code {
+      color: var(--r-main-color);
+      background: rgba(127,127,127,0.15);
+    }
     /* Alternating line colors for paragraph-heavy slides */
     .deckset-alternating p:nth-child(even) {
       color: var(--accent, var(--r-heading-color));
@@ -265,7 +282,7 @@
       font-size: clamp(2rem, 7vw, 5rem); /* fallback — JS overrides with exact fit */
       margin: 0;
       padding: 0;
-      overflow: hidden;
+      overflow: visible;
     }
     /* #[fit] alignment follows theme (default: center for main, left for split) */
     .sd-slide > .deckset-fit { text-align: var(--sd-heading-align, left); }

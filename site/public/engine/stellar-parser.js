@@ -58,9 +58,92 @@
 const VIDEO_EXTS = ['.mp4', '.mov', '.m4v', '.webm', '.ogg'];
 const AUDIO_EXTS = ['.mp3', '.m4a', '.ogg', '.wav', '.aac'];
 
-const FRONTMATTER_KEYS = /^(footer|slidenumbers|theme|scheme|autoscale|autoflow|build-lists|slide-transition|slidecount):/i;
-
 const DIRECTIVE_RE = /^\[\.([a-z-]+)(?::\s*([^\]]*))?\]$/i;
+
+// ============================================================
+// Directive registry — single source of truth for all directives
+// ============================================================
+//
+// Each directive is { name, scope, apply? }.
+//   name:   key as it appears in markdown (lowercase)
+//   scope:  'global' (frontmatter only), 'slide' ([.bracket] only), 'both'
+//   apply:  optional (value, ctx, allDirectives) → mutate ctx.attrs[] and ctx.styles[]
+//           Only relevant for slide-level directives that emit <section> attributes.
+//           Global-only directives don't need apply — they're read from globalDirectives
+//           directly by the code that uses them (e.g. footer, theme, scheme).
+//
+// Adding a new directive = one entry here. No regex to update, no if/else to add.
+
+const DIRECTIVE_REGISTRY = [
+  // ── Global frontmatter (Deckset-style key: value at top of file) ──
+  { name: 'footer',           scope: 'global' },
+  { name: 'slidenumbers',     scope: 'global' },
+  { name: 'slidecount',       scope: 'global' },
+  { name: 'theme',            scope: 'global' },
+  { name: 'scheme',           scope: 'global' },
+  { name: 'autoflow',         scope: 'global' },
+  { name: 'build-lists',      scope: 'both' },
+
+  // ── Slide-level: data attributes ──
+  { name: 'background-color', scope: 'slide',
+    apply: (val, ctx) => ctx.attrs.push(`data-background-color="${val}"`) },
+  { name: 'background-image', scope: 'slide',
+    apply: (val, ctx) => ctx.attrs.push(`data-background-image="${val}"`) },
+  { name: 'slide-transition',  scope: 'both',
+    apply: (val, ctx) => ctx.attrs.push(`data-transition="${val}"`) },
+  { name: 'bullets-layout',   scope: 'slide',
+    apply: (val, ctx) => ctx.attrs.push(`data-bullets-layout="${val}"`) },
+  { name: 'bare-image-position', scope: 'slide',
+    apply: (val, ctx) => ctx.attrs.push(`data-bare-image-position="${val}"`) },
+
+  // ── Slide-level: autoscale (compound — reads autoscale-lines too) ──
+  { name: 'autoscale',        scope: 'both',
+    apply: (val, ctx, all) => {
+      if (val === 'true' || val === true) {
+        const lineCount = parseInt(all['autoscale-lines'], 10) || 0;
+        const tier = lineCount >= 19 ? 'dense' : lineCount >= 13 ? 'moderate' : 'light';
+        ctx.attrs.push('data-autoscale="true"');
+        if (lineCount > 0) {
+          ctx.attrs.push(`data-autoscale-lines="${lineCount}"`);
+          ctx.attrs.push(`data-autoscale-tier="${tier}"`);
+        }
+      }
+    } },
+  { name: 'autoscale-lines',  scope: 'slide' }, // consumed by autoscale.apply above
+
+  // ── Slide-level: CSS custom properties (style attribute) ──
+  { name: 'heading-align',    scope: 'slide',
+    apply: (val, ctx) => ctx.styles.push(`--sd-heading-align: ${val}`) },
+  { name: 'header',           scope: 'slide',
+    apply: (val, ctx) => ctx.styles.push(`--r-heading-color: ${val}`) },
+  { name: 'header-strong',    scope: 'slide',
+    apply: (val, ctx) => ctx.styles.push(`--r-heading-color: ${val}`) },
+  { name: 'text',             scope: 'slide',
+    apply: (val, ctx) => ctx.styles.push(`--r-main-color: ${val}`) },
+  { name: 'accent-bold',      scope: 'slide',
+    apply: (val, ctx) => {
+      if (val === 'false') {
+        ctx.styles.push('--sd-accent-bold-color: inherit');
+        ctx.styles.push('--sd-accent-bullets-color: inherit');
+      }
+    } },
+  { name: 'alternating-colors', scope: 'slide' }, // consumed by parser (alternating class)
+];
+
+// Derived lookups — built once at parse time, never mutated.
+const FRONTMATTER_NAMES = new Set(
+  DIRECTIVE_REGISTRY
+    .filter(d => d.scope === 'global' || d.scope === 'both')
+    .map(d => d.name.toLowerCase())
+);
+
+/** Check if a line is a valid Deckset-style frontmatter entry (key: value). */
+function isFrontmatterLine(line) {
+  const colonIdx = line.indexOf(':');
+  if (colonIdx <= 0) return false;
+  const key = line.substring(0, colonIdx).trim().toLowerCase();
+  return FRONTMATTER_NAMES.has(key);
+}
 
 // Global reference links ([ref]: url) — set per-parse, used by markdownToHtml
 let _refLinks = {};
@@ -317,56 +400,28 @@ function extractDirectives(lines) {
  * @param {Object<string, string|boolean>} directives
  * @returns {string} HTML attributes string (with leading space if non-empty)
  */
+/**
+ * Build <section> attributes from directives using the DIRECTIVE_REGISTRY.
+ * Iterates the registry once; each entry with an `apply` function and a
+ * matching key in `directives` contributes to attrs[] or styles[].
+ *
+ * Adding a new directive = adding one entry to DIRECTIVE_REGISTRY with
+ * an `apply` function. No if/else chains needed here.
+ */
 function sectionAttrsFromDirectives(directives) {
-  let attrs = ' class="sd-slide"';
-  if (directives['background-color']) {
-    attrs += ` data-background-color="${directives['background-color']}"`;
-  }
-  if (directives['background-image']) {
-    attrs += ` data-background-image="${directives['background-image']}"`;
-  }
-  if (directives['slide-transition']) {
-    attrs += ` data-transition="${directives['slide-transition']}"`;
-  }
+  const ctx = { attrs: [], styles: [] };
 
-  // Color directives → CSS custom properties on section style
-  const styles = [];
-  if (directives['header'] || directives['header-strong']) {
-    const color = directives['header'] || directives['header-strong'];
-    styles.push(`--r-heading-color: ${color}`);
-  }
-  if (directives['text']) {
-    styles.push(`--r-main-color: ${directives['text']}`);
-  }
-  // [.accent-bold: false] disables accent coloring for bold text on this slide
-  if (directives['accent-bold'] === 'false') {
-    styles.push('--sd-accent-bold-color: inherit');
-    styles.push('--sd-accent-bullets-color: inherit');
-  }
-  // [.autoscale: true] — reduce font size for text-heavy slides
-  // [.autoscale-lines: N] — content line count → tier for progressive sizing
-  if (directives['autoscale'] === 'true' || directives['autoscale'] === true) {
-    const lineCount = parseInt(directives['autoscale-lines'], 10) || 0;
-    const tier = lineCount >= 19 ? 'dense' : lineCount >= 13 ? 'moderate' : 'light';
-    attrs += ' data-autoscale="true"';
-    if (lineCount > 0) {
-      attrs += ` data-autoscale-lines="${lineCount}" data-autoscale-tier="${tier}"`;
+  for (const entry of DIRECTIVE_REGISTRY) {
+    const key = entry.name;
+    if (key in directives && typeof entry.apply === 'function') {
+      entry.apply(directives[key], ctx, directives);
     }
   }
-  // [.heading-align: center|left|right] — override heading text alignment
-  if (directives['heading-align']) {
-    styles.push(`--sd-heading-align: ${directives['heading-align']}`);
-  }
-  // [.bullets-layout: cards|pills|staggered|alternating] — variant layouts for
-  // headline + 2-3 bullet slides. Used by the phrase-bullets autoflow rule.
-  if (directives['bullets-layout']) {
-    attrs += ` data-bullets-layout="${directives['bullets-layout']}"`;
-  }
-  if (styles.length > 0) {
-    attrs += ` style="${styles.join('; ')}"`;
-  }
 
-  return attrs;
+  let result = ' class="sd-slide"';
+  if (ctx.attrs.length > 0) result += ' ' + ctx.attrs.join(' ');
+  if (ctx.styles.length > 0) result += ` style="${ctx.styles.join('; ')}"`;
+  return result;
 }
 
 // ============================================================
@@ -1342,10 +1397,11 @@ function parseDecksetMarkdown(raw, options) {
       }
     }
   } else {
-    // Deckset-style: key: value lines at the top (no delimiters)
+    // Deckset-style: key: value lines at the top (no delimiters).
+    // Uses isFrontmatterLine() which checks against FRONTMATTER_NAMES
+    // derived from DIRECTIVE_REGISTRY. No regex to maintain.
     for (let i = 0; i < allLines.length; i++) {
-      const fm = allLines[i].match(FRONTMATTER_KEYS);
-      if (fm) {
+      if (isFrontmatterLine(allLines[i])) {
         const [key, ...rest] = allLines[i].split(':');
         globalDirectives[key.trim().toLowerCase()] = rest.join(':').trim();
         startIdx = i + 1;
@@ -1388,8 +1444,8 @@ function parseDecksetMarkdown(raw, options) {
   // 4. Determine if autoflow is enabled
   // Options take precedence over frontmatter (toolbar toggle must be able to override)
   const autoflowEnabled = (options && options.autoflow !== undefined)
-    ? options.autoflow === true
-    : globalDirectives.autoflow === 'true';
+    ? options.autoflow !== false
+    : globalDirectives.autoflow !== 'false';
   const autoflowFn = (typeof applyAutoflow === 'function') ? applyAutoflow : null;
   const createAutoflowCtx = (typeof createAutoflowContext === 'function')
     ? createAutoflowContext
@@ -1441,6 +1497,11 @@ if (typeof module !== 'undefined' && module.exports) {
     processContentLines,
     extractDirectives,
     extractNotes,
+    // Directive registry (for tests + introspection)
+    DIRECTIVE_REGISTRY,
+    FRONTMATTER_NAMES,
+    isFrontmatterLine,
+    sectionAttrsFromDirectives,
   };
 } else if (typeof window !== 'undefined') {
   // Browser global

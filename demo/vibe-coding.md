@@ -3,7 +3,7 @@ slidenumbers: true
 autoflow: true
 theme: Alun, 1
 
-![right](../assets/karpathy-vibe.webp)
+![right](images/vibe-coding/karpathy-vibe.webp)
 
 #[fit] Vibe Coding
 #[fit] and the **New Dev**
@@ -19,7 +19,7 @@ Why I went back to programming...
 
 ---
 
-![left fit](../assets/bravenewgeek-you-are-not-paid.webp)
+![left fit](images/vibe-coding/bravenewgeek-you-are-not-paid.webp)
 
 #[fit] You are **not** paid
 #[fit] to write **code**.
@@ -48,7 +48,7 @@ Why I went back to programming...
 
 ---
 
-![fit](../assets/andrew_jpg.webp)
+![fit](images/vibe-coding/andrew_jpg.webp)
 
 ^ Andrew Ng: "Just as I think almost everybody should learn to read and write, I think almost everybody should learn to program."
 
@@ -61,7 +61,7 @@ Why I went back to programming...
 
 ---
 
-![right fit](../assets/mmm.webp)
+![right fit](images/vibe-coding/mmm.webp)
 
 > "The hardest single part of building a software system is deciding precisely what to build."
 
@@ -88,7 +88,7 @@ Fred Brooks, The Mythical Man-Month
 
 ---
 
-![right](../assets/pragmatic-programmer-tweet.webp)
+![right](images/vibe-coding/pragmatic-programmer-tweet.webp)
 
 # The Pragmatic Programmer
 
@@ -100,7 +100,7 @@ Hunt & Thomas, 1999.
 
 ---
 
-![right](../assets/seven-languages-book.webp)
+![right](images/vibe-coding/seven-languages-book.webp)
 
 #[fit] If you don't speak
 #[fit] the **language**,

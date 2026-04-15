@@ -8,6 +8,52 @@ import StellarDeck from '../../../components/StellarDeck.astro';
 import { decks } from '../../../data/decks';
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
+## Install
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/peas/stellardeck.git
+cd stellardeck
+npm install
+```
+
+## Run a sample
+
+Open one of the included sample decks in your browser:
+
+```bash
+npm run preview -- demo/bean-to-bar-chocolate.md
+```
+
+This starts a local server and opens the deck. Press arrow keys to navigate, `G` for grid view, `P` for presenter mode.
+
+Other samples to try: `demo/hand-balancing.md`, `demo/vibe-coding.md`.
+
+## Start from scratch
+
+Create a file called `my-deck.md`:
+
+```markdown
+# Hello World
+
+Welcome to StellarDeck.
+
+---
+
+# Second Slide
+
+That's it — `---` separates slides.
+```
+
+Then preview it:
+
+```bash
+npm run preview -- my-deck.md
+```
+
+## Markdown syntax
+
 StellarDeck turns plain markdown into presentation slides. Write text, separate with `---`, and you have a deck.
 
 <StellarDeck source={decks['getting-started'].md} />

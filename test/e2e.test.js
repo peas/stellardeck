@@ -11,8 +11,8 @@ const { test, expect } = require('@playwright/test');
 
 const BASE = 'http://127.0.0.1:3031';
 const DECK = `${BASE}/viewer.html?file=test/smoke-test.md`;
-const THEMED_DECK = `${BASE}/viewer.html?file=vibe/vibecoding.md`;
-const MULTI_TAB_DECK = `${BASE}/viewer.html?file=test/smoke-test.md&also=vibe/vibecoding.md`;
+const THEMED_DECK = `${BASE}/viewer.html?file=demo/vibe-coding.md`;
+const MULTI_TAB_DECK = `${BASE}/viewer.html?file=test/smoke-test.md&also=demo/vibe-coding.md`;
 
 test.describe('Viewer basics', () => {
   test('loads a presentation and shows slides', async ({ page }) => {
@@ -912,9 +912,9 @@ test.describe('Tab content isolation', () => {
       const h = document.querySelector('.reveal .slides > section h1');
       return h ? h.textContent.trim() : '';
     });
-    // vibecoding first heading contains "Vibe Coding"
+    // vibe-coding first heading contains "Vibe Coding"
     expect(tab1Heading).toContain('Vibe Coding');
-    // slide counts must differ (smoke-test ~23, vibecoding ~46)
+    // slide counts must differ (smoke-test ~23, vibe-coding ~22)
     expect(tab1SlideCount).not.toBe(tab0SlideCount);
 
     // Switch back to tab 0 — must show smoke-test content, not vibecoding
@@ -950,9 +950,9 @@ test.describe('Tab content isolation', () => {
     await page.waitForTimeout(500);
 
     const file1 = await page.evaluate(() => window._tabs[window._activeTabIndex].file);
-    expect(file1).toContain('vibecoding');
+    expect(file1).toContain('vibe-coding');
     const stateFile1 = await page.evaluate(() => document.title);
-    expect(stateFile1).toContain('vibecoding');
+    expect(stateFile1).toContain('vibe-coding');
 
     // Switch back
     await page.evaluate(() => switchTab(0));
@@ -1007,14 +1007,14 @@ test.describe('Theme/scheme per-tab isolation', () => {
     await page.selectOption('#theme-select', 'hacker');
     await page.waitForTimeout(300);
 
-    // Switch to tab 1 (vibecoding has theme: Letters from Brazil, 7)
+    // Switch to tab 1 (vibe-coding has theme: Alun, 1)
     await page.evaluate(() => switchTab(1));
     await page.waitForTimeout(500);
 
     const dropdown1 = await page.evaluate(() =>
       document.getElementById('theme-select').value
     );
-    expect(dropdown1).toBe('letters-from-brazil');
+    expect(dropdown1).toBe('alun');
 
     // Switch back to tab 0 — should restore Hacker (user override)
     await page.evaluate(() => switchTab(0));
@@ -1276,8 +1276,8 @@ test.describe('Tab directory path', () => {
     // First tab: test/smoke-test.md -> dir is "test/"
     expect(tab0Text).toContain('test/');
     expect(tab0Text).toContain('slides');
-    // Second tab: vibe/vibecoding.md -> dir is "vibe/"
-    expect(tab1Text).toContain('vibe/');
+    // Second tab: demo/vibe-coding.md -> dir is "demo/"
+    expect(tab1Text).toContain('demo/');
     expect(tab1Text).toContain('slides');
   });
 });

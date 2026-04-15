@@ -22,7 +22,7 @@
         "transparent": false,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
-        "url": "viewer.html?file=test/feature-showcase.md&also=vibe/vibecoding.md&also=lideranca-tecnologia/carreiras-liquidas-humano-no-loop.md&_cb=25"
+        "url": "viewer.html?file=test/feature-showcase.md&also=demo/vibe-coding.md&also=demo/bean-to-bar-chocolate.md&_cb=25"
       }
     ],
     "withGlobalTauri": true,
