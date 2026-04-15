@@ -5,41 +5,105 @@ description: 9 themes, color schemes, and per-slide customization.
 
 import StellarSlide from '../../../components/StellarSlide.astro';
 
-StellarDeck ships with 9 themes. Each defines fonts, colors, and accent styles. Override colors per slide or switch schemes without touching CSS.
-
-## Choosing a Theme
-
-Set the theme in frontmatter. Defaults to Nordic if omitted.
+Set a theme in your deck's frontmatter:
 
 ```md
-theme: Letters from Brazil
+theme: Nordic, 1
 ```
 
-| Theme | Fonts | Style |
-|:------|:------|:------|
-| Nordic | Poppins + Lato | Dark, clean |
-| Letters from Brazil | Saira Condensed | Warm tan, editorial |
-| Serif | Playfair Display | Classic light serif |
-| Minimal | System fonts | Light, no distractions |
-| Hacker | JetBrains Mono | Green-on-black terminal |
-| Poster | Bebas Neue | Bold geometric, large headings |
-| Alun | FK Grotesk | Grupo Alun brand |
-| Borneli | DM Sans | StartSe/Borneli brand |
-| Keynote | Montserrat + Raleway | Apple Keynote-style gradients |
+The number after the comma selects a color scheme. Each theme has 4-7 schemes.
+
+## Available Themes
+
+| Theme | Fonts | Style | Schemes |
+|:------|:------|:------|--------:|
+| Nordic | Poppins + Lato | Dark, clean | 5 |
+| Letters from Brazil | Saira Condensed | Warm tan, editorial | 7 |
+| Serif | Playfair Display | Classic light serif | 4 |
+| Minimal | System fonts | Light, no distractions | 4 |
+| Hacker | JetBrains Mono | Green-on-black terminal | 4 |
+| Poster | Bebas Neue | Bold geometric, large type | 4 |
+| Alun | FK Grotesk | Grupo Alun brand | 5 |
+| Borneli | DM Sans | StartSe brand | 5 |
+| Keynote | Montserrat + Raleway | Gradient backgrounds | 5 |
+
+No theme specified? The viewer defaults to Nordic.
+
+## Theme Gallery
+
+### Nordic
+
+<StellarSlide theme="nordic" showSource={false} source={`# Nordic Theme
+
+Clean dark design with **accent highlights** and a modern feel.
+
+Poppins headings, Lato body text.`} />
+
+### Letters from Brazil
+
+<StellarSlide theme="letters-from-brazil" showSource={false} source={`# Letters from Brazil
+
+Warm editorial tones inspired by **Brazilian typography**.
+
+7 color schemes — the most of any theme.`} />
+
+### Hacker
+
+<StellarSlide theme="hacker" showSource={false} source={`# Hacker Theme
+
+Green on black. **Terminal aesthetic**.
+
+JetBrains Mono everywhere.`} />
+
+### Poster
+
+<StellarSlide theme="poster" showSource={false} source={`# Poster
+
+Bold geometric layout with **large type**.
+
+Bebas Neue headings fill the frame.`} />
+
+### Keynote
+
+<StellarSlide theme="keynote" showSource={false} source={`# Keynote
+
+Apple-inspired **gradient backgrounds** with clean typography.
+
+Montserrat + Raleway.`} />
+
+### Serif
+
+<StellarSlide theme="serif" showSource={false} source={`# Serif Theme
+
+Classic light design with **Playfair Display** headings.
+
+Elegant, readable, traditional.`} />
 
 ## Color Schemes
 
-Each theme has 4-7 alternate color schemes. Select one by adding a number after the theme name.
+Each theme ships with alternate color schemes. Add the number after the theme name:
 
 ```md
-theme: Nordic, 2
+theme: Nordic, 3
 ```
 
-Scheme `1` is the default.
+Here's Nordic in three different schemes:
 
-## Custom Colors
+<StellarSlide theme="nordic" scheme="1" showSource={false} source={`# Scheme 1
 
-Override heading, text, or background color on any individual slide with directives.
+The **default** Nordic look. Dark background, blue accents.`} />
+
+<StellarSlide theme="nordic" scheme="2" showSource={false} source={`# Scheme 2
+
+**Light variant** with warm tones.`} />
+
+<StellarSlide theme="nordic" scheme="4" showSource={false} source={`# Scheme 4
+
+Dark with **golden accents**.`} />
+
+## Per-Slide Colors
+
+Override colors on any individual slide with directives:
 
 <StellarSlide source={`[.background-color: #0a192f]
 [.header: #64ffda]
@@ -49,9 +113,11 @@ Override heading, text, or background color on any individual slide with directi
 
 Custom heading and text colors per slide.`} />
 
-## Accent Bold
+The override works with any theme and takes priority over the scheme's default background.
 
-Themes with accent support render `**bold**` in the theme's accent color automatically.
+## Accent Colors
+
+Bold text (`**word**`) in headings uses the theme's accent color. Inline code uses monospace with accent styling. Strikethrough (`~~text~~`) also picks up the accent.
 
 <StellarSlide source={`# Accent Colors
 
@@ -70,3 +136,17 @@ What drives **innovation**?
 Is it **necessity** or **curiosity**?
 
 The answer shapes our **approach**.`} />
+
+## CLI Introspection
+
+List all available themes:
+
+```bash
+npm run export -- --list-themes
+```
+
+List color schemes for a specific theme:
+
+```bash
+npm run export -- --list-schemes nordic
+```

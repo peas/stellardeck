@@ -23,12 +23,14 @@ interface Props {
   slideIndex?: number;
   /** Theme */
   theme?: string;
+  /** Color scheme number (default: '1') */
+  scheme?: string;
 }
 
-const { source, showSource = true, autoflow = false, slideIndex = 1, theme = 'nordic' } = Astro.props;
+const { source, showSource = true, autoflow = false, slideIndex = 1, theme = 'nordic', scheme = '1' } = Astro.props;
 const trimmed = source.trim();
 const id = `slide-${Math.random().toString(36).slice(2, 8)}`;
-const dataJson = JSON.stringify({ id, source: trimmed, theme, autoflow, slideIndex });
+const dataJson = JSON.stringify({ id, source: trimmed, theme, scheme, autoflow, slideIndex });
 
 function escapeHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

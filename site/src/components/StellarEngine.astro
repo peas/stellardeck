@@ -37,6 +37,7 @@
               // Use renderDeck directly to control slideIndexOffset (renderSlide hardcodes it to 1)
               StellarEmbed.renderDeck(container, cfg.source, {
                 theme: cfg.theme,
+                scheme: cfg.scheme,
                 autoflow: cfg.autoflow,
                 showControls: false,
                 slideIndexOffset: cfg.slideIndex != null ? cfg.slideIndex : 1,
