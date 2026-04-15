@@ -12,9 +12,11 @@ From cacao farm to finished bar.
 
 ---
 
-Bean to bar: one maker controls the entire process.
+Bean to bar:
+one maker controls the entire process.
 
-Sources beans, roasts, grinds, conches, tempers, packages.
+Sources, roasts, grinds,
+conches, tempers, packages.
 
 ---
 
