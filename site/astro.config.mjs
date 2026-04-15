@@ -18,6 +18,13 @@ export default defineConfig({
       },
       sidebar: [
         {
+          label: 'Presenting',
+          items: [
+            { label: 'Storytelling', slug: 'guide/storytelling' },
+            { label: 'Comparison', slug: 'guide/comparison' },
+          ],
+        },
+        {
           label: 'Guide',
           items: [
             { label: 'Getting Started', slug: 'guide/getting-started' },
@@ -46,7 +53,6 @@ export default defineConfig({
             { label: 'PDF Export', slug: 'guide/pdf-export' },
             { label: 'Command Line', slug: 'guide/cli' },
             { label: 'Claude Code Skill', slug: 'guide/skill' },
-            { label: 'Comparison', slug: 'guide/comparison' },
           ],
         },
         {

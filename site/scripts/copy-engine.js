@@ -73,7 +73,12 @@ if (existsSync(brandSrc)) {
 }
 
 // Copy test images (used by smoke-test references in kitchen-sink)
-const assetFiles = ['20101_2c3b59.webp', '20101_9669ce.webp'];
+const assetFiles = [
+  '20101_2c3b59.webp', '20101_9669ce.webp',
+  'paulo-chocolate-collection-1.webp', 'paulo-chocolate-collection-2.webp',
+  'paulo-chocolate-collection-3.webp', 'paulo-chocolate-collection-4.webp',
+  'paulo-handstand.webp',
+];
 for (const f of assetFiles) {
   const src = join(root, 'assets', f);
   if (existsSync(src)) {

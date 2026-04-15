@@ -24,23 +24,15 @@ conches, tempers, packages.
 
 :::diagram
 graph LR
-  A[Cacao Pod] --> B[Fermentation]
-  B --> C[Drying]
-  C --> D[Roasting]
-  D --> E[Cracking & Winnowing]
-  E --> F[Grinding]
-  F --> G[Conching]
-  G --> H[Tempering]
-  H --> I[Molding]
+  A[Harvest & Ferment] --> B[Dry & Roast]
+  B --> C[Crack & Grind]
+  C --> D[Conch & Temper]
+  D --> E[Mold & Package]
   style A fill:#8B4513,stroke:#5C3317,color:#fff
   style B fill:#D2691E,stroke:#8B4513,color:#fff
-  style C fill:#DAA520,stroke:#B8860B,color:#fff
-  style D fill:#CD853F,stroke:#8B6914,color:#fff
-  style E fill:#DEB887,stroke:#D2B48C,color:#333
-  style F fill:#A0522D,stroke:#6B3A2A,color:#fff
-  style G fill:#704214,stroke:#3E2723,color:#fff
-  style H fill:#3E2723,stroke:#1B0E07,color:#fff
-  style I fill:#1B0E07,stroke:#000,color:#fff
+  style C fill:#A0522D,stroke:#6B3A2A,color:#fff
+  style D fill:#704214,stroke:#3E2723,color:#fff
+  style E fill:#1B0E07,stroke:#000,color:#fff
 :::
 
 ^ Each step affects flavor. Temperature, time, and technique create the maker's signature.
