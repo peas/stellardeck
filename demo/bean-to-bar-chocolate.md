@@ -107,6 +107,8 @@ Two ingredients: cacao and sugar.
 
 ---
 
+![](images/chocolate/lasevicius.webp)
+
 # Lasevicius
 
 Sao Paulo — Leo Lasevicius
@@ -117,9 +119,11 @@ Known for precision and clean flavors.
 
 ---
 
+![](images/chocolate/raros.webp)
+
 # Raros Fazedores de Chocolate
 
-Minas Gerais — small-batch, artisan.
+Cunha, SP — small-batch, artisan.
 
 "Colecao Intensos" series. Bronze at Bean to Bar Brasil.
 Deep focus on single-origin Brazilian cacao.
