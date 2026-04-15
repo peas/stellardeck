@@ -112,12 +112,12 @@ First slide content here.
 
 The sidecar approach means autoflow never modifies your markdown. Layout inference is a presentation-time concern.
 
-## When Not to Use Autoflow
+## Mixing Autoflow with Explicit Directives
 
-Autoflow works best for text-heavy, punch-style decks. Less useful when:
+Autoflow respects your choices. If you write `![right]` or `#[fit]` explicitly, autoflow won't override the image position — but it will still apply text-level improvements to the rest of the slide. You only fully opt out with `autoflow: false` in frontmatter.
 
-- Your slides already have explicit layouts (`![right]`, position headings).
-- You need precise control over every slide's appearance.
-- Most slides are code blocks or diagrams (autoflow skips these anyway).
+## Rules Are Evolving
 
-You can mix both: autoflow handles plain-text slides, explicit directives take priority wherever you add them.
+Autoflow rules are actively improving. New rules (image position rotation, aspect-ratio aware layouts, phrase-bullet palettes) will be added in future releases, and existing rules may be refined. In a future version, rules will be individually configurable via presets (Storyteller, Presenter, Dense) or per-rule overrides.
+
+The current rule set is stable for production use — changes are additive and backward-compatible.
