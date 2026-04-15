@@ -1,12 +1,25 @@
 ---
 title: StellarDeck
 description: Markdown presentations for storytellers. Autoflow layouts, agent-native CLI, simple by design.
+template: splash
+hero:
+  tagline: Markdown presentations for storytellers.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Get Started
+      link: /guide/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/peas/stellardeck
+      icon: external
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 import BentoGrid from '../../components/BentoGrid.astro';
 
-StellarDeck renders a markdown file as slides. Layouts are inferred from the content. The same deck runs in the desktop app (Tauri), a browser, an embedded viewer, or the CLI.
+<BentoGrid />
 
 ## Four things shape the project
 
@@ -17,8 +30,6 @@ StellarDeck renders a markdown file as slides. Layouts are inferred from the con
 **Agent-native.** The CLI takes stdin, exports PDF/PNG/grid, runs batch with `--input-dir`, and emits typed JSON diagnostics (content overflow, missing images, theme mismatches) that callers can act on without parsing text. The embed API exposes the same via `onDiagnostics`.
 
 **Simple.** No build step, no bundler. The `.md` file is the artifact, PDFs are regenerable. Deckset-compatible.
-
-<BentoGrid />
 
 ## Guide
 
