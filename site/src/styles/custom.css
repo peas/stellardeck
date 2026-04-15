@@ -4,3 +4,54 @@
 .sd-deck-container {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
+
+/* === Splash hero: compact, smaller logo === */
+.hero {
+  padding-block: 1.5rem !important;
+  gap: 1rem !important;
+}
+
+/* Shrink hero logo */
+.hero img {
+  max-width: 140px !important;
+  max-height: 140px !important;
+}
+
+/* Hero tagline: larger, better font */
+.hero .tagline {
+  font-size: 1.15rem !important;
+  line-height: 1.6 !important;
+  max-width: 480px;
+  color: var(--sl-color-gray-2);
+}
+
+/* Hero title */
+.hero h1 {
+  font-size: 2.5rem !important;
+}
+
+/* === Body text readability === */
+
+/* Splash page content — constrain width for readability */
+[data-page-template="splash"] .sl-markdown-content {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+/* Splash text — slightly larger, better line-height */
+[data-page-template="splash"] .sl-markdown-content p {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--sl-color-gray-2);
+}
+
+[data-page-template="splash"] .sl-markdown-content h2 {
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+/* BentoGrid stays full-width (it has its own edge-to-edge layout) */
+[data-page-template="splash"] .showcase {
+  max-width: none;
+  margin-inline: calc(50% - 50vw);
+}
