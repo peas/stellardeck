@@ -1,23 +1,38 @@
 ---
 title: Command Line
-description: Export decks to PDF, PNG, or grid images. Agent-friendly with --json mode and stdin support.
+description: Export, preview, validate, and serve decks from the terminal.
 ---
 
-StellarDeck ships a CLI for rendering decks from the terminal — batch exports, CI pipelines, or agent workflows. The same rendering engine the desktop app uses, run headless via Playwright.
-
-## Quick Start
+StellarDeck's CLI runs the same rendering engine as the desktop app, headless via Playwright. Use it for exports, live preview, validation, batch processing, or agent workflows.
 
 ```bash
-npm run export -- slides.md              # → slides.pdf (default)
-npm run export -- --png slides.md        # → slides-slides/001.png, 002.png...
-npm run export -- --grid slides.md       # → slides-grid.png
-npm run export -- --help                 # full reference
+npm run export -- --help    # full reference
+npm run export -- -h        # same thing
 ```
 
-Or for short PDF-only usage:
+## Live Modes
+
+### Preview
+
+Open a deck in the browser for viewing. Starts a temporary server, opens the default browser, and waits. Ctrl+C stops.
 
 ```bash
-npm run pdf -- slides.md
+npm run export -- --preview talk.md
+```
+
+There's also a shortcut:
+
+```bash
+npm run preview -- talk.md
+```
+
+### Serve
+
+Start a dev server and open the viewer in the browser. Watches for file changes. Ctrl+C stops.
+
+```bash
+npm run export -- --serve
+npm run export -- --serve --port 8080
 ```
 
 ## Export Formats
@@ -27,26 +42,62 @@ Pick one format per invocation. Default is `--pdf`.
 | Flag | Output | Use case |
 |:-----|:-------|:---------|
 | `--pdf` | Single PDF file | Share, print, send |
-| `--png` | Directory with one PNG per slide (`001.png`, `002.png`...) | Blog posts, thumbnails, social media |
+| `--png` | Directory with one PNG per slide (`001.png`, `002.png`...) | Thumbnails, social media |
 | `--grid` | Single composite image of all slides | Deck overview, preview cards |
-| `--grid-cols <n>` | Columns for grid layout (default: 4) | Control grid dimensions |
-
-**Examples:**
 
 ```bash
-npm run export -- --pdf talk.md ~/Desktop/talk.pdf
-npm run export -- --png talk.md ~/Desktop/talk-slides
-npm run export -- --grid --grid-cols 3 talk.md overview.png
+npm run export -- talk.md                          # → talk.pdf (default)
+npm run export -- --pdf talk.md ~/Desktop/talk.pdf # explicit output path
+npm run export -- --png talk.md ~/Desktop/slides   # → ~/Desktop/slides/001.png...
+npm run export -- --grid talk.md overview.png      # → overview.png
+npm run export -- --grid --grid-cols 3 talk.md     # 3-column grid
+```
+
+The `npm run pdf` shortcut exists for the common case:
+
+```bash
+npm run pdf -- talk.md
+```
+
+## Validation
+
+Render a deck and collect diagnostics without exporting anything. Returns JSON with slide count and warnings.
+
+```bash
+npm run export -- --validate talk.md
+```
+
+Output:
+
+```json
+{
+  "ok": true,
+  "slides": 23,
+  "totalSlides": 23,
+  "warnings": [
+    "content overflow on slide 2 (text may be clipped — consider [.autoscale: true])",
+    "image failed to load: /assets/missing.webp"
+  ]
+}
+```
+
+## Theme Introspection
+
+List available themes and their color schemes. No browser needed.
+
+```bash
+npm run export -- --list-themes                # JSON array of theme names
+npm run export -- --list-schemes nordic        # JSON array of schemes for "nordic"
 ```
 
 ## Slide Selection
 
-Use `--slides` to export a subset. Accepts ranges, lists, or mixes:
+Use `--slides` to export a subset. Accepts ranges, lists, or both:
 
 ```bash
-npm run export -- --slides 1-5 talk.md intro.pdf       # slides 1 through 5
-npm run export -- --slides 1,3,5 talk.md picks.pdf     # slides 1, 3, and 5
-npm run export -- --slides 1-3,7,9-11 talk.md mix.pdf  # mixed ranges
+npm run export -- --slides 1-5 talk.md         # slides 1 through 5
+npm run export -- --slides 1,3,5 talk.md       # slides 1, 3, and 5
+npm run export -- --slides 1-3,7,9 talk.md     # mixed
 ```
 
 Slides are 1-indexed. Out-of-range slides produce warnings but don't fail the export.
@@ -57,60 +108,53 @@ Override deck settings without editing the markdown:
 
 | Flag | Default | Description |
 |:-----|:--------|:------------|
-| `--scale <n>` | `2` | DPI scale factor (1 = 72 dpi, 2 = 144 dpi, 3 = 216 dpi) |
+| `--scale <n>` | `2` | DPI scale factor (1 = 72dpi, 2 = 144dpi, 3 = 216dpi) |
 | `--theme <name>` | deck default | Override theme (e.g. `nordic`, `ostrich`, `fira`) |
 | `--scheme <n>` | deck default | Override color scheme number |
 | `--autoflow` | off | Enable autoflow layout inference |
-| `--port <n>` | `3032` | Dev server port (auto-starts if needed) |
+| `--port <n>` | `3032` | Dev server port |
 
 ```bash
-npm run export -- --theme ostrich --autoflow --scale 3 talk.md
+npm run export -- --theme ostrich --scheme 2 --autoflow --scale 3 talk.md
 ```
 
 ## Batch Mode
 
-Export an entire directory tree with one command — output mirrors the input structure:
+Export an entire directory tree. Output mirrors the input structure:
 
 ```bash
 npm run export -- --input-dir ./decks --output ./dist
 ```
-
-All `.md` files in `./decks/` (recursively) become PDFs in `./dist/`, preserving subdirectories:
 
 ```
 decks/intro.md          → dist/intro.pdf
 decks/talks/keynote.md  → dist/talks/keynote.pdf
 ```
 
-Works with any format (`--pdf`, `--png`, `--grid`) and inherits all rendering options (`--scale`, `--theme`, `--slides`). The dev server and browser are reused across all files — much faster than running the CLI once per deck.
+Works with any format and inherits all rendering options. The browser and dev server are reused across files.
 
 ```bash
 npm run export -- --input-dir decks --output dist --grid --grid-cols 3
-# → one grid image per deck in ./dist/
 ```
-
-Skipped directories: `node_modules`, `old/`, `.git`, `reveal.js`, `assets`, hidden dirs.
 
 ## Stdin Input
 
-Pipe markdown directly in by passing `-` as the input:
+Pipe markdown by passing `-` as the input:
 
 ```bash
-echo "# Hello\n\nWorld" | npm run export -- --pdf - hello.pdf
+echo "# Hello\n---\n# World" | npm run export -- --pdf - hello.pdf
 cat draft.md | npm run export -- --png - ./thumbs
 ```
 
-Useful for generating decks from templates, LLM outputs, or scripts.
+## JSON Output
 
-## JSON Output Mode
-
-Use `--json` for machine-readable output — ideal for agent workflows and CI pipelines:
+Use `--json` for machine-readable output (implicit for `--validate`, `--list-themes`, `--list-schemes`):
 
 ```bash
 npm run export -- --json --pdf talk.md
 ```
 
-**Success response:**
+Success:
 
 ```json
 {
@@ -125,7 +169,7 @@ npm run export -- --json --pdf talk.md
 }
 ```
 
-**Error response:**
+Error:
 
 ```json
 {
@@ -134,100 +178,51 @@ npm run export -- --json --pdf talk.md
 }
 ```
 
-**With warnings:**
-
-```json
-{
-  "ok": true,
-  "slides": 3,
-  "totalSlides": 23,
-  "warnings": [
-    "content overflow on slide 2 (text may be clipped — consider [.autoscale: true])",
-    "image failed to load: /assets/missing.webp",
-    "slide 99 out of range (deck has 23 slides)"
-  ]
-}
-```
-
-The `files` field contains an array of paths for `--png` mode, `null` otherwise. Exit code is `1` on any error (including `ok: false`).
+The `files` field contains an array of paths for `--png` mode, `null` otherwise. Exit code is `1` on error.
 
 ## Warnings
 
-The export succeeds even when problems are detected — warnings surface issues that agents or pipelines can react to without failing the build:
+Exports succeed even when problems are detected. Warnings surface issues for agents or pipelines to react to:
 
-| Warning | When | What to do |
-|:--------|:-----|:-----------|
-| `content overflow on slide N` | Text/elements extend past the 1280×720 frame | Add `[.autoscale: true]` or split the slide |
-| `image failed to load: <url>` | Image resource returned 4xx/5xx or network error | Check the path or remove the reference |
-| `slide N out of range` | `--slides` specified a slide past the deck's end | Fix the range (deck has N slides) |
-| `theme "X" not applied` | `--theme X` was passed but deck rendered with a different theme | Check theme name spelling |
-
-Overflow detection compares every visible element's bounding box against the slide frame with a 20px tolerance — this catches clipped text, oversized images, and broken layouts without triggering on sub-pixel font-rendering differences.
-
-Missing-image detection watches network requests per deck and only reports URLs that never succeeded (dedupes browser retries and fallback path resolution). Viewer chrome assets (logo, icons, favicon) are excluded from detection.
+| Warning | Cause |
+|:--------|:------|
+| `content overflow on slide N` | Text/elements extend past the 1280x720 frame |
+| `image failed to load: <url>` | Image returned 4xx/5xx or network error |
+| `slide N out of range` | `--slides` specified a slide past the deck's end |
+| `theme "X" not applied` | Theme name not recognized |
 
 ## Recipes
 
-### Batch export all presentations
-
-```bash
-for deck in presentations/*.md; do
-  npm run export -- --pdf "$deck" "dist/$(basename "$deck" .md).pdf"
-done
-```
-
-### Generate blog thumbnails
+### Title slide thumbnail
 
 ```bash
 npm run export -- --png --slides 1 --scale 1 talk.md ./thumb
-# → ./thumb/001.png (72 dpi, just the title slide)
 ```
 
-### Create deck overview card
+### Deck overview card
 
 ```bash
 npm run export -- --grid --grid-cols 3 --slides 1-9 talk.md card.png
 ```
 
-### Generate deck from LLM output
+### Generate from LLM output
 
 ```bash
 claude "write a 5-slide deck about X in Deckset markdown" \
   | npm run export -- --pdf --autoflow - out.pdf
 ```
 
-### Agent-friendly workflow with warnings
+### Agent workflow with warning handling
 
 ```bash
 result=$(npm run export -- --json --pdf slides.md)
-path=$(echo "$result" | jq -r .output)
 
-# React to warnings — e.g. retry with autoscale if any slide overflows
 if echo "$result" | jq -e '.warnings | any(contains("overflow"))' > /dev/null; then
   echo "Overflow detected — re-exporting with autoflow"
   npm run export -- --json --pdf --autoflow slides.md
 fi
-
-# Fail CI if broken images
-if echo "$result" | jq -e '.warnings | any(contains("image failed"))' > /dev/null; then
-  echo "Error: deck has broken images" >&2
-  exit 1
-fi
-```
-
-## Other Commands
-
-```bash
-npm run serve              # python3 dev-server.py 3031 (no-cache headers)
-npm test                   # 275 unit tests (~2s)
-npm run test:e2e           # 70 Playwright E2E tests
-npm run test:layout        # 32 layout + consistency tests
-npm run test:visual        # 18 visual regression tests
-npm run tauri              # cargo tauri dev (desktop app)
 ```
 
 ## How It Works
 
-The CLI launches headless Chromium via Playwright, loads the same `viewer.html` the desktop app uses, renders each slide, and captures it with html2canvas. PDF mode composes via pdf-lib; PNG mode writes individual files; grid mode composes a single image via sharp.
-
-The same code that runs in the toolbar PDF button runs here — no duplication, identical output. See [PDF Export](/guide/pdf-export/) for more on the UI side.
+The CLI launches headless Chromium via Playwright, loads the same `viewer.html` the desktop app uses, renders each slide, and captures it. PDF mode composes via pdf-lib; PNG writes individual files; grid composes via sharp. The same code that powers the in-app export button runs here.

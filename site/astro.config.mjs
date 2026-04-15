@@ -46,6 +46,7 @@ export default defineConfig({
             { label: 'PDF Export', slug: 'guide/pdf-export' },
             { label: 'Command Line', slug: 'guide/cli' },
             { label: 'Claude Code Skill', slug: 'guide/skill' },
+            { label: 'Comparison', slug: 'guide/comparison' },
           ],
         },
         {
