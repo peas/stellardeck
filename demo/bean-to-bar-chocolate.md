@@ -1,27 +1,20 @@
-footer: Bean to Bar Chocolate
+footer: Brazilian Bean to Bar
 slidenumbers: true
+autoflow: true
 
-![right](images/chocolate/cover.png)
+![right](images/chocolate/cacao-plantation.webp)
 
+#[fit] Brazilian
 #[fit] Bean to Bar
 #[fit] **Chocolate**
 
-A journey from cacao farm to finished bar.
-
-^ This presentation covers the craft chocolate movement, how it differs from industrial chocolate, and the world's most celebrated makers.
+From cacao farm to finished bar.
 
 ---
 
-# What is Bean to Bar?
+Bean to bar: one maker controls the entire process.
 
-A chocolate maker who controls the entire process:
-
-- 🌱 **Sources** cacao beans directly from farms
-- 🔥 **Roasts** the beans in-house
-- ⚙️ **Grinds, conches, tempers** — small-batch machines
-- 📦 **Packages** the final bar
-
-^ Unlike industrial chocolate (Nestle, Mars) which buys pre-processed cocoa mass, bean-to-bar makers start from raw cacao beans.
+Sources beans, roasts, grinds, conches, tempers, packages.
 
 ---
 
@@ -48,189 +41,135 @@ graph LR
   style I fill:#1B0E07,stroke:#000,color:#fff
 :::
 
-^ Each step affects flavor. Temperature, time, and technique create the maker's signature profile.
+^ Each step affects flavor. Temperature, time, and technique create the maker's signature.
 
 ---
 
 [.background-color: #3E2723]
 [.header: #DEB887]
 
-#[fit] 🍫
 #[fit] One bean.
 #[fit] **Infinite** flavors.
 
-^ The same cacao variety grown in different soils, fermented differently, roasted at different temperatures — produces completely different chocolate. That's the magic of bean to bar.
+^ Same cacao variety, different soil, fermentation, roasting → completely different chocolate.
 
 ---
 
-# 🏭 Industrial vs. ✋ Craft
+# Industrial vs. Craft
 
 :::columns
 ## Industrial
-- Bulk cacao from commodity markets
+- Bulk cacao, commodity markets
 - Heavy roasting hides defects
-- Added cocoa butter, vanilla, lecithin
+- Cocoa butter, vanilla, lecithin added
 - Standardized flavor
 
 :::
 ## Bean to Bar
 - Single-origin, traceable beans
 - Light roast preserves terroir
-- Minimal ingredients (cacao + sugar)
+- Cacao + sugar. That's it.
 - Unique flavor per batch
 :::
 
-^ Most chocolate bars in supermarkets use 5-10% actual cacao. Craft bars are typically 65-80%+ cacao.
+^ Supermarket bars: 5-10% cacao. Craft bars: 65-80%+.
 
 ---
 
 [.background-color: #3E2723]
 [.header: #DEB887]
 
-#[fit] 🇧🇷
 #[fit] Brazilian Makers
 
+Brazil is the 7th largest cacao producer. Bahia, Para, Espirito Santo.
+
 ---
+
+![](images/chocolate/mission-chocolate.webp)
 
 # Mission Chocolate
 
-Sao Paulo, Brazil — Arcelia Gallardo
+Sao Paulo — Arcelia Gallardo
 
-Trained at Dandelion Chocolate in San Francisco.
-50+ national and international awards in 5 years.
-Pays farmers 4x market price for cacao.
-
-**Most awarded** chocolate brand in **Brazil**.
-
-^ TODO: add Mission photo
+50+ awards in 5 years. Trained at Dandelion (SF).
+Pays farmers 4x market price.
+Most awarded brand in Brazil.
 
 ---
 
+![](images/chocolate/luisa-abram.webp)
+
 # Luisa Abram
 
-Sao Paulo, Brazil — since 2014
+Wild cacao from the Amazon (Purus River).
 
-Small-batch chocolate from wild cacao
-in the Amazon rainforest (Purus River).
+Two ingredients: cacao and sugar.
 
-Only **two** ingredients: **cacao** and **sugar**.
+---
 
-^ TODO: add Luisa Abram bar photo
+# Lasevicius
+
+Sao Paulo — Leo Lasevicius
+
+Former pastry chef turned chocolate maker.
+Multiple international gold awards.
+Known for precision and clean flavors.
+
+---
+
+# Raros Fazedores de Chocolate
+
+Minas Gerais — small-batch, artisan.
+
+"Colecao Intensos" series. Bronze at Bean to Bar Brasil.
+Deep focus on single-origin Brazilian cacao.
 
 ---
 
 # Caza Chocolates
 
-Perdizes, Sao Paulo
-
-Cacao sourced from farms in Linhares, Espirito Santo.
-Beans roasted, hulled, and processed in-house.
-
-^ TODO: add Caza photo
+Perdizes, Sao Paulo.
+Cacao from Linhares, Espirito Santo.
+Beans roasted and processed in-house.
 
 ---
 
 # Odle Chocolate
 
-Minas Gerais, Brazil — since 2016
-
-17+ international awards.
-Tuere cocoa won gold at the UK Academy of Chocolate Awards.
-
-^ TODO: add Odle photo
+Minas Gerais — 17+ international awards.
+Tuere cocoa: gold at the Academy of Chocolate Awards (UK).
 
 ---
 
-[.background-color: #1B0E07]
-[.header: #DEB887]
+# And Many More
 
-#[fit] 🇺🇸
-#[fit] American Makers
+Over 150 bean-to-bar makers in Brazil today.
 
----
+Full list: **beantobarbrasil.com.br/lista-associados**
 
-# Dandelion Chocolate
-
-San Francisco, USA — since 2010
-
-Transparent sourcing, single-origin bars.
-Their 70% Madagascar is a benchmark.
-
-^ TODO: add Dandelion photo
-
----
-
-# Dick Taylor
-
-Arcata, California — since 2008
-
-Small-batch, hand-crafted.
-Only organic cacao and organic cane sugar.
-
-^ TODO: add Dick Taylor photo
-
----
-
-# Raaka
-
-Brooklyn, New York — since 2010
-
-Virgin chocolate: stone-ground, low-temperature.
-Preserves raw cacao flavors. Organic and vegan.
-
-^ TODO: add Raaka photo
-
----
-
-# Fruition Chocolate
-
-Shokan, New York — since 2011
-
-Ethical sourcing and unique flavor combinations.
-
-^ TODO: add Fruition photo
-
----
-
-[.background-color: #3E2723]
-[.header: #DEB887]
-
-#[fit] 🇻🇳
-#[fit] Around the World
-
----
-
-# Marou
-
-Ho Chi Minh City, Vietnam — since 2011
-
-Two Frenchmen making chocolate from Vietnamese cacao.
-Ben Tre 78% won multiple international awards.
-
-^ TODO: add Marou photo
+Mestico, Nugali, Cuore di Cacao, Flanjolo,
+Miroh!, A Pauta Company, Clemens, La Greno,
+ZAAD, Dengo, Baiani, Belvie...
 
 ---
 
 # My Collection
 
-^ TODO: Paulo will add personal photos of chocolates from Thailand, Vietnam, China
+![inline](../assets/paulo-chocolate-collection-1.webp) ![inline](../assets/paulo-chocolate-collection-2.webp)
+
+![inline](../assets/paulo-chocolate-collection-3.webp) ![inline](../assets/paulo-chocolate-collection-4.webp)
+
+^ Mission, Luisa Abram, Mestico, Clemens, Conspiracy, Kad Kokoa, Marou, Raros, and more.
 
 ---
 
-# Awards & Associations
+# Awards & Competitions
 
-- 🏆 **Academy of Chocolate Awards** (London) — The Oscars of craft chocolate
-- 🌍 **International Chocolate Awards** — World's largest independent competition
-- 🇺🇸 **Good Food Awards** — US craft food recognition
-- 🌱 **Cocoa of Excellence** — Celebrates cacao farmers
+- **Academy of Chocolate Awards** (London) — the Oscars of craft chocolate
+- **International Chocolate Awards** — world's largest independent competition
+- **Bean to Bar Brasil** — Brazilian national awards
 
-^ These awards drive quality and transparency in the industry.
-
----
-
-# Places Around the World
-
-^ TODO: Paulo will add photos of chocolate shops he visited
+Brazilian makers win gold regularly at all three.
 
 ---
 
@@ -241,5 +180,4 @@ Ben Tre 78% won multiple international awards.
 
 **From bean to bar, every step matters.**
 
-academyofchocolate.org.uk
-internationalchocolateawards.com
+beantobarbrasil.com.br

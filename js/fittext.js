@@ -17,6 +17,14 @@ export function measureText(text, fontSize, fontWeight) {
   return state.measurer.scrollWidth;
 }
 
+// Measure using actual HTML (preserves <code>, <strong>, etc. with their fonts)
+function measureHTML(html, fontSize, fontWeight) {
+  state.measurer.style.fontSize = fontSize + 'px';
+  state.measurer.style.fontWeight = fontWeight;
+  state.measurer.innerHTML = html;
+  return state.measurer.scrollWidth;
+}
+
 // Sync measurer with theme fonts (called after theme is applied)
 export function syncMeasurer() {
   const cs = getComputedStyle(document.querySelector('.reveal h1') || document.querySelector('.reveal'));
@@ -62,7 +70,9 @@ export function fitText() {
       const fontWeight = styles.fontWeight || '900';
       const textTransform = styles.textTransform || 'none';
       state.measurer.style.textTransform = textTransform;
+      const hasInlineElements = el.querySelector('code, strong, em, del');
       const text = el.textContent;
+      const html = hasInlineElements ? el.innerHTML : null;
       // Line-height factor for height budget (1.15 for Letters from Sweden, 1.1 default)
       const lh = parseFloat(
         getComputedStyle(document.querySelector('.reveal'))
@@ -73,10 +83,11 @@ export function fitText() {
       el.style.margin = '0';
 
       // Binary search: find largest font where text fits width + height
+      // Use HTML measurement when inline elements (code, strong) use different fonts
       let lo = 16, hi = 500;
       while (hi - lo > 2) {
         const mid = Math.floor((lo + hi) / 2);
-        const textWidth = measureText(text, mid, fontWeight);
+        const textWidth = html ? measureHTML(html, mid, fontWeight) : measureText(text, mid, fontWeight);
         const fits = textWidth <= maxWidth && mid * lh <= heightPerHeading;
         if (fits) lo = mid; else hi = mid;
       }

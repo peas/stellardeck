@@ -1046,9 +1046,9 @@ test('hand-balancing.md parses all slides correctly', () => {
 });
 
 test('bean-to-bar-chocolate.md parses all slides correctly', () => {
-  const html = parseDecksetMarkdown(loadSample('bean-to-bar-chocolate.md'));
+  const html = parseDecksetMarkdown(loadSample('bean-to-bar-chocolate.md'), { autoflow: false });
   const sections = html.match(/<section/g);
-  assert.ok(sections.length >= 18, `Expected >= 18 slides, got ${sections.length}`);
+  assert.ok(sections.length >= 14, `Expected >= 14 slides, got ${sections.length}`);
   assert.ok(html.includes('deckset-diagram'), 'Should have process diagram');
   assert.ok(html.includes('deckset-columns'), 'Should have columns');
 });

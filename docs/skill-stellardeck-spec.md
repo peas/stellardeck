@@ -107,7 +107,13 @@ Based on analysis of 331 real decks (6,930 slides) from presentations-paulo.
 
 ## Skill also teaches
 - Deckset markdown syntax reference (separators, `#[fit]`, image modifiers, directives)
-- CLI commands: export (--pdf/--png/--grid), validate, list-themes, list-schemes
+- CLI commands:
+  - `--preview deck.md` — open deck in browser for live viewing (starts temp server, Ctrl+C stops)
+  - `--serve` — start dev server and open viewer (for browsing all decks)
+  - `--pdf/--png/--grid deck.md` — export to file
+  - `--validate deck.md` — render and collect diagnostics without exporting
+  - `--list-themes` / `--list-schemes <theme>` — introspection (JSON)
+  - All modes support `--theme`, `--scheme`, `--autoflow` overrides
 - Interpreting --json: overflow → split or autoscale, missing-image → fix path
 - Theme/scheme guide (when to suggest each)
 

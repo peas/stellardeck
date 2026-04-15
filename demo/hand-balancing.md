@@ -1,5 +1,6 @@
 footer: The Art of Hand Balancing
 slidenumbers: true
+autoflow: true
 
 #[fit] The Art of
 #[fit] **Hand Balancing**
@@ -57,6 +58,8 @@ Proprioception, micro-adjustments, breathing
 #[fit] Hand Balancers
 
 ---
+
+![right](images/coaches/andrii-bondarenko.webp)
 
 # Andrii Bondarenko
 
@@ -228,8 +231,8 @@ graph TD
 
 ---
 
+![](../assets/paulo-handstand.webp)
+
 # Thank You
 
 **Keep practicing. Keep falling. Keep getting back up.**
-
-^ TODO: Paulo will add personal handstand photos

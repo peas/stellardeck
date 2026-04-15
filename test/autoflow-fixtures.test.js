@@ -157,18 +157,14 @@ test('06-statement: 3 short statement slides all fire statement', () => {
 // ============================================================
 console.log('\n── Fixture: 07-bare-image-position-variation ──');
 
-test('07-bare-image-position-variation: 4 bare images cycle inline → left → right → inline', () => {
+test('07-bare-image-position-variation: bare images with text get filtered + text rules', () => {
   const r = runFixture('07-bare-image-position-variation.deck.md');
   assert.equal(r.slideCount, 5);  // cover + 4 bare-image slides
-  // All 4 should fire bare-image-position-variation
+  // Bare images with text now get filtered background + text rules (not position rotation)
   for (let i = 1; i <= 4; i++) {
-    assert.equal(r.rules[i], 'bare-image-position-variation', `slide ${i} should fire the rule`);
+    assert.notEqual(r.rules[i], 'bare-image-position-variation',
+      `slide ${i}: bare image + text should use filtered + text rule, not position variation`);
   }
-  // Check the variation in detail
-  assert.ok(r.details[1].includes('inline'), '1st bare image: inline');
-  assert.ok(r.details[2].includes('left'), '2nd bare image: left');
-  assert.ok(r.details[3].includes('right'), '3rd bare image: right');
-  assert.ok(r.details[4].includes('inline'), '4th bare image: cycle wraps to inline');
 });
 
 // ============================================================

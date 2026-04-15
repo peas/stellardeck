@@ -52,13 +52,13 @@
       --sd-image-radius: 12px;
       --sd-fit-scale: 1.1;
     }
-    .theme-letters-from-brazil.scheme-1 { --r-background-color: #47B386; --r-heading-color: #2C3850; --r-main-color: #2C3850; --accent: #F2EEE7; }
-    .theme-letters-from-brazil.scheme-2 { --r-background-color: #E8D6D2; --r-heading-color: #FB6863; --r-main-color: #454445; --accent: #FB6863; }
-    .theme-letters-from-brazil.scheme-3 { --r-background-color: #22A6E3; --r-heading-color: #EDEAE3; --r-main-color: #EDEAE3; --accent: #3F202D; }
-    .theme-letters-from-brazil.scheme-4 { --r-background-color: #122232; --r-heading-color: #FEE04A; --r-main-color: #81867F; --accent: #FEE04A; }
-    .theme-letters-from-brazil.scheme-5 { --r-background-color: #085293; --r-heading-color: #FDCA42; --r-main-color: #FFFFFF; --accent: #FDCA42; }
-    .theme-letters-from-brazil.scheme-6 { --r-background-color: #FFFFFF; --r-heading-color: #000000; --r-main-color: #000000; --accent: #8B8B8B; }
-    .theme-letters-from-brazil.scheme-7 { --r-background-color: #000000; --r-heading-color: #FFFFFF; --r-main-color: #FFFFFF; --accent: #8B8B8B; }
+    .theme-letters-from-brazil.scheme-1 { --r-background-color: #47B386; --r-heading-color: #2C3850; --r-main-color: #F2EEE7; --accent: #E8C840; }
+    .theme-letters-from-brazil.scheme-2 { --r-background-color: #E8D6D2; --r-heading-color: #FB6863; --r-main-color: #454445; --accent: #2B8F82; }
+    .theme-letters-from-brazil.scheme-3 { --r-background-color: #22A6E3; --r-heading-color: #EDEAE3; --r-main-color: #1A3A50; --accent: #F9D547; }
+    .theme-letters-from-brazil.scheme-4 { --r-background-color: #122232; --r-heading-color: #FEE04A; --r-main-color: #81867F; --accent: #E06848; }
+    .theme-letters-from-brazil.scheme-5 { --r-background-color: #085293; --r-heading-color: #FDCA42; --r-main-color: #FFFFFF; --accent: #FF6B4A; }
+    .theme-letters-from-brazil.scheme-6 { --r-background-color: #FFFFFF; --r-heading-color: #000000; --r-main-color: #444444; --accent: #0066CC; }
+    .theme-letters-from-brazil.scheme-7 { --r-background-color: #000000; --r-heading-color: #FFFFFF; --r-main-color: #AAAAAA; --accent: #0ea5e9; }
 
     /* ===== Serif — Classic academic, centered ===== */
     /* Inspired by Reveal.js "serif" theme (MIT) */
@@ -134,7 +134,7 @@
     .theme-poster.scheme-1 { --r-background-color: #000000; --r-heading-color: #ffffff; --r-main-color: #cccccc; --accent: #ff3333; }
     .theme-poster.scheme-2 { --r-background-color: #1a0a2e; --r-heading-color: #f0e68c; --r-main-color: #dda0dd; --accent: #ff6347; }
     .theme-poster.scheme-3 { --r-background-color: #ffffff; --r-heading-color: #000000; --r-main-color: #333333; --accent: #ff0000; }
-    .theme-poster.scheme-4 { --r-background-color: #0a192f; --r-heading-color: #64ffda; --r-main-color: #8892b0; --accent: #64ffda; }
+    .theme-poster.scheme-4 { --r-background-color: #0a192f; --r-heading-color: #64ffda; --r-main-color: #8892b0; --accent: #f59e0b; }
 
     /* ===== Alun — Grupo Alun brand identity ===== */
     /* FK Grotesk → DM Sans (fallback), Flecha → DM Serif Display (fallback) */
@@ -150,10 +150,10 @@
       --sd-image-radius: 8px;
       --sd-fit-scale: 1.0;
     }
-    .theme-alun.scheme-1 { --r-background-color: #0d0c0c; --r-heading-color: #FF9414; --r-main-color: #f3f2f2; --accent: #FF9414; }
-    .theme-alun.scheme-2 { --r-background-color: #0d0c0c; --r-heading-color: #ED1460; --r-main-color: #f3f2f2; --accent: #ED1460; }
+    .theme-alun.scheme-1 { --r-background-color: #0d0c0c; --r-heading-color: #FF9414; --r-main-color: #f3f2f2; --accent: #ED1460; }
+    .theme-alun.scheme-2 { --r-background-color: #0d0c0c; --r-heading-color: #ED1460; --r-main-color: #f3f2f2; --accent: #FF9414; }
     .theme-alun.scheme-3 { --r-background-color: #f3f2f2; --r-heading-color: #0d0c0c; --r-main-color: #333333; --accent: #FF9414; }
-    .theme-alun.scheme-4 { --r-background-color: #FF9414; --r-heading-color: #0d0c0c; --r-main-color: #0d0c0c; --accent: #f3f2f2; }
+    .theme-alun.scheme-4 { --r-background-color: #FF9414; --r-heading-color: #0d0c0c; --r-main-color: #3a2000; --accent: #f3f2f2; }
     .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #ffffff; --r-main-color: #f3f2f2; --accent: #FF9414; }
 
     /* ===== Borneli — Inspired by Junior Borneli's "A Travessia Humana" ===== */
@@ -194,7 +194,7 @@
     .theme-nordic.scheme-1 { --r-background-color: #0a1628; --r-heading-color: #e2e8f0; --r-main-color: #94a3b8; --accent: #38bdf8; }
     .theme-nordic.scheme-2 { --r-background-color: #fafaf9; --r-heading-color: #1c1917; --r-main-color: #57534e; --accent: #0284c7; }
     .theme-nordic.scheme-3 { --r-background-color: #1e293b; --r-heading-color: #f1f5f9; --r-main-color: #94a3b8; --accent: #22d3ee; }
-    .theme-nordic.scheme-4 { --r-background-color: #0f172a; --r-heading-color: #fbbf24; --r-main-color: #e2e8f0; --accent: #fbbf24; }
+    .theme-nordic.scheme-4 { --r-background-color: #0f172a; --r-heading-color: #fbbf24; --r-main-color: #e2e8f0; --accent: #f472b6; }
     .theme-nordic.scheme-5 { --r-background-color: #ffffff; --r-heading-color: #0f172a; --r-main-color: #475569; --accent: #6366f1; }
 
     /* ===== Keynote — Montserrat + Raleway, Apple-inspired presentation style ===== */

@@ -222,9 +222,15 @@ function hasCodeFence(lines) { return lines.some(l => l.trim().startsWith('```')
 function hasCustomBlock(lines) { return lines.some(l => /^:::(?:columns|diagram|steps|center|math)/.test(l.trim())); }
 
 const SKIP_CHECKS = [
-  { name: 'explicit', match: (info) => hasExplicitLayout(info.rawLines), detail: 'has explicit directives' },
-  { name: 'code', match: (info) => hasCodeFence(info.rawLines), detail: 'has code block' },
-  { name: 'custom-block', match: (info) => hasCustomBlock(info.rawLines), detail: 'has :::block layout' },
+  { name: 'explicit',
+    description: 'Slide has user-authored layout directives: `#[fit]`, `#[top-left]`/`#[bottom-right]`/etc., `![left]`/`![right]`/`![fit]`/`![filtered]`, `[.autoscale: true]`, or `[.alternating-colors: true]`. Autoflow respects explicit intent.',
+    match: (info) => hasExplicitLayout(info.rawLines), detail: 'has explicit directives' },
+  { name: 'code',
+    description: 'Slide contains a fenced code block (`` ``` ``). Code blocks have fixed formatting that autoflow should not alter.',
+    match: (info) => hasCodeFence(info.rawLines), detail: 'has code block' },
+  { name: 'custom-block',
+    description: 'Slide uses a block directive: `:::columns`, `:::diagram`, `:::steps`, `:::center`, or `:::math`. These are custom layouts that autoflow should not override.',
+    match: (info) => hasCustomBlock(info.rawLines), detail: 'has :::block layout' },
 ];
 
 // ============================================================
@@ -270,6 +276,8 @@ function varyStatement(result, rep) {
 
 const titleRule = {
   name: 'title',
+  description: 'First slide with a short title (≤6 words) followed by longer subtitle text. Centers and applies #[fit] to the title line.',
+  example: 'The Art of Balancing\n\nA journey from wall handstands\nto freestanding practice.',
   priority: 10,
   guard: (info, ctx) => info.index === 0,
   match(info, ctx) {
@@ -296,6 +304,8 @@ const titleRule = {
 
 const dividerRule = {
   name: 'divider',
+  description: 'Single line of plain text (≤2 words). Becomes a full-screen #[fit] heading. Great for section breaks.',
+  example: 'BUILDERS',
   priority: 20,
   match(info, ctx) {
     if (info.contentLines.length !== 1) return false;
@@ -318,6 +328,8 @@ const dividerRule = {
 
 const diagonalRule = {
   name: 'diagonal',
+  description: 'Two short paragraphs where at least one ends with "?". Places them at opposing corners (top-left + bottom-right) for dramatic tension. Anti-monotony mirrors corners.',
+  example: 'What language are you\nwriting code in?\n\nThe answer has changed.',
   priority: 30,
   match(info, ctx) {
     if (info.paragraphs.length !== 2) return false;
@@ -349,6 +361,8 @@ const diagonalRule = {
 
 const zPatternRule = {
   name: 'z-pattern',
+  description: 'Exactly 4 short paragraphs (≤8 words, ≤2 lines each). Places them at the four corners: top-left, top-right, bottom-left, bottom-right. Uses h1 for short text (≤3 words), h2 for longer.',
+  example: 'TXT\n\nMarkdown\n\nYAML\n\nJSONL',
   priority: 40,
   match(info, ctx) {
     if (info.paragraphs.length !== 4) return false;
@@ -364,7 +378,8 @@ const zPatternRule = {
         const pos = positions[paraIdx];
         paraSets[paraIdx].delete(t);
         if (paraSets[paraIdx].size === 0) paraIdx++;
-        return `##[${pos}] ${t}`;
+        const level = (t.split(/\s+/).length <= 3) ? '#' : '##';
+        return `${level}[${pos}] ${t}`;
       }
       return l;
     });
@@ -374,6 +389,8 @@ const zPatternRule = {
 
 const alternatingRule = {
   name: 'alternating',
+  description: '3+ short paragraphs (≤10 words, ≤2 lines each). Applies alternating accent colors for visual rhythm.',
+  example: 'Speed\n\nCost\n\nBarrier to entry\n\nDisposable software',
   priority: 50,
   match(info, ctx) {
     if (info.paragraphs.length < 3) return false;
@@ -389,6 +406,8 @@ const alternatingRule = {
 
 const statementRule = {
   name: 'statement',
+  description: '1-4 lines of short plain text (≤8 words/line). Applies #[fit] to each line for maximum impact. Short statements (≤2 lines, ≤5 words) are centered. Anti-monotony varies alignment.',
+  example: 'You are not paid\nto write code.',
   priority: 60,
   match(info, ctx) {
     if (info.contentLines.length < 1 || info.contentLines.length > info.config.statementMaxLines) return false;
@@ -442,6 +461,8 @@ const POSITIONS = ['inline', 'left', 'right'];
 
 const bareImagePositionVariationRule = {
   name: 'bare-image-position-variation',
+  description: 'Bare image without text — cycles position across the deck (inline → left → right) for visual variety. NOTE: bare image WITH text is handled by pre-processing (→ ![filtered] background + text rules).',
+  example: '![](scaffold-construction.webp)',
   priority: 70,
   match(info, ctx) {
     if (info.bareImages.length !== 1) return false;
@@ -513,6 +534,8 @@ function observeImagePositions(info, ctx) {
 const PHRASE_BULLETS_PALETTE = ['cards', 'pills', 'alternating', 'staggered'];
 
 const phraseBulletsRule = {
+  description: 'Bullet list where items are short phrases (≤12 words, 3-8 items). Applies a visual bullet style (pills, staggered, or alternating) that varies across the deck.',
+  example: '- Teamwork\n- Orchestrating the build\n- Understanding the full scope',
   name: 'phrase-bullets',
   priority: 75,  // after bare-image-position-variation (70), before autoscale (80)
   match(info, ctx) {
@@ -553,6 +576,8 @@ const phraseBulletsRule = {
 };
 
 const autoscaleRule = {
+  description: 'Dense slide with >8 lines or >80 words. Applies [.autoscale: true] to shrink text to fit. Three tiers: light (9-12 lines), moderate (13-18), dense (19+).',
+  example: '(any slide with >8 lines or >80 words of content)',
   name: 'autoscale',
   priority: 80,
   match(info, ctx) {
@@ -614,14 +639,14 @@ function createContext(options) {
 function applyAutoflow(slideLines, slideIndex, options, prevRules, ctx) {
   const usedCtx = ctx || createContext(options);
   const prev = prevRules || usedCtx.history.map(h => h.ruleApplied);
-  const info = analyzeSlide(slideLines, slideIndex, 0, options);
+  let info = analyzeSlide(slideLines, slideIndex, 0, options);
 
   // Observe explicit image positions on EVERY slide (even ones we'll skip)
   // so cross-slide variation state stays accurate when the user mixes
   // bare ![](src) and explicit ![left]/![right]/![inline] images.
   observeImagePositions(info, usedCtx);
 
-  // Skip checks — bypass pipeline entirely
+  // Skip checks FIRST — bypass pipeline entirely for user-authored directives
   for (const skip of SKIP_CHECKS) {
     if (skip.match(info)) {
       usedCtx.history.push({ slideIndex, ruleApplied: skip.name, info });
@@ -632,6 +657,30 @@ function applyAutoflow(slideLines, slideIndex, options, prevRules, ctx) {
   if (info.contentLines.length === 0) {
     usedCtx.history.push({ slideIndex, ruleApplied: 'empty', info });
     return { rule: 'empty', lines: slideLines, detail: 'no content' };
+  }
+
+  // Pre-processing: bare image + text → ![filtered] background
+  // When a slide has one bare image AND text, the image becomes a dark-overlay
+  // background so text remains readable. Text rules (statement, fit, etc.)
+  // then apply normally on top. Runs AFTER skip checks so user-authored
+  // directives are never touched.
+  // We modify slideLines + info.rawLines but do NOT re-analyze — the image
+  // was already excluded from contentLines/paragraphs as a bare image.
+  if (info.bareImages.length === 1) {
+    const nonImageContent = info.contentLines.filter(l => !hasImage(l));
+    if (nonImageContent.length > 0) {
+      const img = info.bareImages[0];
+      const replaceImg = l => l.includes(img.full) ? l.replace(img.full, `![filtered](${img.src})`) : l;
+      slideLines = slideLines.map(replaceImg);
+      info.rawLines = info.rawLines.map(replaceImg);
+      info.bareImages = []; // no longer bare — prevent bare-image rule from firing
+      // Filtered image is background decoration, not content — remove from
+      // content analysis so text rules (statement, diagonal, etc.) see only text.
+      info.contentLines = info.contentLines.filter(l => !l.includes(img.src));
+      info.paragraphs = info.paragraphs.filter(p => !p.some(l => l.includes(img.src)));
+      info.totalNonEmptyLines = info.contentLines.length;
+      info.totalWords = info.contentLines.reduce((s, l) => s + wordCount(l), 0);
+    }
   }
 
   // Rule pipeline — first match wins
@@ -767,6 +816,7 @@ if (typeof module !== 'undefined' && module.exports) {
     LAYOUT_MODIFIERS,
     POSITIONS,
     RULES,
+    SKIP_CHECKS,
 
     // Rule objects (for tests + introspection)
     titleRule,

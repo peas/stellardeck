@@ -22,20 +22,28 @@ const SLIDE_H = SLIDE.HEIGHT;
 // ── Help ─────────────────────────────────────────────────────
 
 const HELP = `
-  stellardeck export — Markdown → PDF, PNG, grid image, or validation report
+  stellardeck — Markdown presentation CLI (export, preview, serve)
 
   Usage:
     node scripts/export.js [options] <input.md> [output]
-    node scripts/export.js --input-dir <dir> --output <dir> [options]
+    node scripts/export.js --preview <input.md>
+    node scripts/export.js --serve [--port <n>]
     node scripts/export.js --validate <input.md>
     node scripts/export.js --list-themes
     node scripts/export.js --list-schemes <theme>
+    node scripts/export.js --input-dir <dir> --output <dir> [options]
     cat deck.md | node scripts/export.js [options] - [output]
     npm run export -- [options] <input.md> [output]
 
   Arguments:
     input.md      Path to Deckset markdown file (or "-" to read stdin)
     output        Output path (default: <input-basename>.<ext> in current dir)
+
+  Live modes:
+    --preview          Open deck in browser for live viewing. Starts a temp
+                       server, opens the default browser, and waits. Ctrl+C stops.
+    --serve            Start dev server and open viewer in browser.
+                       Watches for file changes. Ctrl+C stops.
 
   Format (pick one; default is --pdf):
     --pdf              Export to PDF (default)
@@ -71,6 +79,8 @@ const HELP = `
     -h, --help         Show this help
 
   Examples:
+    node scripts/export.js --preview talk.md                 # live preview in browser
+    node scripts/export.js --serve                           # start dev server
     node scripts/export.js talk.md                           # → talk.pdf
     node scripts/export.js --png talk.md                     # → talk-slides/001.png...
     node scripts/export.js --grid talk.md                    # → talk-grid.png
@@ -87,7 +97,7 @@ const HELP = `
 function parseArgs(argv) {
   const args = argv.slice(2);
   const opts = {
-    mode: 'export',  // 'export' | 'validate' | 'list-themes' | 'list-schemes'
+    mode: 'export',  // 'export' | 'validate' | 'list-themes' | 'list-schemes' | 'preview' | 'serve'
     format: 'pdf',
     gridCols: 4,
     scale: 2, port: 3032,
@@ -109,6 +119,8 @@ function parseArgs(argv) {
     else if (a === '--json') opts.json = true;
     else if (a === '--autoflow') opts.autoflow = true;
     else if (a === '--validate') opts.mode = 'validate';
+    else if (a === '--preview') opts.mode = 'preview';
+    else if (a === '--serve') opts.mode = 'serve';
     else if (a === '--list-themes') opts.mode = 'list-themes';
     else if (a === '--list-schemes') {
       opts.mode = 'list-schemes';
@@ -130,6 +142,19 @@ function parseArgs(argv) {
   // Introspection modes — no input file needed
   if (opts.mode === 'list-themes' || opts.mode === 'list-schemes') {
     opts.json = true;
+    return opts;
+  }
+
+  // Serve mode — no input file needed
+  if (opts.mode === 'serve') {
+    if (opts.port === 3032) opts.port = 3031; // serve uses 3031 by default
+    return opts;
+  }
+
+  // Preview mode — needs input but no output
+  if (opts.mode === 'preview') {
+    if (positional.length === 0) throw new CLIError('--preview requires an input file');
+    opts.input = positional[0];
     return opts;
   }
 
@@ -658,6 +683,82 @@ function mkProgress(json) {
   };
 }
 
+// ── Live modes: preview & serve ─────────────────────────────
+
+function openBrowser(url) {
+  const { execSync } = require('child_process');
+  const cmd = process.platform === 'darwin' ? 'open'
+    : process.platform === 'win32' ? 'start' : 'xdg-open';
+  execSync(`${cmd} "${url}"`, { stdio: 'ignore' });
+}
+
+async function runPreview(opts) {
+  const { input, port, theme, scheme, autoflow } = opts;
+  const resolved = path.isAbsolute(input) ? input : path.resolve(process.cwd(), input);
+  if (!fs.existsSync(resolved)) throw new CLIError(`File not found: ${input}`);
+  const relative = path.relative(PROJECT_DIR, resolved);
+
+  // Start server
+  let server = null;
+  try { await fetch(`http://127.0.0.1:${port}/viewer.html`); }
+  catch {
+    server = startServer(port);
+    await waitForServer(port);
+  }
+
+  // Build URL with optional overrides
+  const params = [`file=${encodeURIComponent(relative)}`];
+  if (theme) params.push(`theme=${encodeURIComponent(theme)}`);
+  if (scheme != null) params.push(`scheme=${scheme}`);
+  if (autoflow) params.push('autoflow=true');
+  const url = `http://127.0.0.1:${port}/viewer.html?${params.join('&')}`;
+
+  console.log(`Preview: ${url}`);
+  console.log('Press Ctrl+C to stop.');
+  openBrowser(url);
+
+  // Keep alive until Ctrl+C
+  await new Promise((resolve) => {
+    process.on('SIGINT', () => {
+      if (server) { try { process.kill(-server.pid); } catch {} }
+      resolve();
+    });
+    process.on('SIGTERM', () => {
+      if (server) { try { process.kill(-server.pid); } catch {} }
+      resolve();
+    });
+  });
+}
+
+async function runServe(opts) {
+  const { port } = opts;
+
+  // Start server
+  let server = null;
+  try { await fetch(`http://127.0.0.1:${port}/viewer.html`); }
+  catch {
+    server = startServer(port);
+    await waitForServer(port);
+  }
+
+  const url = `http://127.0.0.1:${port}/viewer.html`;
+  console.log(`StellarDeck dev server: ${url}`);
+  console.log('Press Ctrl+C to stop.');
+  openBrowser(url);
+
+  // Keep alive until Ctrl+C
+  await new Promise((resolve) => {
+    process.on('SIGINT', () => {
+      if (server) { try { process.kill(-server.pid); } catch {} }
+      resolve();
+    });
+    process.on('SIGTERM', () => {
+      if (server) { try { process.kill(-server.pid); } catch {} }
+      resolve();
+    });
+  });
+}
+
 async function main() {
   let opts;
   try { opts = parseArgs(process.argv); }
@@ -669,6 +770,10 @@ async function main() {
   const onProgress = mkProgress(opts.json);
 
   try {
+    // Live modes — no Playwright needed
+    if (opts.mode === 'preview') { await runPreview(opts); return; }
+    if (opts.mode === 'serve') { await runServe(opts); return; }
+
     // Introspection modes — no browser, no render
     if (opts.mode === 'list-themes') {
       console.log(JSON.stringify({ ok: true, themes: listThemes() }, null, 2));
@@ -765,6 +870,9 @@ module.exports = {
   runValidate,
   listThemes,
   listSchemes,
+  runPreview,
+  runServe,
+  openBrowser,
   CLIError,
   HelpRequested,
 };

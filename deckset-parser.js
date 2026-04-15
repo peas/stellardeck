@@ -1444,8 +1444,8 @@ function parseDecksetMarkdown(raw, options) {
   // 4. Determine if autoflow is enabled
   // Options take precedence over frontmatter (toolbar toggle must be able to override)
   const autoflowEnabled = (options && options.autoflow !== undefined)
-    ? options.autoflow === true
-    : globalDirectives.autoflow === 'true';
+    ? options.autoflow !== false
+    : globalDirectives.autoflow !== 'false';
   const autoflowFn = (typeof applyAutoflow === 'function') ? applyAutoflow : null;
   const createAutoflowCtx = (typeof createAutoflowContext === 'function')
     ? createAutoflowContext

@@ -1,20 +1,22 @@
 # StellarDeck
 
-Markdown presentations for storytellers.
+Convention-first, agent-first markdown presentations.
 
-StellarDeck renders a markdown file as slides. Layouts are inferred from the content. The same deck runs in the desktop app (Tauri), a browser, an embedded viewer, or the CLI.
+Write content, get layouts. StellarDeck infers slide structure from what you write — no directives needed. The same `.md` file renders in a desktop app, a browser, an embeddable viewer, or the CLI. When you need more control, Deckset-compatible markdown and custom directives are there.
 
-Four things shape the project:
+If you're coming from [Deckset](https://www.deckset.com), [Marp](https://marp.app), or [Reveal.js](https://revealjs.com), see the [comparison](docs/comparison.md) for when to use what.
+
+Four ideas shape the project:
 
 **Storytelling.** A deck is a sequence of moments. Markdown's constraints (one file, short slides, linear order) keep focus on what you're saying. Reading through the deck feels like reading a script.
 
-**Autoflow.** Reads each slide's content and picks a layout. A slide with four short lines gets a Z-pattern. An image next to text becomes a split. Two paragraphs ending in questions become a diagonal. Consecutive slides don't get the same treatment (anti-monotony). Explicit directives always win; opt out globally with `autoflow: false` in the frontmatter.
+**Autoflow.** Reads each slide's content and picks a layout — [9 rules](docs/autoflow-rules.md), zero configuration. A slide with four short lines gets a Z-pattern. An image next to text becomes a filtered background with auto-sized headings. Consecutive slides don't repeat the same treatment (anti-monotony). Explicit directives always win.
 
-**Agent-native.** Markdown is what LLMs produce. The CLI takes stdin, exports PDF/PNG/grid, runs batch with `--input-dir`, and emits typed JSON diagnostics (content overflow, missing images, theme mismatches) that callers can act on without parsing text. The embed API exposes the same via `onDiagnostics`.
+**Agent-native.** Markdown is what LLMs produce. The [CLI](docs/comparison.md) takes stdin, exports PDF/PNG/grid, previews in the browser, validates diagnostics, and emits structured JSON. The [stellardeck skill](docs/skill-stellardeck-spec.md) converts source text (blog posts, transcripts, meeting notes) into scored slide decks.
 
-**Simple.** Python dev server, a browser. No build step. The `.md` file is the artifact, PDFs are regenerable. Deckset-compatible.
+**Simple.** `npm run preview -- deck.md` and you're presenting. No build step, no bundler. The `.md` file is the artifact, PDFs are regenerable.
 
-9 themes, 4 color schemes each, dark and light.
+9 themes, up to 7 color schemes each, dark and light.
 
 ## Try it
 
@@ -35,8 +37,7 @@ Six example decks you can navigate and edit live — right in your browser:
 ```bash
 git clone https://github.com/peas/stellardeck.git
 cd stellardeck
-python3 scripts/dev-server.py 3031
-# Open http://localhost:3031/viewer.html?file=demo/getting-started.md
+npm run preview -- demo/getting-started.md
 ```
 
 ## Desktop app (Tauri)
@@ -51,11 +52,23 @@ Requires [Rust](https://rustup.rs/) and the [Tauri CLI](https://tauri.app/start/
 ## CLI
 
 ```bash
+# Live
+npm run preview -- deck.md                           # open in browser, Ctrl+C stops
+npm run export -- --serve                            # dev server + viewer
+
+# Export
 npm run export -- deck.md                            # → deck.pdf
 npm run export -- --png deck.md                      # → deck-slides/001.png, 002.png...
 npm run export -- --grid deck.md                     # → deck-grid.png
 npm run export -- --input-dir decks --output dist    # batch
-npm run export -- --json --pdf deck.md               # machine-readable
+
+# Inspect
+npm run export -- --validate deck.md                 # diagnostics without export
+npm run export -- --list-themes                      # available themes (JSON)
+npm run export -- --list-schemes alun                # color schemes for a theme
+
+# Agent
+npm run export -- --json --pdf deck.md               # machine-readable output
 cat deck.md | npm run export -- --pdf - out.pdf      # stdin
 npm run export -- --help                             # full reference
 ```

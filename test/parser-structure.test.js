@@ -232,4 +232,26 @@ test('autoflow option triggers layout rule (divider for single word)', () => {
   assert.ok(html.includes('deckset-fit'), 'autoflow should apply divider rule → deckset-fit');
 });
 
+// ── Inline elements in headings ──
+console.log('\n── Inline elements in headings ──');
+
+test('inline code in #[fit] heading renders code inside h1', () => {
+  const html = parseDecksetMarkdown('#[fit] `Spring`, `Django`\n');
+  assert.ok(html.includes('<h1 class="deckset-fit">'), 'should produce h1.deckset-fit');
+  assert.ok(html.includes('<code>Spring</code>'), 'should contain <code>Spring</code>');
+  assert.ok(html.includes('<code>Django</code>'), 'should contain <code>Django</code>');
+});
+
+test('bold inside heading renders strong inside h1', () => {
+  const html = parseDecksetMarkdown('# Hello **world**\n');
+  assert.ok(html.includes('<strong>world</strong>'));
+});
+
+test(':::columns with ::: separator produces two columns', () => {
+  const md = ':::columns\n\n## Left\n\nContent A\n\n:::\n\n## Right\n\nContent B\n\n:::\n';
+  const html = parseDecksetMarkdown(md);
+  assert.ok(html.includes('deckset-columns'), 'should produce deckset-columns div');
+  assert.ok(html.includes('repeat(2,'), 'should have 2 columns in grid-template');
+});
+
 summary();

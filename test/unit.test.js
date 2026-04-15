@@ -157,6 +157,43 @@ test('--validate without input throws', () => {
   assert.throws(() => parseArgs(argv('--validate')), CLIError);
 });
 
+console.log('\n── parseArgs: live modes ──');
+
+test('--preview <file> sets mode', () => {
+  const opts = parseArgs(argv('--preview', 'talk.md'));
+  assert.strictEqual(opts.mode, 'preview');
+  assert.strictEqual(opts.input, 'talk.md');
+});
+
+test('--preview without input throws', () => {
+  assert.throws(() => parseArgs(argv('--preview')), CLIError);
+});
+
+test('--preview with --theme and --scheme passes overrides', () => {
+  const opts = parseArgs(argv('--preview', '--theme', 'alun', '--scheme', '2', 'talk.md'));
+  assert.strictEqual(opts.mode, 'preview');
+  assert.strictEqual(opts.theme, 'alun');
+  assert.strictEqual(opts.scheme, 2);
+});
+
+test('--preview with --autoflow passes autoflow', () => {
+  const opts = parseArgs(argv('--preview', '--autoflow', 'talk.md'));
+  assert.strictEqual(opts.mode, 'preview');
+  assert.strictEqual(opts.autoflow, true);
+});
+
+test('--serve sets mode and uses port 3031 by default', () => {
+  const opts = parseArgs(argv('--serve'));
+  assert.strictEqual(opts.mode, 'serve');
+  assert.strictEqual(opts.port, 3031);
+});
+
+test('--serve with --port overrides', () => {
+  const opts = parseArgs(argv('--serve', '--port', '8080'));
+  assert.strictEqual(opts.mode, 'serve');
+  assert.strictEqual(opts.port, 8080);
+});
+
 console.log('\n── parseArgs: batch mode ──');
 
 test('--input-dir + --output (flag form)', () => {

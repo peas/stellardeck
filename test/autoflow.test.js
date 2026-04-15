@@ -359,53 +359,37 @@ console.log('\n── Rule: Bare Image Position Variation ──');
 
 const { createContext } = require('../autoflow.js');
 
-test('first bare image + text → inline (rotation start)', () => {
-  const input = lines('![](photo.jpg)\n\n# Title\n\nSome text');
+test('bare image + text → filtered background + text rule', () => {
+  const input = lines('![](photo.jpg)\n\nSome text');
   const result = applyAutoflow(input, 0);
-  assert.equal(result.rule, 'bare-image-position-variation');
-  // First in cycle = inline: rewrites the image as ![inline](src)
-  assert.ok(result.lines.some(l => l.includes('![inline](photo.jpg)')));
+  // Bare image becomes filtered background, text rule applies
+  assert.ok(result.lines.some(l => l.includes('![filtered](photo.jpg)')),
+    'bare image should become ![filtered]');
+  assert.notEqual(result.rule, 'bare-image-position-variation',
+    'should NOT be bare-image-position-variation (filtered pre-processing takes over)');
 });
 
-test('rotation across 3 slides: inline → left → right', () => {
-  const ctx = createContext();
-  const slides = [
-    lines('![](a.jpg)\n\nText A'),
-    lines('![](b.jpg)\n\nText B'),
-    lines('![](c.jpg)\n\nText C'),
-  ];
-  const r0 = applyAutoflow(slides[0], 0, undefined, undefined, ctx);
-  const r1 = applyAutoflow(slides[1], 1, undefined, undefined, ctx);
-  const r2 = applyAutoflow(slides[2], 2, undefined, undefined, ctx);
-  assert.equal(r0.rule, 'bare-image-position-variation');
-  assert.equal(r1.rule, 'bare-image-position-variation');
-  assert.equal(r2.rule, 'bare-image-position-variation');
-  assert.ok(r0.lines.some(l => l.includes('![inline](a.jpg)')));
-  assert.ok(r1.lines.some(l => l.includes('![left](b.jpg)')));
-  assert.ok(r2.lines.some(l => l.includes('![right](c.jpg)')));
+test('bare image + text: text rules apply (statement with fit)', () => {
+  const input = lines('![](photo.jpg)\n\nHello World');
+  const result = applyAutoflow(input, 0);
+  assert.ok(result.lines.some(l => l.includes('![filtered](photo.jpg)')));
+  assert.ok(result.lines.some(l => l.includes('#[fit]')),
+    'statement rule should apply #[fit] to text');
 });
 
-test('rotation wraps after 3: 4th bare image is inline again', () => {
-  const ctx = createContext();
-  ctx.state.lastBareImagePosition = 'right';
-  const r4 = applyAutoflow(lines('![](d.jpg)\n\nText D'), 3, undefined, undefined, ctx);
-  assert.ok(r4.lines.some(l => l.includes('![inline](d.jpg)')));
-});
-
-test('rotation observes explicit ![left] in skipped slides', () => {
-  // Slide 1: bare → inline (lastSide = inline)
-  // Slide 2: ![left](src) explicit → autoflow skipped, but lastSide is observed and updated to 'left'
-  // Slide 3: bare → next after 'left' = 'right' (NOT 'left' again — this is the bug fix)
+test('multiple bare image slides all get filtered', () => {
   const ctx = createContext();
   const r1 = applyAutoflow(lines('![](a.jpg)\n\nText A'), 0, undefined, undefined, ctx);
-  const r2 = applyAutoflow(lines('![left](b.jpg)\n\nText B'), 1, undefined, undefined, ctx);
-  const r3 = applyAutoflow(lines('![](c.jpg)\n\nText C'), 2, undefined, undefined, ctx);
-  assert.equal(r1.rule, 'bare-image-position-variation');
-  assert.equal(r2.rule, 'explicit', 'slide 2 with explicit modifier should skip autoflow');
-  assert.equal(r3.rule, 'bare-image-position-variation');
-  // The critical assertion: slide 3 must NOT be left again
-  assert.ok(r3.lines.some(l => l.includes('![right](c.jpg)')),
-    `Expected slide 3 to be ![right] (next after observed left), got: ${r3.lines.join('|')}`);
+  const r2 = applyAutoflow(lines('![](b.jpg)\n\nText B'), 1, undefined, undefined, ctx);
+  assert.ok(r1.lines.some(l => l.includes('![filtered](a.jpg)')));
+  assert.ok(r2.lines.some(l => l.includes('![filtered](b.jpg)')));
+});
+
+test('explicit ![left] is NOT converted to filtered (skip check)', () => {
+  const input = lines('![left](photo.jpg)\n\nSome text');
+  const result = applyAutoflow(input, 0);
+  assert.equal(result.rule, 'explicit');
+  assert.ok(result.lines.some(l => l.includes('![left](photo.jpg)')));
 });
 
 test('image with modifiers is NOT bare-image-rotate (explicit)', () => {
@@ -734,7 +718,7 @@ test('autoflow via options enables autoflow', () => {
 
 test('without autoflow, plain text stays plain', () => {
   const md = '2026';
-  const html = parseDecksetMarkdown(md);
+  const html = parseDecksetMarkdown(md, { autoflow: false });
   assert.ok(!html.includes('deckset-fit'), 'Should not have #[fit] without autoflow');
 });
 
@@ -778,11 +762,51 @@ test('manual [.autoscale: true] without autoflow gets no tier', () => {
   assert.ok(!html.includes('data-autoscale-tier'), 'Manual autoscale should have no tier (no line count)');
 });
 
-test('autoflow bare-image-rotate produces split for 2nd bare image (left)', () => {
-  // Slide 1 = center (position directive only, no split). Slide 2 = left (real split).
+test('autoflow bare image + text produces filtered background in parsed HTML', () => {
   const md = '![](a.jpg)\n\nTitle A\n\n---\n\n![](b.jpg)\n\nTitle B';
   const html = parseDecksetMarkdown(md, { autoflow: true });
-  assert.ok(html.includes('deckset-split'), 'Expected split layout from 2nd bare image');
+  // Bare images become filtered backgrounds (opacity overlay), text gets #[fit]
+  assert.ok(html.includes('data-background-image'), 'Expected background-image from filtered bare image');
+  assert.ok(html.includes('data-background-opacity'), 'Expected opacity overlay from filtered');
+  assert.ok(html.includes('deckset-fit'), 'Expected #[fit] applied to text');
+});
+
+// ============================================================
+// Z-pattern: h1 for short text
+// ============================================================
+console.log('\n── Z-pattern heading level ──');
+
+test('z-pattern uses h1 (#) for short text (≤3 words)', () => {
+  const input = lines('TXT\n\nMarkdown\n\nYAML\n\nJSONL');
+  const result = applyAutoflow(input, 2);
+  assert.equal(result.rule, 'z-pattern');
+  // Single words → # (h1), not ## (h2)
+  assert.ok(result.lines.some(l => l.startsWith('#[top-left]')));
+  assert.ok(!result.lines.some(l => l.startsWith('##[top-left]')));
+});
+
+test('z-pattern uses h2 (##) for longer text (>3 words)', () => {
+  const input = lines('This is a longer phrase\n\nAnother long phrase here\n\nThird paragraph text\n\nFourth one here');
+  const result = applyAutoflow(input, 2);
+  assert.equal(result.rule, 'z-pattern');
+  assert.ok(result.lines.some(l => l.startsWith('##[top-left]')));
+});
+
+// ============================================================
+// Accent color in CSS: heading strong uses main color
+// ============================================================
+console.log('\n── Parser: inline code in headings ──');
+
+test('#[fit] with inline code produces h1 > code', () => {
+  const html = parseDecksetMarkdown('#[fit] Use `Rails`\n');
+  assert.ok(html.includes('<h1 class="deckset-fit">'));
+  assert.ok(html.includes('<code>Rails</code>'));
+});
+
+test('#[fit] with bold produces h1 > strong', () => {
+  const html = parseDecksetMarkdown('#[fit] **resolver problemas**\n');
+  assert.ok(html.includes('<h1 class="deckset-fit">'));
+  assert.ok(html.includes('<strong>resolver problemas</strong>'));
 });
 
 // ============================================================

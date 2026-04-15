@@ -35,6 +35,7 @@ if (IS_TAURI) {
 // Initialize off-screen measurer
 // ============================================================
 const _measurer = document.createElement('div');
+_measurer.className = 'sd-slide';
 _measurer.style.cssText = `
   position: fixed; top: -9999px; left: -9999px;
   visibility: hidden; white-space: nowrap;
