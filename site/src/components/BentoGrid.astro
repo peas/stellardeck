@@ -3,9 +3,20 @@
  * SlideShowcase — rows of slide screenshots, all 16:9, no cropping.
  * Within each row all slides have identical width and height.
  * Different row sizes (2, 3, 4 per row) create visual rhythm.
+ *
+ * Props:
+ *   start?: number — first row index (default: 0)
+ *   end?: number   — end row index exclusive (default: all)
  */
 
-const rows = [
+interface Props {
+  start?: number;
+  end?: number;
+}
+
+const { start = 0, end } = Astro.props;
+
+const allRows = [
   [
     { img: 'vibe-title', slug: 'vibe-coding' },
     { img: 'flowchart', slug: 'kitchen-sink' },
@@ -27,6 +38,8 @@ const rows = [
     { img: 'chocolate-cover', slug: 'bean-to-bar' },
   ],
 ];
+
+const rows = allRows.slice(start, end ?? allRows.length);
 ---
 
 <div class="showcase">

@@ -3,7 +3,7 @@ title: StellarDeck
 description: Markdown presentations for storytellers. Autoflow layouts, agent-native CLI, simple by design.
 template: splash
 hero:
-  tagline: Markdown presentations for storytellers. Write content, get layouts. Built for agents.
+  tagline: Markdown presentations for storytellers. Write content, get layouts. Built for agents too.
   image:
     file: ../../assets/logo.svg
   actions:
@@ -19,7 +19,7 @@ hero:
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 import BentoGrid from '../../components/BentoGrid.astro';
 
-<BentoGrid />
+<BentoGrid start={0} end={2} />
 
 ## Four things shape the project
 
@@ -30,6 +30,8 @@ import BentoGrid from '../../components/BentoGrid.astro';
 **Agent-native.** The CLI takes stdin, exports PDF/PNG/grid, runs batch with `--input-dir`, and emits typed JSON diagnostics (content overflow, missing images, theme mismatches) that callers can act on without parsing text. The embed API exposes the same via `onDiagnostics`.
 
 **Simple.** No build step, no bundler. The `.md` file is the artifact, PDFs are regenerable. Deckset-compatible.
+
+<BentoGrid start={2} end={4} />
 
 ## Guide
 
@@ -43,8 +45,6 @@ import BentoGrid from '../../components/BentoGrid.astro';
 
 ## Examples
 
-Real presentations built with StellarDeck. Navigate the deck, then explore slide by slide with a live editor.
-
 <CardGrid>
   <LinkCard title="Bean to Bar Chocolate" description="Diagrams, columns, custom backgrounds." href="/examples/bean-to-bar/" />
   <LinkCard title="Hand Balancing" description="Split layouts with coach portraits." href="/examples/hand-balancing/" />
@@ -54,5 +54,5 @@ Real presentations built with StellarDeck. Navigate the deck, then explore slide
 ---
 
 <div style="text-align:center;margin-top:1.5rem;color:var(--sl-color-gray-4);font-size:0.8rem;">
-  <a href="https://github.com/peas/stellardeck" style="color:var(--sl-color-gray-3);">GitHub</a> &middot; <a href="https://github.com/peas/stellardeck#stellardeck" style="color:var(--sl-color-gray-3);">About</a> &middot; Apache 2.0
+  <a href="https://github.com/peas/stellardeck" style="color:var(--sl-color-gray-3);">GitHub</a> &middot; Apache 2.0
 </div>

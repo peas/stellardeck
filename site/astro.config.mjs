@@ -13,9 +13,6 @@ export default defineConfig({
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/peas/stellardeck' },
       ],
-      editLink: {
-        baseUrl: 'https://github.com/peas/stellardeck/edit/main/site/',
-      },
       sidebar: [
         {
           label: 'Presenting',
@@ -65,7 +62,7 @@ export default defineConfig({
         },
       ],
       customCss: ['./src/styles/custom.css'],
-      credits: true,
+      credits: false,
       pagefind: false,
       head: [
         {
