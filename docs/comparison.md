@@ -13,7 +13,7 @@ project because we want you to pick the best tool for your context.
 | | [Deckset](https://www.deckset.com) | [Marp](https://marp.app) | [Reveal.js](https://revealjs.com) | [StellarDeck](https://stellardeck.dev) |
 |---|---|---|---|---|
 | **Type** | Native macOS/iOS app | CLI + VS Code extension | JavaScript library | CLI + desktop app + web viewer |
-| **License** | Proprietary ($29) | MIT | MIT | Apache 2.0 (planned) |
+| **License** | Proprietary ($29) | MIT | MIT | MIT |
 | **Platform** | macOS, iOS | Cross-platform | Cross-platform | macOS (Win/Linux planned) |
 | **Active** | Yes | Yes | Yes | In development |
 

@@ -2,7 +2,7 @@
   "name": "stellardeck",
   "version": "0.9.0",
   "description": "Markdown presentation engine — Deckset-compatible, autoflow layouts, zero dependencies",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/peas/stellardeck.git"

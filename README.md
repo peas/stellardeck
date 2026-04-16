@@ -111,6 +111,6 @@ npm run test:all      # all of the above
 
 ## License
 
-Apache 2.0 — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
 
 Built by [Paulo Silveira](https://paulo.com.br).
