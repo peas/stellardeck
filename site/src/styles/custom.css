@@ -1,7 +1,5 @@
 /* StellarDeck docs site — Starlight overrides */
 
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&display=swap');
-
 /* StellarDeck container — subtle shadow */
 .sd-deck-container {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
@@ -29,16 +27,19 @@
   font-size: 2.5rem !important;
 }
 
-/* === Splash page body: blog-style typography === */
-/* Identify splash pages via the presence of .hero in the same container */
-.sl-container:has(> .hero) .sl-markdown-content {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 18px;
-  line-height: 1.7;
-  text-wrap: pretty;
+/* === Splash page: constrain whole page to 1024px === */
+.sl-container:has(> .hero) {
+  max-width: 1024px;
+  margin-inline: auto;
 }
 
-/* Constrain prose to 672px — applied per-element so bento + cards stay wide */
+/* === Splash body: better readability === */
+.sl-container:has(> .hero) .sl-markdown-content {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* Text blocks constrained to 672px (centered within the 1024px container) */
 .sl-container:has(> .hero) .sl-markdown-content > p,
 .sl-container:has(> .hero) .sl-markdown-content > h2,
 .sl-container:has(> .hero) .sl-markdown-content > hr,
@@ -48,40 +49,25 @@
 }
 
 .sl-container:has(> .hero) .sl-markdown-content p {
-  color: #b6afaf;
+  color: var(--sl-color-gray-2);
 }
 
 .sl-container:has(> .hero) .sl-markdown-content strong {
-  color: #D1CDCD;
-  font-weight: 700;
+  color: var(--sl-color-white);
 }
 
 .sl-container:has(> .hero) .sl-markdown-content h2 {
-  font-family: 'Inter', var(--sl-font, sans-serif);
   font-size: 1.5rem;
   margin-top: 3rem;
   margin-bottom: 1rem;
-  color: #D1CDCD;
+  color: var(--sl-color-white);
   font-weight: 700;
 }
 
-/* Code spans inside splash prose */
-.sl-container:has(> .hero) .sl-markdown-content code {
-  font-size: 0.85em;
-  color: #FF9414;
-  background: #1a1a1a;
-  padding: 0.15em 0.4em;
-}
-
-/* BentoGrid stays full-width (edge-to-edge) */
+/* Bento + card grids span the full 1024px container */
 .sl-container:has(> .hero) .sl-markdown-content .showcase {
   max-width: none;
-  margin-left: calc(50% - 50vw);
-  width: 100vw;
-}
-
-/* CardGrid wider than prose */
-.sl-container:has(> .hero) .sl-markdown-content :global(.sl-link-card-grid) {
-  max-width: none;
-  margin-inline: auto;
+  margin-inline: 0;
+  width: 100%;
+  padding: 0;
 }
