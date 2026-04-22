@@ -140,8 +140,11 @@
     /* Always-present drag region at top of window (Tauri overlay mode).
        Sits behind the toolbar (z-index 100 < toolbar's 101).
        When toolbar is hidden, this is the only drag target. */
-    body.tauri-overlay::before {
-      content: '';
+    #titlebar-drag {
+      display: none;
+    }
+    body.tauri-overlay #titlebar-drag {
+      display: block;
       position: fixed;
       top: 0; left: 0; right: 0;
       height: 28px;
