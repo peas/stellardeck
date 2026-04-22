@@ -137,6 +137,17 @@
     #tab-bar.visible ~ #toolbar { left: 0; }
     /* Titlebar overlay: pad for macOS traffic lights */
     body.tauri-overlay #toolbar { padding-left: 78px; }
+    /* Always-present drag region at top of window (Tauri overlay mode).
+       Sits behind the toolbar (z-index 100 < toolbar's 101).
+       When toolbar is hidden, this is the only drag target. */
+    body.tauri-overlay::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 28px;
+      -webkit-app-region: drag;
+      z-index: 100;
+    }
     /* Buttons must be no-drag so they're clickable */
     .toolbar-btn, .toolbar-select, .slide-counter { -webkit-app-region: no-drag; }
     .toolbar-btn {
