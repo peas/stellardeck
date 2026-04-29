@@ -17,6 +17,7 @@ import { renderQRCodes } from './qr.js';
 import { renderMath } from './math.js';
 import { renderDiagrams } from './diagrams.js';
 import { renderDeck } from './render.js';
+import { setupWelcomeScreen } from './welcome.js';
 
 // ============================================================
 // Initialize print mode
@@ -83,6 +84,7 @@ async function loadFile(file) {
 
 // Expose loadFile for keyboard handler (Cmd+O) and native menu (Open Recent)
 window._loadFile = loadFile;
+window._addTab = addTab;
 window._loadFileFromMenu = async (path) => {
   const welcome = document.getElementById('welcome-screen');
   const wasWelcomeVisible = welcome?.classList.contains('visible');
@@ -192,8 +194,11 @@ async function main() {
         }
       } catch {}
     } else {
-      document.getElementById('error').style.display = 'block';
+      // Browser mode: show welcome screen with drag & drop / file picker
+      const welcome = document.getElementById('welcome-screen');
+      welcome.classList.add('visible');
       document.querySelector('.reveal').style.display = 'none';
+      setupWelcomeScreen();
     }
     return;
   }

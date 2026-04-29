@@ -68,11 +68,29 @@
   </div>
 
   <div id="welcome-screen">
-    <img src="assets/brand/stellardeck-simplified-min-512.png" width="72" height="72" alt="StellarDeck" style="margin-bottom:16px;border-radius:14px">
-    <h1 style="margin:0 0 4px;font-size:1.5rem;font-weight:700;color:#e2e8f0">StellarDeck</h1>
-    <p style="color:#64748b;font-size:0.85rem;margin:0 0 24px">Open a presentation to begin</p>
-    <button id="welcome-open" style="padding:10px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#94a3b8;cursor:pointer;font-size:0.85rem;margin-bottom:24px">Open File (Cmd+O)</button>
-    <div id="recent-list" style="text-align:left;width:320px"></div>
+    <div class="welcome-content">
+      <div class="welcome-logo">
+        <img src="assets/brand/stellardeck-simplified-min.svg" width="80" height="80" alt="StellarDeck">
+      </div>
+      <h1 class="welcome-title">StellarDeck</h1>
+      <p class="welcome-tagline">Markdown presentations for storytellers</p>
+
+      <div id="welcome-dropzone" class="welcome-dropzone">
+        <div class="dropzone-icon">&#128196;</div>
+        <p class="dropzone-label">Drop a <code>.md</code> file here</p>
+        <p class="dropzone-hint">or</p>
+        <button id="welcome-open" class="welcome-btn">Open file</button>
+        <input type="file" id="welcome-file-input" accept=".md,.markdown,.txt" hidden>
+      </div>
+
+      <div id="recent-list" class="welcome-recent"></div>
+
+      <div class="welcome-footer">
+        <a href="https://stellardeck.dev" target="_blank" rel="noopener">Documentation</a>
+        <span class="welcome-footer-sep">&middot;</span>
+        <a href="https://github.com/peas/stellardeck" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
   </div>
 
   <div id="slide-area">

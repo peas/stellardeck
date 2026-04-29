@@ -8,15 +8,38 @@ autoflow: true
 #[fit] Bean to Bar
 #[fit] **Chocolate**
 
-From cacao farm to finished bar.
+---
+
+What's in your **chocolate** bar?
+
+^Most people never think about this. The answer is surprising.
 
 ---
 
-Bean to bar:
-one maker controls the entire process.
+![right](images/chocolate/factory.webp)
 
-Sources, roasts, grinds,
-conches, tempers, packages.
+Sugar. Vegetable fat.
+Cocoa powder. Vanilla.
+Lecithin. **Flavoring.**
+
+^A typical supermarket bar. 5-10% actual cacao. The rest is filler.
+
+---
+
+What if someone started
+from the **bean**?
+
+---
+
+![left](images/chocolate/cocoa-nibs.webp)
+
+Bean to bar.
+One maker. **Every step.**
+
+Two ingredients:
+cacao and sugar.
+
+^Sources, roasts, grinds, conches, tempers, packages. That's it.
 
 ---
 

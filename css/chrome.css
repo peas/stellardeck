@@ -276,6 +276,70 @@
       flex-direction: column; align-items: center; justify-content: center;
     }
     #welcome-screen.visible { display: flex; }
+    .welcome-content {
+      display: flex; flex-direction: column; align-items: center;
+      max-width: 420px; width: 90%;
+    }
+    .welcome-logo {
+      margin-bottom: 16px;
+      filter: drop-shadow(0 4px 24px rgba(28, 165, 232, 0.15));
+    }
+    .welcome-logo img { border-radius: 16px; }
+    .welcome-title {
+      margin: 0 0 4px; font-size: 1.6rem; font-weight: 700;
+      color: #e2e8f0; letter-spacing: -0.01em;
+    }
+    .welcome-tagline {
+      color: #64748b; font-size: 0.85rem; margin: 0 0 28px;
+    }
+    /* Drop zone */
+    .welcome-dropzone {
+      width: 100%; padding: 32px 24px;
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
+      text-align: center;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: default;
+    }
+    .welcome-dropzone.drag-over {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.06);
+    }
+    .dropzone-icon {
+      font-size: 2rem; margin-bottom: 8px;
+      opacity: 0.5;
+    }
+    .dropzone-label {
+      color: #94a3b8; font-size: 0.85rem; margin: 0 0 4px;
+    }
+    .dropzone-label code {
+      background: rgba(255,255,255,0.08); padding: 1px 6px;
+      border-radius: 4px; font-size: 0.8rem; color: #e2e8f0;
+    }
+    .dropzone-hint {
+      color: #475569; font-size: 0.75rem; margin: 4px 0 12px;
+    }
+    .welcome-btn {
+      padding: 8px 24px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: #e2e8f0; cursor: pointer;
+      font-family: inherit; font-size: 0.82rem;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .welcome-btn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.25);
+    }
+    /* Recent files */
+    .welcome-recent {
+      width: 100%; margin-top: 20px; text-align: left;
+    }
+    .welcome-recent-header {
+      color: #475569; font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 6px; padding: 0 14px;
+    }
     .recent-item {
       display: flex; align-items: center; gap: 10px;
       padding: 10px 14px; border-radius: 8px; cursor: pointer;
@@ -284,6 +348,21 @@
     .recent-item:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
     .recent-item .recent-name { color: #e2e8f0; font-weight: 500; }
     .recent-item .recent-path { color: #475569; font-size: 0.72rem; }
+    .recent-item .recent-time {
+      color: #475569; font-size: 0.7rem;
+      margin-left: auto; flex-shrink: 0;
+    }
+    /* Footer */
+    .welcome-footer {
+      margin-top: 28px; font-size: 0.78rem;
+      color: #475569;
+    }
+    .welcome-footer a {
+      color: #64748b; text-decoration: none;
+      transition: color 0.15s;
+    }
+    .welcome-footer a:hover { color: #38bdf8; }
+    .welcome-footer-sep { margin: 0 8px; }
     #error h1 { color: #f87171; }
     #error code { background: #1e293b; padding: 0.2rem 0.5rem; border-radius: 4px; }
 

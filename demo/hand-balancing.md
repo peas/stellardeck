@@ -5,49 +5,62 @@ autoflow: true
 #[fit] The Art of
 #[fit] **Hand Balancing**
 
-From circus tradition to modern movement culture.
+---
+
+![right](images/hand-balancing-history/circus-handstand-1939.webp)
+
+Circus performers have been standing
+on their **hands** for centuries.
+
+^Acrobats, clowns, strongmen. The handstand was a staple of every traveling show. Photo: Bondi Beach, 1939.
 
 ---
 
-# What is Hand Balancing?
+![left fit](images/hand-balancing-history/yoga-inversion-1905.webp)
 
-The art of supporting your body on your hands — from a simple handstand to complex one-arm balances and press handstands.
+Yoga practitioners have been inverting
+for even **longer**.
 
-- **Circus** tradition dating back centuries
-- Modern **movement culture** revival since ~2010
-- Combines **strength**, **flexibility**, and **patience**
-
-^ Unlike gymnastics (which values dynamic power), hand balancing values control, stillness, and endurance.
+^Viparita Karani, from the Yogasopana manuscript, 1905. Inversions predate modern yoga.
 
 ---
 
-# The Discipline
+Then something changed.
 
-:::columns
-## Strength
-Press to handstand, one-arm holds, flags
+^Around 2010, hand balancing broke free from the circus tent.
 
-:::
-## Flexibility
-Shoulder mobility, back bending, splits
+---
 
-:::
-## Balance
-Proprioception, micro-adjustments, breathing
-:::
+**Calisthenics** discovered inversions.
 
-^ A typical training session is 1.5-3 hours. Most of that time is spent balancing, falling, and trying again.
+**CrossFit** added handstand walks.
+
+**Yoga** deepened its arm balances.
+
+^Three communities, converging on the same skill from different angles.
+
+---
+
+Today, hand balancing is
+a **discipline** of its own.
+
+^Not gymnastics, not circus, not calisthenics. A practice of control, stillness, and patience.
+
+---
+
+**Strength.** **Flexibility.** **Balance.**
+
+^Press to handstand, shoulder mobility, micro-adjustments. A training session is 1.5 to 3 hours of falling and trying again.
 
 ---
 
 [.background-color: #1a1a2e]
 [.header: #e2e8f0]
 
-#[fit] 🤸
 #[fit] Fall. Get up.
 #[fit] **Balance.**
 
-^ The first year is mostly falling. The magic happens when you stop fighting gravity and start working with it.
+^The first year is mostly falling. The magic happens when you stop fighting gravity and start working with it.
 
 ---
 
