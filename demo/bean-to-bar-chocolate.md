@@ -33,13 +33,12 @@ from the **bean**?
 
 ![left](images/chocolate/cocoa-nibs.webp)
 
-Bean to bar.
-One maker. **Every step.**
+**Cocoa nibs**: roasted cacao beans,
+cracked and winnowed.
 
-Two ingredients:
-cacao and sugar.
+The raw material of real chocolate.
 
-^Sources, roasts, grinds, conches, tempers, packages. That's it.
+^The maker controls every step from here: grinding nibs into paste, conching for hours, tempering, molding. Two ingredients: cacao and sugar.
 
 ---
 

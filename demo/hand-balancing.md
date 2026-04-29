@@ -7,21 +7,23 @@ autoflow: true
 
 ---
 
-![right](images/hand-balancing-history/circus-handstand-1939.webp)
+![right fit](images/hand-balancing-history/paulinetti-onearm.webp)
 
-Circus performers have been standing
-on their **hands** for centuries.
+**P. H. Paulinetti**, early 1900s.
 
-^Acrobats, clowns, strongmen. The handstand was a staple of every traveling show. Photo: Bondi Beach, 1939.
+One of the first to hold
+a **one-arm** handstand.
+
+^Widely regarded as one of the greatest hand balancers in history.
 
 ---
 
-![left fit](images/hand-balancing-history/yoga-inversion-1905.webp)
+![left](images/hand-balancing-history/yogis-vintage.webp)
 
 Yoga practitioners have been inverting
-for even **longer**.
+for **centuries**.
 
-^Viparita Karani, from the Yogasopana manuscript, 1905. Inversions predate modern yoga.
+^Indian manuscript illustrations showing headstands, arm balances, and inverted postures.
 
 ---
 
@@ -249,3 +251,13 @@ graph TD
 # Thank You
 
 **Keep practicing. Keep falling. Keep getting back up.**
+
+---
+
+[.autoscale: true]
+
+# References
+
+- Paulinetti photo: findingabalancediiiv.wordpress.com/historical-and-cultural-background
+- Yoga manuscript: loniyoga.co.uk/handstands
+- Coach photos: respective Instagram accounts
