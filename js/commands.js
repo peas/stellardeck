@@ -156,10 +156,9 @@ export function registerBaseCommands() {
     label: 'Export PDF',
     shortcut: 'Cmd+Shift+E',
     when: () => !!state.currentFile,
-    run: () => {
-      // Reuse the existing toolbar export flow until we wire native export
-      // in checkpoint 11.
-      document.getElementById('btn-export')?.click();
+    run: async () => {
+      const { runPdfExport } = await import('./toolbar.js');
+      await runPdfExport();
     },
   });
 

@@ -489,22 +489,21 @@ function skip(name, _fn, reason) {
     });
 
     await it('chrome: titleBarStyle hiddenInset (macOS) → draggable region present', async () => {
-      // body.desktop-overlay flips on the always-present #titlebar-drag region
-      // and the 78px left-pad on the toolbar (so the traffic lights have room).
+      // After step 9 the legacy toolbar is gone; the 78px traffic-light pad
+      // now lives on #titlebar-drag itself.
       const info = await win.evaluate(() => {
         const dragRegion = document.getElementById('titlebar-drag');
-        const toolbar = document.getElementById('toolbar');
         return {
           hasOverlayClass: document.body.classList.contains('desktop-overlay'),
           hasElectronClass: document.body.classList.contains('electron-app'),
           dragRegionDisplay: dragRegion ? getComputedStyle(dragRegion).display : 'no-element',
-          toolbarPaddingLeft: toolbar ? getComputedStyle(toolbar).paddingLeft : 'no-toolbar',
+          dragRegionPaddingLeft: dragRegion ? getComputedStyle(dragRegion).paddingLeft : 'no-region',
         };
       });
       assert.equal(info.hasOverlayClass, true, 'body needs .desktop-overlay class');
       assert.equal(info.hasElectronClass, true, 'body needs .electron-app class');
       assert.equal(info.dragRegionDisplay, 'flex', `#titlebar-drag should render as flex (counter + actions), got display:${info.dragRegionDisplay}`);
-      assert.equal(info.toolbarPaddingLeft, '78px', `toolbar should have 78px left padding for traffic lights, got ${info.toolbarPaddingLeft}`);
+      assert.equal(info.dragRegionPaddingLeft, '78px', `traffic-light pad should be on #titlebar-drag now, got ${info.dragRegionPaddingLeft}`);
     });
 
     await it('shuts down cleanly', async () => {

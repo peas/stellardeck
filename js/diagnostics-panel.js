@@ -13,27 +13,31 @@ const SEVERITY_LABEL = { error: 'Error', warn: 'Warning', info: 'Info' };
  * Update the toolbar badge and, if open, refresh the panel.
  * Called after every renderDeck() completes.
  */
+/**
+ * Legacy diagnostics-panel UI (the floating top-right card). Still updates
+ * the count badge if the toolbar diagnostics button exists, but in Phase 3
+ * the activity rail icon + sidebar pane is the primary surface. This stub
+ * stays so embed/browser modes that haven't migrated keep working.
+ */
 export function refreshDiagnosticsUI(warnings = []) {
   const btn = document.getElementById('btn-diagnostics');
   const count = document.getElementById('diag-count');
-  if (!btn || !count) return;
+  const panel = document.getElementById('diagnostics-panel');
 
-  if (warnings.length === 0) {
-    btn.hidden = true;
-    closePanel();
-    return;
+  if (btn && count) {
+    if (warnings.length === 0) {
+      btn.hidden = true;
+      closePanel();
+      return;
+    }
+    btn.hidden = false;
+    count.textContent = warnings.length;
+    const worst = warnings.reduce((acc, w) => {
+      return SEVERITY_ORDER[w.severity] < SEVERITY_ORDER[acc] ? w.severity : acc;
+    }, 'info');
+    btn.dataset.severity = worst;
   }
 
-  btn.hidden = false;
-  count.textContent = warnings.length;
-
-  // Color by most-severe warning
-  const worst = warnings.reduce((acc, w) => {
-    return SEVERITY_ORDER[w.severity] < SEVERITY_ORDER[acc] ? w.severity : acc;
-  }, 'info');
-  btn.dataset.severity = worst;
-
-  const panel = document.getElementById('diagnostics-panel');
   if (panel && !panel.hidden) renderPanel(warnings);
 }
 

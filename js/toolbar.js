@@ -108,163 +108,88 @@ export function openInExternalEditor() {
   }
 }
 
+/**
+ * setupToolbar (Phase 3 leftover): the legacy top toolbar was removed in
+ * checkpoint 9. This function now only:
+ *   - registers fullscreenchange listeners
+ *   - hooks Reveal events to refreshUI (counter, status bar, doc title)
+ * All button-specific wiring moved to chrome buttons in main.js, the
+ * sidebar (theme picker), and the command palette / context menu.
+ */
 export function setupToolbar() {
-  showToolbar();
-
-  document.getElementById('btn-play').addEventListener('click', () => {
-    if (state.isFullscreen) exitFullscreen();
-    else enterFullscreen();
-  });
-
-  document.getElementById('btn-presenter').addEventListener('click', () => {
-    if (window._openPresenter) window._openPresenter();
-  });
-
-  // Fullscreen change events
   document.addEventListener('fullscreenchange', updatePlayState);
   document.addEventListener('webkitfullscreenchange', updatePlayState);
 
-  document.getElementById('btn-grid').addEventListener('click', () => {
-    toggleGrid();
-    document.getElementById('btn-grid').classList.toggle('active', isGridOpen());
-  });
+  if (typeof Reveal !== 'undefined') {
+    Reveal.on('ready', refreshUI);
+    Reveal.on('slidechanged', refreshUI);
+  }
+}
 
-  document.getElementById('btn-export').addEventListener('click', async () => {
-    if (!state.currentFile) return;
-    const btn = document.getElementById('btn-export');
-    const progressEl = document.getElementById('export-progress');
-    const progressBar = document.getElementById('export-progress-bar');
-    btn.textContent = '\u23F3 Preparing...';
-    btn.disabled = true;
-    progressEl.classList.add('active', 'indeterminate');
-    progressBar.style.width = '0%';
-    // Listen for real-time progress events from Rust
-    let unlisten;
-    if (IS_TAURI && window.__TAURI__?.event?.listen) {
-      unlisten = await window.__TAURI__.event.listen('pdf-progress', (event) => {
-        const payload = event.payload;
-        if (payload.startsWith('prep:')) {
-          btn.textContent = `\u23F3 Preparing ${payload.slice(5)}`;
-          return;
-        }
-        const [current, total] = payload.split('/');
-        const pct = Math.round(current / total * 100);
-        progressEl.classList.remove('indeterminate');
-        btn.textContent = `\u23F3 Slide ${current}/${total}`;
-        progressBar.style.width = pct + '%';
-      });
-    }
-    try {
-      const pdfModule = await import('./pdf-export.js');
-      const mdName = (state.currentFile || 'slides').split('/').pop().replace(/\.md$/, '');
-      const filename = mdName + '.pdf';
-      progressEl.classList.remove('indeterminate');
+/**
+ * Standalone PDF export — kicked off by the command palette
+ * (`Export PDF`), the native menu (File → Export PDF), and Cmd+Shift+E.
+ * Uses the same #export-progress overlay the old toolbar button drove.
+ */
+export async function runPdfExport() {
+  if (!state.currentFile) return;
+  const progressEl = document.getElementById('export-progress');
+  const progressBar = document.getElementById('export-progress-bar');
+  if (progressEl) progressEl.classList.add('active', 'indeterminate');
+  if (progressBar) progressBar.style.width = '0%';
 
-      const progressCb = {
-        scale: 2,
-        onProgress: (i, total) => {
-          const pct = Math.round(((i + 1) / total) * 100);
-          btn.textContent = `\u23F3 ${i + 1}/${total}`;
-          progressBar.style.width = pct + '%';
-        },
-      };
+  let unlisten;
+  if (IS_TAURI && window.__TAURI__?.event?.listen) {
+    unlisten = await window.__TAURI__.event.listen('pdf-progress', (event) => {
+      const payload = event.payload;
+      if (payload.startsWith('prep:')) return;
+      const [current, total] = payload.split('/');
+      const pct = Math.round(current / total * 100);
+      progressEl?.classList.remove('indeterminate');
+      if (progressBar) progressBar.style.width = pct + '%';
+    });
+  }
+  try {
+    const pdfModule = await import('./pdf-export.js');
+    const mdName = (state.currentFile || 'slides').split('/').pop().replace(/\.md$/, '');
+    const filename = mdName + '.pdf';
+    progressEl?.classList.remove('indeterminate');
 
-      await pdfModule.exportAndDownload(filename, progressCb);
-      progressBar.style.width = '100%';
+    const progressCb = {
+      scale: 2,
+      onProgress: (i, total) => {
+        const pct = Math.round(((i + 1) / total) * 100);
+        if (progressBar) progressBar.style.width = pct + '%';
+      },
+    };
 
-      if (IS_DESKTOP) {
-        // WKWebView/Chromium save downloads to ~/Downloads/
-        const homedir = state.currentFile.match(/^(\/Users\/[^/]+)/)?.[1] || '';
-        const downloadPath = homedir + '/Downloads/' + filename;
-        showToast('PDF exported — click to open in Finder', true);
-        const toast = document.getElementById('toast');
+    await pdfModule.exportAndDownload(filename, progressCb);
+    if (progressBar) progressBar.style.width = '100%';
+
+    if (IS_DESKTOP) {
+      const homedir = state.currentFile.match(/^(\/Users\/[^/]+)/)?.[1] || '';
+      const downloadPath = homedir + '/Downloads/' + filename;
+      showToast('PDF exported — click to open in Finder', true);
+      const toast = document.getElementById('toast');
+      if (toast) {
         toast.style.cursor = 'pointer';
         const span = toast.querySelector('span');
         if (span) span.onclick = () => {
           desktopInvoke('reveal_in_finder', { path: downloadPath });
           toast.classList.remove('show');
         };
-      } else {
-        showToast('PDF downloaded: ' + filename);
       }
-    } catch (e) {
-      showToast('Export failed: ' + e, true);
-    } finally {
-      btn.textContent = '\u21E9 PDF';
-      btn.disabled = false;
-      setTimeout(() => { progressEl.classList.remove('active', 'indeterminate'); progressBar.style.width = '0%'; }, 1500);
-      if (unlisten) unlisten();
+    } else {
+      showToast('PDF downloaded: ' + filename);
     }
-  });
-
-  // Theme dropdown
-  const themeSelect = document.getElementById('theme-select');
-  Object.entries(THEMES).forEach(([key, theme]) => {
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = theme.label;
-    themeSelect.appendChild(opt);
-  });
-  // Set initial value from current theme class
-  const currentTheme = Array.from(document.querySelector('.reveal').classList)
-    .find(c => c.startsWith('theme-'));
-  themeSelect.value = currentTheme ? currentTheme.replace('theme-', '') : '';
-
-  themeSelect.addEventListener('change', () => {
-    const reveal = document.querySelector('.reveal');
-    reveal.className = reveal.className.replace(/theme-\S+|scheme-\S+/g, '').trim();
-    if (!reveal.classList.contains('reveal')) reveal.classList.add('reveal');
-    if (themeSelect.value) reveal.classList.add('theme-' + themeSelect.value);
-    // Apply first scheme of the new theme
-    const schemes = THEMES[themeSelect.value]?.schemes;
-    if (schemes?.length) reveal.classList.add('scheme-' + schemes[0].id);
-    propagateThemeVars();
-    applySchemeColors();
-    syncMeasurer();
-    document.fonts.ready.then(() => requestAnimationFrame(() => fitText()));
-    persistThemeToSidecar();
-    showToast(THEMES[themeSelect.value]?.label || 'Default');
-  });
-
-  document.getElementById('btn-colors').addEventListener('click', (e) => {
-    toggleSchemePopover(e.target);
-  });
-
-  // About dialog
-  const aboutDialog = document.getElementById('about-dialog');
-  const aboutBackdrop = document.getElementById('about-backdrop');
-  document.getElementById('btn-about').addEventListener('click', () => {
-    aboutDialog.classList.add('open');
-    aboutBackdrop.classList.add('open');
-  });
-  const closeAbout = () => { aboutDialog.classList.remove('open'); aboutBackdrop.classList.remove('open'); };
-  document.getElementById('close-about').addEventListener('click', closeAbout);
-  aboutBackdrop.addEventListener('click', closeAbout);
-
-  // Autoflow toggle
-  const autoflowBtn = document.getElementById('btn-autoflow');
-  // Sync initial state from active tab
-  const initTab = state.tabs[state.activeTabIndex];
-  if (initTab) autoflowBtn.classList.toggle('active', !!initTab.autoflow);
-  autoflowBtn.addEventListener('click', async () => {
-    const tab = state.tabs[state.activeTabIndex];
-    if (!tab) return;
-    tab.autoflow = !tab.autoflow;
-    await renderDeck({ toast: tab.autoflow ? 'Autoflow on' : 'Autoflow off' });
-    persistAutoflowToSidecar();
-  });
-
-  // Open in external editor (Cmd+E or toolbar button)
-  document.getElementById('btn-editor').addEventListener('click', openInExternalEditor);
-
-  const sidebarBtn = document.getElementById('btn-sidebar');
-  sidebarBtn.addEventListener('click', toggleSidebar);
-  sidebarBtn.classList.add('active'); // sidebar starts visible
-
-  // Update all chrome on navigation (counter, status bar, autoflow, title)
-  if (typeof Reveal !== 'undefined') {
-    Reveal.on('ready', refreshUI);
-    Reveal.on('slidechanged', refreshUI);
+  } catch (e) {
+    showToast('Export failed: ' + e, true);
+  } finally {
+    setTimeout(() => {
+      progressEl?.classList.remove('active', 'indeterminate');
+      if (progressBar) progressBar.style.width = '0%';
+    }, 1500);
+    if (unlisten) unlisten();
   }
 }
 

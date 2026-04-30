@@ -469,32 +469,10 @@
     .tab:hover .close-btn { opacity: 1; }
     .tab .close-btn:hover { background: rgba(255,255,255,0.1); color: #f87171; }
 
-    /* ===== Toolbar ===== */
-    #toolbar {
-      display: none;
-      position: fixed; top: 0; left: 0; right: 0;
-      height: 44px; z-index: 101;
-      background: #1e1e1e;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      font-family: 'Inter', system-ui, sans-serif;
-      align-items: center;
-      padding: 0 16px; gap: 6px;
-      -webkit-app-region: drag; /* make toolbar draggable in Tauri */
-    }
-    /* During the Phase 3 transition (steps 8-9): the new titlebar chrome
-       buttons live in #titlebar-drag at top:0. Push the legacy toolbar
-       below it (36px) so both render. Toolbar gets removed entirely in
-       step 9, dropping these overrides along with it. */
-    body.desktop-overlay #toolbar { top: 36px; }
-    body.desktop-overlay #tab-bar.visible { top: 80px; } /* 36 chrome + 44 toolbar */
-    #toolbar.visible { display: flex; }
-    /* Toolbar is always full-width; sidebar starts below toolbar */
-    #tab-bar.visible ~ #toolbar { left: 0; }
-    /* Titlebar overlay: pad for macOS traffic lights / Win+Linux overlay strip */
-    body.desktop-overlay #toolbar { padding-left: 78px; }
-    /* Always-present drag region at top of window (Tauri/Electron overlay mode).
-       Sits behind the toolbar (z-index 100 < toolbar's 101).
-       When toolbar is hidden, this is the only drag target. */
+    /* Tab bar sits under the 36px titlebar drag region in desktop mode. */
+    body.desktop-overlay #tab-bar.visible { top: 36px; }
+    /* The titlebar drag region is the only top chrome in desktop mode now;
+       traffic lights overlap into its left padding. */
     #titlebar-drag {
       display: none;
     }
@@ -546,39 +524,10 @@
       font-weight: 600;
     }
     .chrome-btn.chrome-btn-primary:hover { background: #38bdf8; border-color: #38bdf8; }
-    /* Buttons must be no-drag so they're clickable */
-    .toolbar-btn, .toolbar-select, .slide-counter { -webkit-app-region: no-drag; }
-    .toolbar-btn {
-      display: flex; align-items: center; gap: 5px;
-      padding: 5px 12px; height: 32px;
-      border: none; border-radius: 6px;
-      background: transparent; color: #94a3b8;
-      font-family: inherit; font-size: 0.78rem;
-      cursor: pointer; transition: background 0.15s, color 0.15s;
-      white-space: nowrap;
-    }
-    .toolbar-btn:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
-    .toolbar-btn.active { background: rgba(14,165,233,0.15); color: #38bdf8; }
-    .toolbar-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.08); margin: 0 4px; }
-    .toolbar-select {
-      -webkit-appearance: none;
-      appearance: none;
-      background: rgba(255,255,255,0.06); color: #e2e8f0;
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
-      padding: 4px 24px 4px 10px; font-family: inherit; font-size: 0.75rem;
-      cursor: pointer; outline: none; height: 28px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 8px center;
-      transition: background-color 0.15s, border-color 0.15s;
-    }
-    .toolbar-select:hover { background-color: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-    .toolbar-select:focus { border-color: #3b82f6; }
-    .toolbar-select option { background: #1e293b; color: #e2e8f0; padding: 6px 10px; }
-    .toolbar-spacer { flex: 1; }
-    /* Progress bar for PDF export */
+    /* Progress bar for PDF export — anchored under the titlebar chrome */
     #export-progress {
-      display: none; position: fixed; top: 44px; left: var(--sidebar-width, 0px); right: 0;
+      display: none; position: fixed;
+      top: 36px; left: var(--sidebar-width, 0px); right: 0;
       height: 3px; z-index: 102; background: rgba(255,255,255,0.05);
     }
     #export-progress.active { display: block; }
@@ -595,57 +544,6 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(400%); }
     }
-    .toolbar-label { color: #475569; font-size: 0.65rem; margin-right: 2px; }
-    .slide-counter {
-      color: #94a3b8; font-size: 0.7rem; font-variant-numeric: tabular-nums;
-      padding: 2px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;
-    }
-
-    /* Color scheme picker popover */
-    #scheme-popover {
-      display: none; position: fixed;
-      background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px; padding: 8px;
-      z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
-    #scheme-popover.open { display: flex; gap: 6px; }
-    .scheme-swatch {
-      width: 28px; height: 28px; border-radius: 6px;
-      cursor: pointer; border: 2px solid transparent;
-      transition: border-color 0.15s, transform 0.15s;
-    }
-    .scheme-swatch:hover { transform: scale(1.15); }
-    .scheme-swatch.active { border-color: #38bdf8; }
-
-    /* About dialog */
-    #about-dialog {
-      display: none; position: fixed;
-      top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #1e293b; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 12px; padding: 2rem; z-index: 300;
-      max-width: 380px; width: 90%;
-      font-family: 'Inter', system-ui, sans-serif;
-      color: #e2e8f0; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    #about-dialog.open { display: block; }
-    #about-dialog h2 { margin: 0 0 0.5rem; font-size: 1.2rem; font-weight: 700; }
-    #about-dialog .version { color: #64748b; font-size: 0.75rem; margin-bottom: 1rem; }
-    #about-dialog p { font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin: 0.5rem 0; }
-    #about-dialog a { color: #38bdf8; text-decoration: none; }
-    #about-dialog a:hover { text-decoration: underline; }
-    #about-dialog .close-about {
-      position: absolute; top: 12px; right: 12px;
-      background: none; border: none; color: #64748b; cursor: pointer;
-      font-size: 1.2rem; padding: 4px;
-    }
-    #about-dialog .close-about:hover { color: #e2e8f0; }
-    #about-backdrop {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5); z-index: 299;
-    }
-    #about-backdrop.open { display: block; }
-
-
     /* ===== Error state ===== */
     #error {
       display: none;

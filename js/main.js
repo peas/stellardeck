@@ -36,15 +36,14 @@ setupActivityRail();
 registerBaseCommands();
 setupCommandPaletteShortcut();
 
-// Chrome buttons in the titlebar zone (Play / Presenter). Wire to the
-// existing toolbar handlers so behavior is identical until the old
-// toolbar is removed in checkpoint 9.
+// Chrome buttons in the titlebar zone (Play / Presenter).
 if (IS_DESKTOP) {
-  document.getElementById('btn-chrome-play')?.addEventListener('click', () => {
-    document.getElementById('btn-play')?.click();
+  document.getElementById('btn-chrome-play')?.addEventListener('click', async () => {
+    const { enterFullscreen, exitFullscreen } = await import('./fullscreen.js');
+    if (state.isFullscreen) exitFullscreen(); else enterFullscreen();
   });
   document.getElementById('btn-chrome-presenter')?.addEventListener('click', () => {
-    document.getElementById('btn-presenter')?.click();
+    if (window._openPresenter) window._openPresenter();
   });
 }
 const isMac = navigator.platform.startsWith('Mac') || navigator.userAgent.includes('Macintosh');
@@ -126,13 +125,16 @@ if (IS_ELECTRON && window.stellardeck?.onMenuAction) {
     } else if (id === 'close-tab') {
       if (window.closeCurrentTab) window.closeCurrentTab();
     } else if (id === 'export-pdf') {
-      document.getElementById('btn-export')?.click();
+      const { runPdfExport } = await import('./toolbar.js');
+      await runPdfExport();
     } else if (id === 'grid') {
-      document.getElementById('btn-grid')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      const { toggleGrid } = await import('./grid.js');
+      toggleGrid();
     } else if (id === 'presenter') {
       if (window._openPresenter) window._openPresenter();
     } else if (id === 'fullscreen') {
-      document.getElementById('btn-play')?.click();
+      const { enterFullscreen, exitFullscreen } = await import('./fullscreen.js');
+      if (state.isFullscreen) exitFullscreen(); else enterFullscreen();
     } else if (id.startsWith('recent:')) {
       const path = id.slice('recent:'.length);
       if (window._loadFileFromMenu) await window._loadFileFromMenu(path);

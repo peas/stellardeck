@@ -36,21 +36,24 @@ export function enterFullscreen() {
 
 export function updatePlayState() {
   const isFS = state.isFullscreen || !!(document.fullscreenElement || document.webkitFullscreenElement);
-  const toolbar = document.getElementById('toolbar');
   const tabBar = document.getElementById('tab-bar');
-  if (toolbar) toolbar.classList.toggle('visible', !isFS);
+  const titlebar = document.getElementById('titlebar-drag');
   if (tabBar) tabBar.classList.toggle('visible', !isFS && (IS_DESKTOP || state.tabs.length > 1));
+  // Hide the chrome titlebar (with traffic-light overlay) in fullscreen.
+  if (titlebar) titlebar.style.display = isFS ? 'none' : '';
   updateChromeHeight();
 }
 
 export function updateChromeHeight() {
   const tabBar = document.getElementById('tab-bar');
   const hasSidebar = tabBar.classList.contains('visible') && !state.sidebarCollapsed;
-  const toolH = document.getElementById('toolbar').classList.contains('visible') ? 44 : 0;
-  document.body.style.setProperty('--chrome-height', toolH + 'px');
+  // 36px chrome bar in desktop overlay mode, otherwise 0
+  const isOverlay = document.body.classList.contains('desktop-overlay');
+  const isFS = state.isFullscreen || !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const chromeH = (isOverlay && !isFS) ? 36 : 0;
+  document.body.style.setProperty('--chrome-height', chromeH + 'px');
   document.body.style.setProperty('--sidebar-width', hasSidebar ? '220px' : '0px');
   if (tabBar) tabBar.style.display = hasSidebar ? 'flex' : (tabBar.classList.contains('visible') ? 'none' : '');
-  // Recalculate StellarSlides layout after chrome changes
   if (Reveal.isReady?.()) requestAnimationFrame(() => Reveal.layout());
 }
 
