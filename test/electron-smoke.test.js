@@ -560,16 +560,53 @@ function skip(name, _fn, reason) {
     });
   });
 
-  // ── Phase 3 prep: contracts written, skipped until implementation lands ──
+  // ── Presenter window (Phase 3 step 10) ──
+  await describe('Presenter window (Electron BrowserWindow)', async () => {
+    let app;
+    let mainWin;
+
+    await it('open_presenter_window IPC opens a 2nd BrowserWindow on presenter.html', async () => {
+      app = await electron.launch({
+        args: [ROOT, DEMO_DECK, `--user-data-dir=${isolatedUserData}`],
+        env: { ...process.env, ELECTRON_DEV: '' },
+        timeout: 30000,
+      });
+      mainWin = await app.firstWindow();
+      await mainWin.waitForLoadState('domcontentloaded');
+      await mainWin.waitForFunction(
+        () => document.querySelectorAll('.reveal .slides > section').length > 0,
+        null, { timeout: 10000 }
+      );
+      // Trigger via the IPC the renderer would call from Cmd+P / chrome btn
+      const presenterPromise = app.waitForEvent('window');
+      await mainWin.evaluate(() => window.stellardeck.invoke('open_presenter_window'));
+      const presenterWin = await presenterPromise;
+      await presenterWin.waitForLoadState('domcontentloaded');
+      assert.match(presenterWin.url(), /presenter\.html/, `expected presenter.html url, got ${presenterWin.url()}`);
+      // Stash for the next test
+      app._presenterWin = presenterWin;
+    });
+
+    await it('presenter receives slide-update via BroadcastChannel after navigation', async () => {
+      const presenterWin = app._presenterWin;
+      // Navigate the main window to slide 4 (index 3) and wait for the
+      // presenter's #counter element to reflect "4 / N".
+      await mainWin.evaluate(() => Reveal.slide(3));
+      await presenterWin.waitForFunction(() => {
+        const t = document.getElementById('counter')?.textContent || '';
+        return /^4\s*\/\s*\d+/.test(t);
+      }, null, { timeout: 5000 });
+      const text = await presenterWin.locator('#counter').textContent();
+      assert.match(text, /^4\s*\/\s*\d+/, `presenter counter should be "4 / N", got "${text}"`);
+    });
+
+    await it('shuts down cleanly', async () => {
+      await app.close();
+    });
+  });
+
+  // ── Phase 3 prep (still skipped) ──
   await describe('Phase 3 contracts (skipped)', async () => {
-    skip('open_presenter_window IPC opens a 2nd BrowserWindow on /presenter.html',
-      async () => {/* await app.windows() length === 2; second.url() includes presenter.html */},
-      'presenter window not yet implemented in Electron shell (main.js:200)');
-
-    skip('presenter window receives state-update via BroadcastChannel',
-      async () => {/* navigate main, assert presenter #counter updates */},
-      'depends on open_presenter_window');
-
     skip('export_pdf IPC writes a valid PDF (%PDF- prefix, >10KB)',
       async () => {/* invoke export_pdf, read bytes, assert magic + size */},
       'PDF export not yet implemented in Electron shell (main.js:205)');

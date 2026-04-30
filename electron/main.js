@@ -201,9 +201,28 @@ function registerIPC() {
   });
 
   ipcMain.handle('open_presenter_window', async () => {
-    // Phase 3: open separate presenter window. For now, no-op (frontend
-    // falls back to window.open which works inside Electron renderers too).
-    throw new Error('Presenter window not yet implemented in Electron shell');
+    if (presenterWindow && !presenterWindow.isDestroyed()) {
+      presenterWindow.focus();
+      return null;
+    }
+    presenterWindow = new BrowserWindow({
+      title: 'StellarDeck — Presenter',
+      icon: APP_ICON,
+      width: 1100,
+      height: 700,
+      backgroundColor: '#0b1220',
+      // Keep this window separate-but-related: same protocols + preload so
+      // BroadcastChannel('stellardeck-presenter') connects to the main window.
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.js'),
+        contextIsolation: true,
+        sandbox: true,
+        nodeIntegration: false,
+      },
+    });
+    presenterWindow.on('closed', () => { presenterWindow = null; });
+    presenterWindow.loadURL('app://./presenter.html');
+    return null;
   });
 
   ipcMain.handle('export_pdf', async () => {
@@ -229,6 +248,7 @@ function registerIPC() {
 // ----------------------------------------------------------------------------
 
 let mainWindow = null;
+let presenterWindow = null;
 
 function createMainWindow() {
   const isMac = process.platform === 'darwin';

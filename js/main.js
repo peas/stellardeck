@@ -448,17 +448,17 @@ async function main() {
 
     // Open presenter window
     function openPresenter() {
-      if (IS_TAURI) {
+      if (IS_DESKTOP) {
         desktopInvoke('open_presenter_window').catch(e => {
           showToast('Presenter: ' + (e?.message || String(e)), 4000);
         });
       } else {
-        // Browser AND Electron: window.open works inside Chromium renderers.
-        // Phase 3 will replace this with a real BrowserWindow in Electron.
+        // Browser mode: window.open is the only option (no IPC).
         window.open('presenter.html', 'stellardeck-presenter', 'width=1100,height=700');
       }
-      // Send state after a short delay for the window to load
-      setTimeout(sendSlideUpdate, 500);
+      // Send state after a short delay for the window to load + connect to
+      // the BroadcastChannel.
+      setTimeout(sendSlideUpdate, 700);
     }
     window._openPresenter = openPresenter;
 
