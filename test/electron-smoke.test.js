@@ -467,6 +467,27 @@ function skip(name, _fn, reason) {
       });
     });
 
+    await it('chrome: Play + Presenter buttons render in titlebar drag region', async () => {
+      const info = await win.evaluate(() => {
+        const drag = document.getElementById('titlebar-drag');
+        const play = document.getElementById('btn-chrome-play');
+        const presenter = document.getElementById('btn-chrome-presenter');
+        const counter = document.getElementById('titlebar-counter');
+        return {
+          dragHasButtons: drag?.contains(play) && drag?.contains(presenter),
+          playLabel: play?.querySelector('span')?.textContent.trim(),
+          presenterLabel: presenter?.querySelector('span')?.textContent.trim(),
+          counterText: counter?.textContent.trim() || '',
+          // Buttons must opt out of the drag region so they're clickable
+          playDrag: play && getComputedStyle(play).webkitAppRegion,
+        };
+      });
+      assert.equal(info.dragHasButtons, true, 'Play+Presenter buttons should be inside #titlebar-drag');
+      assert.equal(info.playLabel, 'Play');
+      assert.equal(info.presenterLabel, 'Presenter');
+      assert.match(info.counterText, /\d+ \/ \d+/, `expected counter like "1 / 19", got "${info.counterText}"`);
+    });
+
     await it('chrome: titleBarStyle hiddenInset (macOS) → draggable region present', async () => {
       // body.desktop-overlay flips on the always-present #titlebar-drag region
       // and the 78px left-pad on the toolbar (so the traffic lights have room).
@@ -482,7 +503,7 @@ function skip(name, _fn, reason) {
       });
       assert.equal(info.hasOverlayClass, true, 'body needs .desktop-overlay class');
       assert.equal(info.hasElectronClass, true, 'body needs .electron-app class');
-      assert.equal(info.dragRegionDisplay, 'block', `#titlebar-drag should be visible, got display:${info.dragRegionDisplay}`);
+      assert.equal(info.dragRegionDisplay, 'flex', `#titlebar-drag should render as flex (counter + actions), got display:${info.dragRegionDisplay}`);
       assert.equal(info.toolbarPaddingLeft, '78px', `toolbar should have 78px left padding for traffic lights, got ${info.toolbarPaddingLeft}`);
     });
 

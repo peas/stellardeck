@@ -35,6 +35,18 @@ if (IS_DESKTOP) document.body.classList.add('desktop-app');
 setupActivityRail();
 registerBaseCommands();
 setupCommandPaletteShortcut();
+
+// Chrome buttons in the titlebar zone (Play / Presenter). Wire to the
+// existing toolbar handlers so behavior is identical until the old
+// toolbar is removed in checkpoint 9.
+if (IS_DESKTOP) {
+  document.getElementById('btn-chrome-play')?.addEventListener('click', () => {
+    document.getElementById('btn-play')?.click();
+  });
+  document.getElementById('btn-chrome-presenter')?.addEventListener('click', () => {
+    document.getElementById('btn-presenter')?.click();
+  });
+}
 const isMac = navigator.platform.startsWith('Mac') || navigator.userAgent.includes('Macintosh');
 if (IS_TAURI) {
   document.body.classList.add('tauri-app');
@@ -326,6 +338,13 @@ async function main() {
     // Note: imported statically at top — a dynamic import would yield to the
     // event loop and miss Reveal's setTimeout(0)-scheduled 'ready' event.
     Reveal.on('ready', rebuildThumbnails);
+    const updateChromeCounter = () => {
+      const idx = Reveal.getState().indexh || 0;
+      const total = Reveal.getTotalSlides();
+      const tbCounter = document.getElementById('titlebar-counter');
+      if (tbCounter) tbCounter.textContent = `${idx + 1} / ${total}`;
+    };
+    Reveal.on('ready', updateChromeCounter);
     Reveal.on('slidechanged', () => {
       const idx = Reveal.getState().indexh || 0;
       document.querySelectorAll('#sb-thumbs .sb-thumb').forEach((el, i) => {
@@ -334,6 +353,7 @@ async function main() {
       // Update slide counter in section header
       const meta = document.querySelector('.sb-section-header .sb-section-meta');
       if (meta) meta.textContent = `${idx + 1} / ${Reveal.getTotalSlides()}`;
+      updateChromeCounter();
       // Scroll active thumb into view
       const active = document.querySelector('#sb-thumbs .sb-thumb.active');
       if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });

@@ -481,6 +481,12 @@
       padding: 0 16px; gap: 6px;
       -webkit-app-region: drag; /* make toolbar draggable in Tauri */
     }
+    /* During the Phase 3 transition (steps 8-9): the new titlebar chrome
+       buttons live in #titlebar-drag at top:0. Push the legacy toolbar
+       below it (36px) so both render. Toolbar gets removed entirely in
+       step 9, dropping these overrides along with it. */
+    body.desktop-overlay #toolbar { top: 36px; }
+    body.desktop-overlay #tab-bar.visible { top: 80px; } /* 36 chrome + 44 toolbar */
     #toolbar.visible { display: flex; }
     /* Toolbar is always full-width; sidebar starts below toolbar */
     #tab-bar.visible ~ #toolbar { left: 0; }
@@ -493,13 +499,53 @@
       display: none;
     }
     body.desktop-overlay #titlebar-drag {
-      display: block;
+      display: flex;
       position: fixed;
       top: 0; left: 0; right: 0;
       height: 36px;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 14px 0 78px;  /* leave room for traffic lights */
+      gap: 12px;
       -webkit-app-region: drag;
       z-index: 100;
+      font-family: 'Inter', sans-serif;
     }
+    .titlebar-counter {
+      flex: 1;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.74rem;
+      font-variant-numeric: tabular-nums;
+      -webkit-app-region: drag;
+      pointer-events: none;
+    }
+    .titlebar-actions {
+      display: flex; align-items: center; gap: 6px;
+      -webkit-app-region: no-drag;
+    }
+    .chrome-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 24px;
+      padding: 0 10px;
+      background: rgba(255,255,255,0.04);
+      color: #cbd5e1;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 0.72rem;
+      cursor: pointer;
+      -webkit-app-region: no-drag;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .chrome-btn:hover { background: rgba(255,255,255,0.08); color: #f1f5f9; }
+    .chrome-btn.chrome-btn-primary {
+      background: #0ea5e9;
+      color: #0a1726;
+      border-color: #0ea5e9;
+      font-weight: 600;
+    }
+    .chrome-btn.chrome-btn-primary:hover { background: #38bdf8; border-color: #38bdf8; }
     /* Buttons must be no-drag so they're clickable */
     .toolbar-btn, .toolbar-select, .slide-counter { -webkit-app-region: no-drag; }
     .toolbar-btn {

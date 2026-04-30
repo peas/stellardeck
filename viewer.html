@@ -10,7 +10,19 @@
   <link rel="stylesheet" href="css/chrome.css">
 </head>
 <body>
-  <div id="titlebar-drag"></div>
+  <div id="titlebar-drag">
+    <span id="titlebar-counter" class="titlebar-counter"></span>
+    <div class="titlebar-actions">
+      <button class="chrome-btn" id="btn-chrome-presenter" title="Presenter mode (P)" aria-label="Open presenter window">
+        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M3 4h18v12H3zm9 14l-3 3h6l-3-3z"/></svg>
+        <span>Presenter</span>
+      </button>
+      <button class="chrome-btn chrome-btn-primary" id="btn-chrome-play" title="Play (F)" aria-label="Enter fullscreen presentation">
+        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M5 3v18l16-9z"/></svg>
+        <span>Play</span>
+      </button>
+    </div>
+  </div>
 
   <!-- Phase 3 chrome: activity rail (48px) hosts mode-switching icons.
        Each rail-btn flips body[data-sidebar-mode] which CSS uses to swap
