@@ -310,7 +310,49 @@ function skip(name, _fn, reason) {
       });
       assert.equal(after.activeMode, 'diagnostics');
       assert.equal(after.activeBtn, 1);
-      // Reset so subsequent tests start from "decks"
+    });
+
+    await it('sidebar diagnostics mode: renders PROBLEMS header + grouped items', async () => {
+      // Diagnostics mode is active from the previous test. Bean-to-bar has at
+      // least one diagnostic (see toolbar badge ⚠1 in screenshots).
+      const info = await win.evaluate(() => {
+        const headerText = document.querySelector('.sb-section-header')?.textContent.trim() || '';
+        const groups = document.querySelectorAll('.sb-diag-group').length;
+        const items = document.querySelectorAll('.sb-diag-item').length;
+        const empty = document.querySelector('.sb-empty');
+        return { headerText, groups, items, hasEmpty: !!empty };
+      });
+      assert.ok(info.headerText.startsWith('PROBLEMS'),
+        `expected PROBLEMS header, got "${info.headerText}"`);
+      // Either the deck has problems (groups > 0) or shows the empty state.
+      // Both are valid outcomes for this smoke; the contract is just "renders".
+      if (info.items > 0) {
+        assert.ok(info.groups >= 1, 'items present should have at least one group');
+      } else {
+        assert.ok(info.hasEmpty, 'no items → empty state should be shown');
+      }
+    });
+
+    await it('sidebar diagnostics: clicking item navigates to the slide', async () => {
+      // Skip cleanly if the demo deck has no clickable warnings to test against.
+      const itemInfo = await win.evaluate(() => {
+        const item = document.querySelector('.sb-diag-item');
+        if (!item) return null;
+        const slideText = item.querySelector('.sb-diag-slide')?.textContent || '';
+        const m = slideText.match(/Slide (\d+)/);
+        return m ? { slideNum: Number(m[1]) } : null;
+      });
+      if (!itemInfo) {
+        console.log('    (no per-slide diagnostics to click — passing trivially)');
+        return;
+      }
+      const navigated = await win.evaluate(() => {
+        document.querySelector('.sb-diag-item').click();
+        return new Promise(r => setTimeout(() => r(Reveal.getState().indexh || 0), 200));
+      });
+      assert.equal(navigated, itemInfo.slideNum - 1,
+        `clicking diag for slide ${itemInfo.slideNum} should navigate to indexh ${itemInfo.slideNum - 1}, got ${navigated}`);
+      // Reset to decks mode for any later assertions
       await win.evaluate(() => {
         document.querySelector('#activity-rail .rail-btn[data-mode="decks"]').click();
       });

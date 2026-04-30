@@ -4,6 +4,7 @@ import { syncMeasurer, fitText } from './fittext.js';
 import { buildGrid, isGridOpen } from './grid.js';
 import { refreshUI } from './toolbar.js';
 import { refreshDiagnosticsUI } from './diagnostics-panel.js';
+import { notifyDiagnosticsChanged } from './sidebar.js';
 
 // ============================================================
 // Centralized slide re-render — single function for all paths
@@ -60,6 +61,7 @@ export async function renderDeck(opts = {}) {
     const current = window.StellarDiagnostics.diagnoseCurrent({ theme: tab.themeOverride });
     window.StellarDiagnostics.merge(tab.diagnostics, [...deckWarnings, ...current.filter(w => w.slide != null)]);
     refreshDiagnosticsUI(tab.diagnostics);
+    notifyDiagnosticsChanged(state.tabs.reduce((s, t) => s + (t.diagnostics?.length || 0), 0));
   }
 
   if (opts.toast) {

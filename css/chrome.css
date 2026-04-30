@@ -218,6 +218,58 @@
     body[data-sidebar-mode="diagnostics"] .sb-thumbs,
     body[data-sidebar-mode="diagnostics"] .sb-thumbs + *,
     body[data-sidebar-mode="theme"] .sb-thumbs { display: none; }
+
+    /* ===== Diagnostics sidebar (mode "diagnostics") ===== */
+    .sb-empty {
+      padding: 24px 14px;
+      color: #475569;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      text-align: center;
+    }
+    .sb-diag-group { margin-top: 4px; }
+    .sb-diag-deck {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem; font-weight: 600;
+      color: #cbd5e1;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      -webkit-app-region: no-drag;
+    }
+    .sb-diag-deck-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sb-diag-count {
+      flex-shrink: 0;
+      padding: 1px 6px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border-radius: 8px;
+      font-size: 0.65rem;
+    }
+    .sb-diag-item {
+      padding: 8px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      -webkit-app-region: no-drag;
+      transition: background 0.12s;
+    }
+    .sb-diag-item:hover { background: rgba(255,255,255,0.04); }
+    .sb-diag-meta {
+      display: flex; justify-content: space-between; gap: 6px;
+      font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 3px;
+    }
+    .sb-diag-type { color: #94a3b8; font-weight: 600; }
+    .sb-diag-slide { color: #64748b; }
+    .sb-diag-msg {
+      font-size: 0.74rem; line-height: 1.35;
+      color: #e2e8f0;
+    }
+    .sb-diag-warn .sb-diag-type { color: #f59e0b; }
+    .sb-diag-error .sb-diag-type { color: #ef4444; }
+    .sb-diag-info  .sb-diag-type { color: #38bdf8; }
     .tab-info { flex: 1; min-width: 0; }
     .tab-name { font-weight: 600; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.82rem; }
     .tab-meta { font-size: 0.72rem; color: #6b7a8d; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

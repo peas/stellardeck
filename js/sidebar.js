@@ -12,9 +12,15 @@
 // ============================================================
 
 import { IS_DESKTOP } from './desktop.js';
+import { renderTabs } from './tabs.js';
+import { renderDiagnosticsSidebar } from './sidebar-diagnostics.js';
 
 const MODES = ['decks', 'diagnostics', 'theme'];
-const renderers = new Map();
+const renderers = new Map([
+  ['decks', renderTabs],
+  ['diagnostics', renderDiagnosticsSidebar],
+  // 'theme' registers itself in checkpoint 5
+]);
 
 export function registerSidebarRenderer(mode, fn) {
   renderers.set(mode, fn);
@@ -72,5 +78,20 @@ export function updateDiagnosticsBadge(count) {
     badge.textContent = count > 99 ? '99+' : String(count);
   } else {
     badge.hidden = true;
+  }
+}
+
+// Called by render.js after a renderDeck completes. Re-renders the
+// diagnostics view if it's the active sidebar mode, and always updates
+// the rail's counter badge so the user sees a nudge even from another mode.
+export function notifyDiagnosticsChanged(totalAcrossDecks) {
+  updateDiagnosticsBadge(totalAcrossDecks);
+  if (getActiveMode() === 'diagnostics') {
+    const fn = renderers.get('diagnostics');
+    if (fn) fn();
+  } else if (getActiveMode() === 'decks') {
+    // Also refresh decks view so per-deck warning badges update
+    const fn = renderers.get('decks');
+    if (fn) fn();
   }
 }
