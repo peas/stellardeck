@@ -154,6 +154,70 @@
     }
     .tab.active .tab-name { color: #ffffff; }
     .tab.active .tab-meta { color: #94a3b8; }
+
+    /* ===== Sidebar sections (Phase 3) ===== */
+    .sb-section-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 14px 14px 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem; letter-spacing: 0.08em;
+      color: #475569;
+      text-transform: uppercase; font-weight: 600;
+      -webkit-app-region: no-drag;
+    }
+    .sb-section-meta { font-weight: 500; letter-spacing: 0.02em; text-transform: none; color: #64748b; }
+    .tab-warn-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 1px 5px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border-radius: 3px;
+      font-size: 0.65rem; font-weight: 600;
+    }
+
+    /* Thumbnail strip — vertical mini-grid of slide previews */
+    .sb-thumbs {
+      display: flex; flex-direction: column;
+      gap: 6px;
+      padding: 4px 12px 12px;
+      -webkit-app-region: no-drag;
+    }
+    .sb-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #0a0a0a;
+      transition: border-color 0.12s;
+    }
+    .sb-thumb:hover { border-color: rgba(56,189,248,0.4); }
+    .sb-thumb.active { border-color: #38bdf8; box-shadow: 0 0 0 1px #38bdf8; }
+    .sb-thumb-inner {
+      position: absolute; top: 0; left: 0;
+      width: var(--sd-slide-w, 1280px); height: var(--sd-slide-h, 720px);
+      transform-origin: 0 0;
+      pointer-events: none;
+      background: var(--r-background-color, #0a0a0a);
+      overflow: hidden;
+    }
+    .sb-thumb-inner .deckset-fit { overflow: hidden; }
+    .sb-thumb-inner .fragment { opacity: 1 !important; }
+    .sb-thumb-num {
+      position: absolute; bottom: 2px; right: 4px;
+      font-family: 'Inter', sans-serif; font-size: 0.55rem;
+      color: #cbd5e1;
+      background: rgba(0,0,0,0.65);
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    /* Hide thumbnails when sidebar mode isn't "decks" */
+    body[data-sidebar-mode="diagnostics"] .sb-thumbs,
+    body[data-sidebar-mode="diagnostics"] .sb-thumbs + *,
+    body[data-sidebar-mode="theme"] .sb-thumbs { display: none; }
     .tab-info { flex: 1; min-width: 0; }
     .tab-name { font-weight: 600; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.82rem; }
     .tab-meta { font-size: 0.72rem; color: #6b7a8d; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

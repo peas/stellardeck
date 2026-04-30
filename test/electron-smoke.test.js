@@ -252,6 +252,52 @@ function skip(name, _fn, reason) {
       assert.equal(info.activeBtn, 0, 'first button should be active');
     });
 
+    await it('sidebar decks mode: shows OPEN DECKS list + THIS DECK thumbnails', async () => {
+      // Wait for thumbnails to render after the deck loads
+      await win.waitForFunction(
+        () => document.querySelectorAll('#sb-thumbs .sb-thumb').length > 0,
+        null,
+        { timeout: 5000 }
+      );
+      const info = await win.evaluate(() => {
+        const headers = Array.from(document.querySelectorAll('.sb-section-header'))
+          .map(h => h.textContent.trim());
+        const tabs = document.querySelectorAll('#tab-bar .tab');
+        const thumbs = document.querySelectorAll('#sb-thumbs .sb-thumb');
+        const activeThumb = document.querySelector('#sb-thumbs .sb-thumb.active');
+        const totalSlides = (typeof Reveal !== 'undefined') ? Reveal.getTotalSlides() : 0;
+        return {
+          headerTexts: headers,
+          tabCount: tabs.length,
+          thumbCount: thumbs.length,
+          totalSlides,
+          activeThumbIndex: activeThumb ? Number(activeThumb.dataset.index) : -1,
+        };
+      });
+      assert.ok(info.headerTexts.some(t => t.startsWith('OPEN DECKS')),
+        `expected "OPEN DECKS" header, got ${info.headerTexts}`);
+      assert.ok(info.headerTexts.some(t => t.startsWith('THIS DECK')),
+        `expected "THIS DECK" header, got ${info.headerTexts}`);
+      assert.equal(info.tabCount, 1, 'one open deck');
+      assert.equal(info.thumbCount, info.totalSlides,
+        `thumb count ${info.thumbCount} should match slide count ${info.totalSlides}`);
+      assert.equal(info.activeThumbIndex, 0, 'first thumb should be active at boot');
+    });
+
+    await it('sidebar thumbnails: clicking thumb navigates to that slide', async () => {
+      const after = await win.evaluate(async () => {
+        const target = document.querySelector('#sb-thumbs .sb-thumb[data-index="2"]');
+        target?.click();
+        await new Promise(r => requestAnimationFrame(r));
+        return {
+          idx: Reveal.getState().indexh || 0,
+          activeIdx: Number(document.querySelector('#sb-thumbs .sb-thumb.active')?.dataset.index ?? -1),
+        };
+      });
+      assert.equal(after.idx, 2);
+      assert.equal(after.activeIdx, 2);
+    });
+
     await it('activity rail: clicking diagnostics button switches mode', async () => {
       const after = await win.evaluate(() => {
         const btn = document.querySelector('#activity-rail .rail-btn[data-mode="diagnostics"]');

@@ -19,6 +19,7 @@ import { renderDiagrams } from './diagrams.js';
 import { renderDeck } from './render.js';
 import { setupWelcomeScreen } from './welcome.js';
 import { setupActivityRail, updateDiagnosticsBadge } from './sidebar.js';
+import { rebuildThumbnails } from './tabs.js';
 
 // ============================================================
 // Initialize print mode
@@ -314,6 +315,26 @@ async function main() {
     };
     window._renderExtras = renderExtras;
     Reveal.on('ready', renderExtras);
+
+    // Sidebar thumbnail strip: rebuild on ready + after smart-reload changes
+    // the slide DOM, and on slidechanged just toggle the .active class so we
+    // don't re-snapshot every navigation (cheap path matters for big decks).
+    // Note: imported statically at top — a dynamic import would yield to the
+    // event loop and miss Reveal's setTimeout(0)-scheduled 'ready' event.
+    Reveal.on('ready', rebuildThumbnails);
+    Reveal.on('slidechanged', () => {
+      const idx = Reveal.getState().indexh || 0;
+      document.querySelectorAll('#sb-thumbs .sb-thumb').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+      });
+      // Update slide counter in section header
+      const meta = document.querySelector('.sb-section-header .sb-section-meta');
+      if (meta) meta.textContent = `${idx + 1} / ${Reveal.getTotalSlides()}`;
+      // Scroll active thumb into view
+      const active = document.querySelector('#sb-thumbs .sb-thumb.active');
+      if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+    window._rebuildThumbnails = rebuildThumbnails;
 
     // fitText: wait for fonts, then fit all slides
     const runFit = () => requestAnimationFrame(() => fitText());

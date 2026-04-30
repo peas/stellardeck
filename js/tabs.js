@@ -44,19 +44,28 @@ export function renderTabs() {
   bar.innerHTML = '';
   bar.classList.toggle('visible', IS_DESKTOP || state.tabs.length > 1);
 
+  // Section: Open Decks ──────────────────────────────────────────────
+  const decksHeader = document.createElement('div');
+  decksHeader.className = 'sb-section-header';
+  decksHeader.textContent = 'OPEN DECKS';
+  bar.appendChild(decksHeader);
+
   state.tabs.forEach((tab, i) => {
     const el = document.createElement('div');
     el.className = 'tab' + (i === state.activeTabIndex ? ' active' : '');
+    el.dataset.tabIndex = i;
     const name = tab.file.split('/').pop();
     const slides = tabSlideCount(tab.md);
     const parts = tab.file.split('/');
     parts.pop(); // remove filename
     const dir = parts.pop() || '';
     const dirLabel = dir ? dir + '/' : '';
+    const warnCount = (tab.diagnostics || []).length;
+    const warnBadge = warnCount > 0 ? `<span class="tab-warn-badge">⚠ ${warnCount}</span>` : '';
     el.innerHTML = `<div class="tab-info">
         <div class="tab-name">${name}</div>
         ${dirLabel ? `<div class="tab-meta">${dirLabel}</div>` : ''}
-        <div class="tab-meta">${slides} slides</div>
+        <div class="tab-meta">${slides} slides ${warnBadge}</div>
       </div>` +
       (state.tabs.length > 1 ? `<span class="close-btn" data-index="${i}">&times;</span>` : '');
     el.addEventListener('click', (e) => {
@@ -73,7 +82,79 @@ export function renderTabs() {
     });
     bar.appendChild(el);
   });
+
+  // Section: This Deck — slide thumbnails (always-on, Paulo confirmed) ─
+  const activeTab = state.tabs[state.activeTabIndex];
+  if (activeTab) {
+    const total = tabSlideCount(activeTab.md);
+    const idx = (typeof Reveal !== 'undefined' && typeof Reveal.getState === 'function')
+      ? (Reveal.getState().indexh || 0) : 0;
+
+    const thumbsHeader = document.createElement('div');
+    thumbsHeader.className = 'sb-section-header';
+    thumbsHeader.innerHTML = `THIS DECK <span class="sb-section-meta">${idx + 1} / ${total}</span>`;
+    bar.appendChild(thumbsHeader);
+
+    const thumbs = document.createElement('div');
+    thumbs.className = 'sb-thumbs';
+    thumbs.id = 'sb-thumbs';
+    bar.appendChild(thumbs);
+
+    // Defer the actual slide-element snapshotting to render.js cycle so we
+    // don't fight a half-built #slides DOM. The renderer fires sb-thumbs:rebuild
+    // events; we listen here.
+    requestAnimationFrame(() => rebuildThumbnails());
+  }
+
   updateChromeHeight();
+}
+
+export function rebuildThumbnails() {
+  const thumbs = document.getElementById('sb-thumbs');
+  if (!thumbs) return;
+  thumbs.innerHTML = '';
+  const sections = document.querySelectorAll('.reveal .slides > section');
+  const idx = (typeof Reveal !== 'undefined' && typeof Reveal.getState === 'function')
+    ? (Reveal.getState().indexh || 0) : 0;
+
+  sections.forEach((section, i) => {
+    const card = document.createElement('div');
+    card.className = 'sb-thumb' + (i === idx ? ' active' : '');
+    card.dataset.index = i;
+
+    // Tiny 16:9 preview of the slide
+    const inner = document.createElement('div');
+    inner.className = 'sb-thumb-inner sd-slide';
+    const bgImage = section.getAttribute('data-background-image');
+    const bgColor = section.getAttribute('data-background-color');
+    if (bgImage) {
+      inner.style.backgroundImage = `url('${bgImage}')`;
+      inner.style.backgroundSize = section.getAttribute('data-background-size') || 'cover';
+      inner.style.backgroundPosition = 'center';
+    }
+    if (bgColor) inner.style.backgroundColor = bgColor;
+    inner.innerHTML = section.innerHTML;
+    inner.querySelectorAll('aside.notes').forEach(n => n.remove());
+    card.appendChild(inner);
+
+    const num = document.createElement('span');
+    num.className = 'sb-thumb-num';
+    num.textContent = i + 1;
+    card.appendChild(num);
+
+    card.addEventListener('click', () => {
+      if (typeof Reveal !== 'undefined' && Reveal.slide) Reveal.slide(i);
+    });
+
+    thumbs.appendChild(card);
+
+    requestAnimationFrame(() => {
+      const slideW = (typeof Reveal !== 'undefined' && Reveal.getConfig)
+        ? Reveal.getConfig().width : 1280;
+      const scale = inner.parentElement.clientWidth / slideW;
+      inner.style.transform = `scale(${scale})`;
+    });
+  });
 }
 
 export function addTab(file, md) {
