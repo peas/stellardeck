@@ -14,7 +14,13 @@
   'use strict';
 
   const OVERFLOW_TOLERANCE = 20; // px — sub-pixel + border tolerance
+  // Images crop via object-fit: cover so a few-pixel overshoot of the <img>
+  // element is a layout-rounding artifact, NOT a visible problem. Only warn
+  // on images that overshoot by more than 10% of the slide dimension. Text
+  // elements always warn — text overflow is always visible/ugly.
+  const IMG_OVERFLOW_FRAC = 0.10;
   const CURRENT_SLIDE_SELECTOR = '.reveal .slides section.present';
+  const TEXT_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'blockquote', 'pre', 'code', 'span']);
 
   /** Query the currently-presented slide section. */
   function currentSection(root) {
@@ -30,27 +36,38 @@
     const warnings = [];
 
     // Overflow: any visible descendant extends past the slide frame.
-    // Identify the offender so the warning is actionable: tag name + class
-    // hint + truncated text + which side it overflowed on, with px amount.
+    // Threshold is asymmetric by element kind:
+    //   - <img>: object-fit: cover makes the visible pixels stay inside even
+    //     when the element bounds nudge over by a few px. Only warn when
+    //     an image overshoots > 10% of the slide dimension on any side.
+    //   - text elements (h1-h6, p, li, …): always warn at OVERFLOW_TOLERANCE,
+    //     since clipped text is always visibly ugly.
+    //   - everything else (containers): warn at OVERFLOW_TOLERANCE.
     const frame = section.getBoundingClientRect();
     if (frame.width > 0 && frame.height > 0) {
+      const imgThreshXpx = Math.max(OVERFLOW_TOLERANCE, frame.width * IMG_OVERFLOW_FRAC);
+      const imgThreshYpx = Math.max(OVERFLOW_TOLERANCE, frame.height * IMG_OVERFLOW_FRAC);
       for (const el of section.querySelectorAll('*')) {
         const r = el.getBoundingClientRect();
         if (r.width === 0 || r.height === 0) continue;
-        // Skip ancestors of other elements we'd flag — focus on leaves
+        // Skip containers that have visible children — focus on leaves.
         if (el.children.length > 0 && Array.from(el.children).some(c => {
           const cr = c.getBoundingClientRect();
           return cr.width > 0 && cr.height > 0;
         })) continue;
-        const overshoots = [];
-        if (r.right > frame.right + OVERFLOW_TOLERANCE) overshoots.push(`right by ${Math.round(r.right - frame.right)}px`);
-        if (r.bottom > frame.bottom + OVERFLOW_TOLERANCE) overshoots.push(`bottom by ${Math.round(r.bottom - frame.bottom)}px`);
-        if (r.left < frame.left - OVERFLOW_TOLERANCE) overshoots.push(`left by ${Math.round(frame.left - r.left)}px`);
-        if (r.top < frame.top - OVERFLOW_TOLERANCE) overshoots.push(`top by ${Math.round(frame.top - r.top)}px`);
-        if (overshoots.length === 0) continue;
 
         const tag = el.tagName.toLowerCase();
         const isImg = tag === 'img';
+        const tx = isImg ? imgThreshXpx : OVERFLOW_TOLERANCE;
+        const ty = isImg ? imgThreshYpx : OVERFLOW_TOLERANCE;
+
+        const overshoots = [];
+        if (r.right > frame.right + tx)  overshoots.push(`right by ${Math.round(r.right - frame.right)}px`);
+        if (r.bottom > frame.bottom + ty) overshoots.push(`bottom by ${Math.round(r.bottom - frame.bottom)}px`);
+        if (r.left < frame.left - tx)    overshoots.push(`left by ${Math.round(frame.left - r.left)}px`);
+        if (r.top < frame.top - ty)      overshoots.push(`top by ${Math.round(frame.top - r.top)}px`);
+        if (overshoots.length === 0) continue;
+
         const desc = isImg
           ? `<img src="${(el.getAttribute('src') || '').split('/').pop()}">`
           : `<${tag}> "${(el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)}${el.textContent && el.textContent.length > 40 ? '…' : ''}"`;
