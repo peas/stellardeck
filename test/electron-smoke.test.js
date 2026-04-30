@@ -225,6 +225,51 @@ function skip(name, _fn, reason) {
       console.log(`    saved ${out}`);
     });
 
+    await it('activity rail: visible 48px wide, 3 mode buttons, default mode "decks"', async () => {
+      const info = await win.evaluate(() => {
+        const rail = document.getElementById('activity-rail');
+        if (!rail) return { found: false };
+        const cs = getComputedStyle(rail);
+        const buttons = Array.from(rail.querySelectorAll('.rail-btn'));
+        return {
+          found: true,
+          hidden: rail.hasAttribute('hidden'),
+          display: cs.display,
+          width: cs.width,
+          buttonCount: buttons.length,
+          modes: buttons.map(b => b.dataset.mode),
+          activeMode: document.body.dataset.sidebarMode,
+          activeBtn: buttons.findIndex(b => b.classList.contains('active')),
+        };
+      });
+      assert.equal(info.found, true);
+      assert.equal(info.hidden, false, 'rail should be unhidden in desktop mode');
+      assert.equal(info.display, 'flex', `rail display should be flex, got ${info.display}`);
+      assert.equal(info.width, '48px', `rail width should be 48px, got ${info.width}`);
+      assert.equal(info.buttonCount, 3);
+      assert.deepEqual(info.modes, ['decks', 'diagnostics', 'theme']);
+      assert.equal(info.activeMode, 'decks');
+      assert.equal(info.activeBtn, 0, 'first button should be active');
+    });
+
+    await it('activity rail: clicking diagnostics button switches mode', async () => {
+      const after = await win.evaluate(() => {
+        const btn = document.querySelector('#activity-rail .rail-btn[data-mode="diagnostics"]');
+        btn.click();
+        return {
+          activeMode: document.body.dataset.sidebarMode,
+          activeBtn: Array.from(document.querySelectorAll('#activity-rail .rail-btn'))
+            .findIndex(b => b.classList.contains('active')),
+        };
+      });
+      assert.equal(after.activeMode, 'diagnostics');
+      assert.equal(after.activeBtn, 1);
+      // Reset so subsequent tests start from "decks"
+      await win.evaluate(() => {
+        document.querySelector('#activity-rail .rail-btn[data-mode="decks"]').click();
+      });
+    });
+
     await it('chrome: titleBarStyle hiddenInset (macOS) → draggable region present', async () => {
       // body.desktop-overlay flips on the always-present #titlebar-drag region
       // and the 78px left-pad on the toolbar (so the traffic lights have room).

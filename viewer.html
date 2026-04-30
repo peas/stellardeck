@@ -11,6 +11,23 @@
 </head>
 <body>
   <div id="titlebar-drag"></div>
+
+  <!-- Phase 3 chrome: activity rail (48px) hosts mode-switching icons.
+       Each rail-btn flips body[data-sidebar-mode] which CSS uses to swap
+       which sidebar pane is rendered. Only shown in desktop mode. -->
+  <nav id="activity-rail" hidden>
+    <button class="rail-btn" data-mode="decks" title="Decks (Cmd+1)" aria-label="Decks">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 4h7v7H3zm0 9h7v7H3zm9-9h9v4h-9zm0 6h9v4h-9zm0 6h9v4h-9z"/></svg>
+    </button>
+    <button class="rail-btn" data-mode="diagnostics" title="Diagnostics (Cmd+2)" aria-label="Diagnostics">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2L1 21h22L12 2zm0 5l8 14H4l8-14zm-1 5v4h2v-4zm0 5v2h2v-2z"/></svg>
+      <span class="rail-badge" id="rail-diag-count" hidden>0</span>
+    </button>
+    <button class="rail-btn" data-mode="theme" title="Theme &amp; Colors (Cmd+3)" aria-label="Theme">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 1 0 0 18c1 0 1.5-.5 1.5-1.3 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.8.6-1.4 1.5-1.4H16a4 4 0 0 0 4-4c0-4.4-3.6-8-8-8zm-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+    </button>
+  </nav>
+
   <div id="tab-bar"></div>
 
   <div id="toolbar">

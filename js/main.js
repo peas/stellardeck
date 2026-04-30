@@ -18,6 +18,7 @@ import { renderMath } from './math.js';
 import { renderDiagrams } from './diagrams.js';
 import { renderDeck } from './render.js';
 import { setupWelcomeScreen } from './welcome.js';
+import { setupActivityRail, updateDiagnosticsBadge } from './sidebar.js';
 
 // ============================================================
 // Initialize print mode
@@ -25,6 +26,10 @@ import { setupWelcomeScreen } from './welcome.js';
 if (IS_PRINT) document.documentElement.classList.add('print-mode');
 if (IS_EMBED) document.documentElement.classList.add('embed-mode');
 if (IS_DESKTOP) document.body.classList.add('desktop-app');
+// Initialize the activity rail on every boot path. setupActivityRail no-ops
+// in browser mode; doing it before main() means the rail is visible behind
+// the welcome screen so the layout doesn't shift after a deck is opened.
+setupActivityRail();
 const isMac = navigator.platform.startsWith('Mac') || navigator.userAgent.includes('Macintosh');
 if (IS_TAURI) {
   document.body.classList.add('tauri-app');
