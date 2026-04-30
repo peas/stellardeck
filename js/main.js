@@ -20,6 +20,8 @@ import { renderDeck } from './render.js';
 import { setupWelcomeScreen } from './welcome.js';
 import { setupActivityRail, updateDiagnosticsBadge } from './sidebar.js';
 import { rebuildThumbnails } from './tabs.js';
+import { setupCommandPaletteShortcut } from './command-palette.js';
+import { registerBaseCommands } from './commands.js';
 
 // ============================================================
 // Initialize print mode
@@ -31,6 +33,8 @@ if (IS_DESKTOP) document.body.classList.add('desktop-app');
 // in browser mode; doing it before main() means the rail is visible behind
 // the welcome screen so the layout doesn't shift after a deck is opened.
 setupActivityRail();
+registerBaseCommands();
+setupCommandPaletteShortcut();
 const isMac = navigator.platform.startsWith('Mac') || navigator.userAgent.includes('Macintosh');
 if (IS_TAURI) {
   document.body.classList.add('tauri-app');

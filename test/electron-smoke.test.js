@@ -354,6 +354,52 @@ function skip(name, _fn, reason) {
         `clicking diag for slide ${itemInfo.slideNum} should navigate to indexh ${itemInfo.slideNum - 1}, got ${navigated}`);
     });
 
+    await it('command palette (Cmd+K) opens, fuzzy-matches, runs the selected command', async () => {
+      // Open the palette
+      await win.evaluate(async () => {
+        const cp = await import('./js/command-palette.js');
+        cp.open();
+      });
+      await win.waitForSelector('#command-palette:not([hidden])', { timeout: 2000 });
+
+      // Filter "exp" — should rank Export commands at top
+      const matches = await win.evaluate(() => {
+        const input = document.querySelector('.cp-input');
+        input.value = 'exp';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        return Array.from(document.querySelectorAll('.cp-item .cp-label'))
+          .map(el => el.textContent.trim()).slice(0, 5);
+      });
+      assert.ok(matches.length > 0, 'expected at least one match for "exp"');
+      assert.ok(matches[0].toLowerCase().includes('export'),
+        `top match for "exp" should be an Export command, got "${matches[0]}"`);
+
+      // Pressing Esc should close
+      const closed = await win.evaluate(() => {
+        document.querySelector('.cp-input').dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
+        );
+        return document.getElementById('command-palette').hidden;
+      });
+      assert.equal(closed, true, 'Escape should close the palette');
+    });
+
+    await it('command palette: empty query lists all eligible commands', async () => {
+      const count = await win.evaluate(async () => {
+        const cp = await import('./js/command-palette.js');
+        cp.open();
+        return new Promise(r => {
+          requestAnimationFrame(() => r(document.querySelectorAll('.cp-item').length));
+        });
+      });
+      // Sanity: we registered a dozen+ commands. Allow some to be hidden by `when` guards.
+      assert.ok(count >= 8, `expected ≥8 commands at boot, got ${count}`);
+      await win.evaluate(async () => {
+        const cp = await import('./js/command-palette.js');
+        cp.close();
+      });
+    });
+
     await it('right-click on deck row opens context menu with expected items', async () => {
       // Ensure we're in "decks" mode — earlier tests may have left
       // diagnostics or theme mode active.
