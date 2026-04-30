@@ -322,6 +322,55 @@
     .sb-scheme-swatch.active {
       border-color: #38bdf8;
     }
+
+    /* ===== Context menu (Phase 3) ===== */
+    .ctx-menu {
+      position: fixed;
+      min-width: 220px;
+      background: #1c1c20;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      padding: 4px 0;
+      z-index: 500;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      -webkit-app-region: no-drag;
+      user-select: none;
+    }
+    .ctx-submenu {
+      position: absolute;
+    }
+    .ctx-item {
+      display: flex; align-items: center;
+      padding: 6px 14px 6px 12px;
+      cursor: pointer;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .ctx-item:hover { background: rgba(56,189,248,0.12); color: #f1f5f9; }
+    .ctx-item.disabled {
+      color: #475569;
+      cursor: not-allowed;
+    }
+    .ctx-item.disabled:hover { background: transparent; color: #475569; }
+    .ctx-label { flex: 1; }
+    .ctx-shortcut {
+      color: #64748b;
+      font-size: 0.7rem;
+      padding-left: 16px;
+    }
+    .ctx-arrow {
+      color: #64748b;
+      font-size: 0.7rem;
+      padding-left: 4px;
+    }
+    .ctx-sep {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 4px 0;
+    }
     .tab-info { flex: 1; min-width: 0; }
     .tab-name { font-weight: 600; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.82rem; }
     .tab-meta { font-size: 0.72rem; color: #6b7a8d; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

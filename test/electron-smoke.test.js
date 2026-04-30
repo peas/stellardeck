@@ -354,6 +354,32 @@ function skip(name, _fn, reason) {
         `clicking diag for slide ${itemInfo.slideNum} should navigate to indexh ${itemInfo.slideNum - 1}, got ${navigated}`);
     });
 
+    await it('right-click on deck row opens context menu with expected items', async () => {
+      // Ensure we're in "decks" mode — earlier tests may have left
+      // diagnostics or theme mode active.
+      await win.evaluate(() => {
+        document.querySelector('#activity-rail .rail-btn[data-mode="decks"]').click();
+      });
+      // Use Playwright's right-click simulation (more reliable than
+      // dispatchEvent — MouseEvent('contextmenu') doesn't always trigger
+      // browser-attached listeners in Electron's renderer).
+      await win.locator('#tab-bar .tab').first().click({ button: 'right' });
+      await win.waitForSelector('.ctx-menu', { timeout: 2000 });
+      const labels = await win.evaluate(() => {
+        const menu = document.querySelector('.ctx-menu');
+        return Array.from(menu.querySelectorAll('.ctx-item > .ctx-label'))
+          .map(el => el.textContent.trim());
+      });
+      assert.ok(labels.includes('Reveal in Finder'), `expected Reveal in Finder, got ${labels}`);
+      assert.ok(labels.includes('Open in Editor'), `expected Open in Editor in ${labels}`);
+      assert.ok(labels.some(l => l === 'Enable Autoflow' || l === 'Disable Autoflow'),
+        `expected Autoflow toggle in ${labels}`);
+      assert.ok(labels.includes('Publish…'), `expected Publish… in ${labels}`);
+      assert.ok(labels.includes('Open Assets Folder'), `expected Open Assets Folder in ${labels}`);
+      // Close the menu so it doesn't bleed into next tests
+      await win.evaluate(() => document.querySelector('.ctx-menu')?.remove());
+    });
+
     await it('sidebar theme mode: lists themes + schemes, clicking applies', async () => {
       // IMPORTANT: clicking a theme persists to a `.stellar.json` sidecar
       // next to the deck file — i.e. it MUTATES the user's repo. We delete

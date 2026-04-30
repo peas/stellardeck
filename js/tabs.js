@@ -4,6 +4,9 @@ import { restoreTabTheme, saveTabThemeOverride } from './themes.js';
 import { loadSidecar } from './sidecar.js';
 import { updateChromeHeight } from './fullscreen.js';
 import { renderDeck } from './render.js';
+import { showContextMenu } from './context-menu.js';
+import { showToast } from './toast.js';
+import { resolveRelativePath } from './path-utils.js';
 
 // ============================================================
 // Tab management
@@ -80,6 +83,10 @@ export function renderTabs() {
       // Import dynamically to avoid circular deps
       import('./toolbar.js').then(m => m.openInExternalEditor());
     });
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      showDeckContextMenu(e.clientX, e.clientY, i);
+    });
     bar.appendChild(el);
   });
 
@@ -107,6 +114,109 @@ export function renderTabs() {
   }
 
   updateChromeHeight();
+}
+
+// Extract every relative image src from a deck's markdown, resolve each
+// against the deck's directory, and return the deduplicated set of parent
+// directories. External URLs (http/data/blob) are skipped. The result feeds
+// the "Open Assets Folder ▸" submenu so the user can jump to wherever the
+// referenced images actually live (often a sibling `assets/` outside the
+// deck's own folder).
+function assetParentDirs(md, fileDir) {
+  if (!md || !fileDir) return [];
+  // Match Deckset/CommonMark image syntax: ![<modifiers>](path)
+  const re = /!\[[^\]]*\]\(([^)\s]+)/g;
+  const parents = new Set();
+  let m;
+  while ((m = re.exec(md)) !== null) {
+    const src = m[1];
+    if (!src) continue;
+    if (/^(https?:|data:|blob:)/i.test(src)) continue;
+    const abs = src.startsWith('/') ? src : resolveRelativePath(fileDir, src);
+    const idx = abs.lastIndexOf('/');
+    if (idx > 0) parents.add(abs.slice(0, idx));
+  }
+  return [...parents];
+}
+
+function showDeckContextMenu(x, y, tabIndex) {
+  const tab = state.tabs[tabIndex];
+  if (!tab) return;
+  const dirs = assetParentDirs(tab.md, tab.fileDir);
+
+  const items = [];
+  if (IS_DESKTOP) {
+    items.push({
+      label: 'Reveal in Finder',
+      onClick: () => desktopInvoke('reveal_in_finder', { path: tab.file }).catch(() => {}),
+    });
+    items.push({
+      label: 'Open in Editor',
+      shortcut: 'Cmd+E',
+      onClick: () => desktopInvoke('open_in_editor', { path: tab.file })
+        .catch(e => showToast('Failed to open editor: ' + e, 4000)),
+    });
+  }
+
+  items.push({
+    label: tab.autoflow ? 'Disable Autoflow' : 'Enable Autoflow',
+    onClick: async () => {
+      tab.autoflow = !tab.autoflow;
+      // Only re-render if this is the active tab (autoflow is per-tab)
+      if (tabIndex === state.activeTabIndex) {
+        await renderDeck({ toast: tab.autoflow ? 'Autoflow on' : 'Autoflow off' });
+      }
+      const { persistAutoflowToSidecar } = await import('./sidecar.js');
+      persistAutoflowToSidecar();
+    },
+  });
+
+  if (dirs.length > 0 && IS_DESKTOP) {
+    items.push({
+      label: dirs.length === 1 ? 'Open Assets Folder' : 'Open Assets Folder',
+      submenu: dirs.length === 1
+        ? null
+        : dirs.map(d => ({
+            label: shortenPath(d, tab.fileDir),
+            onClick: () => desktopInvoke('reveal_in_finder', { path: d + '/' }).catch(() => {}),
+          })),
+      onClick: dirs.length === 1
+        ? () => desktopInvoke('reveal_in_finder', { path: dirs[0] + '/' }).catch(() => {})
+        : undefined,
+    });
+  }
+
+  items.push({ type: 'separator' });
+  items.push({
+    label: 'Publish…',
+    onClick: () => showToast('Embed guide coming in next phase', 3000),
+  });
+
+  if (state.tabs.length > 1) {
+    items.push({ type: 'separator' });
+    items.push({
+      label: 'Close Tab',
+      shortcut: 'Cmd+W',
+      onClick: () => closeTab(tabIndex),
+    });
+  }
+
+  showContextMenu(x, y, items);
+}
+
+// Make `/Users/peas/foo/bar/assets` readable when fileDir is .../foo/bar/
+// → "./assets" if inside fileDir; "../shared" if one level up; absolute otherwise.
+function shortenPath(absDir, fileDir) {
+  if (!fileDir) return absDir;
+  const fd = fileDir.replace(/\/+$/, '');
+  if (absDir === fd) return '.';
+  if (absDir.startsWith(fd + '/')) return './' + absDir.slice(fd.length + 1);
+  // Try one level up
+  const parent = fd.slice(0, fd.lastIndexOf('/'));
+  if (parent && absDir.startsWith(parent + '/')) {
+    return '../' + absDir.slice(parent.length + 1);
+  }
+  return absDir;
 }
 
 export function rebuildThumbnails() {
