@@ -357,18 +357,17 @@ async function main() {
     });
     window._rebuildThumbnails = rebuildThumbnails;
 
-    // fitText: wait for fonts, then fit all slides
-    const runFit = () => requestAnimationFrame(() => fitText());
-    window.fitText = fitText; // expose for iframe embed editing
+    // fitText: wait for fonts, then fit all slides + run diagnostics AFTER
+    // fit settles. Previously diagnostics raced fit and sometimes flagged
+    // overflow on `<code>`/`<h1>` elements that fitText was about to shrink
+    // into the frame on the next rAF — false positive.
+    const runFit = () => requestAnimationFrame(() => {
+      fitText();
+      // One more frame so the layout reflects the fit before measuring.
+      if (!IS_EMBED) requestAnimationFrame(() => updateDiagnosticsForCurrentSlide());
+    });
+    window.fitText = fitText;
     Reveal.on('ready', () => document.fonts.ready.then(runFit));
-
-    // Diagnostics: check each slide as user navigates (progressive discovery)
-    if (!IS_EMBED) {
-      Reveal.on('slidechanged', () => {
-        // Wait a tick for layout to settle after navigation
-        requestAnimationFrame(() => updateDiagnosticsForCurrentSlide());
-      });
-    }
     Reveal.on('resize', runFit);
     Reveal.on('slidechanged', runFit);
 

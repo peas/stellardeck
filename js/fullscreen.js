@@ -49,12 +49,19 @@ export function updatePlayState() {
 export function updateChromeHeight() {
   const tabBar = document.getElementById('tab-bar');
   const hasSidebar = tabBar.classList.contains('visible') && !state.sidebarCollapsed;
-  // 36px chrome bar in desktop overlay mode, otherwise 0
   const isOverlay = document.body.classList.contains('desktop-overlay');
   const isFS = state.isFullscreen || !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const isDesktopApp = document.body.classList.contains('desktop-app');
   const chromeH = (isOverlay && !isFS) ? 36 : 0;
+  // --sidebar-width is the horizontal real estate the slide must skip on
+  // the left. In desktop mode that's the 48px activity rail PLUS the 220px
+  // sidebar pane (when expanded). Forgetting the rail's 48px caused the
+  // slide to start under the rail with no breathing room — visible asymmetry
+  // vs the right edge.
+  const railW = (isDesktopApp && !isFS) ? 48 : 0;
+  const sidebarPaneW = hasSidebar ? 220 : 0;
   document.body.style.setProperty('--chrome-height', chromeH + 'px');
-  document.body.style.setProperty('--sidebar-width', hasSidebar ? '220px' : '0px');
+  document.body.style.setProperty('--sidebar-width', (railW + sidebarPaneW) + 'px');
   if (tabBar) tabBar.style.display = hasSidebar ? 'flex' : (tabBar.classList.contains('visible') ? 'none' : '');
   if (Reveal.isReady?.()) requestAnimationFrame(() => Reveal.layout());
 }
