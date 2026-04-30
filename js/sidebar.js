@@ -14,12 +14,13 @@
 import { IS_DESKTOP } from './desktop.js';
 import { renderTabs } from './tabs.js';
 import { renderDiagnosticsSidebar } from './sidebar-diagnostics.js';
+import { renderThemeSidebar } from './sidebar-theme.js';
 
 const MODES = ['decks', 'diagnostics', 'theme'];
 const renderers = new Map([
   ['decks', renderTabs],
   ['diagnostics', renderDiagnosticsSidebar],
-  // 'theme' registers itself in checkpoint 5
+  ['theme', renderThemeSidebar],
 ]);
 
 export function registerSidebarRenderer(mode, fn) {

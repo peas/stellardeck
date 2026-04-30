@@ -352,6 +352,34 @@ function skip(name, _fn, reason) {
       });
       assert.equal(navigated, itemInfo.slideNum - 1,
         `clicking diag for slide ${itemInfo.slideNum} should navigate to indexh ${itemInfo.slideNum - 1}, got ${navigated}`);
+    });
+
+    await it('sidebar theme mode: lists themes + schemes, clicking applies', async () => {
+      const before = await win.evaluate(() => {
+        document.querySelector('#activity-rail .rail-btn[data-mode="theme"]').click();
+        const items = Array.from(document.querySelectorAll('.sb-theme-item'))
+          .map(el => ({ name: el.querySelector('.sb-theme-name').textContent.trim(), active: el.classList.contains('active') }));
+        const swatchCount = document.querySelectorAll('.sb-scheme-swatch').length;
+        return { itemCount: items.length, items, swatchCount };
+      });
+      assert.ok(before.itemCount >= 3, `expected ≥3 themes, got ${before.itemCount}`);
+      assert.ok(before.swatchCount >= 1, 'active theme should expose at least 1 scheme swatch');
+
+      // Click the second theme — it should activate
+      const switched = await win.evaluate(() => {
+        const items = document.querySelectorAll('.sb-theme-item');
+        const target = items[1];
+        const targetName = target.querySelector('.sb-theme-name').textContent.trim();
+        target.click();
+        const newActive = document.querySelector('.sb-theme-item.active');
+        return {
+          targetName,
+          activeName: newActive?.querySelector('.sb-theme-name')?.textContent?.trim(),
+          revealClass: document.querySelector('.reveal').className,
+        };
+      });
+      assert.equal(switched.activeName, switched.targetName, 'clicked theme should become active');
+      assert.match(switched.revealClass, /theme-/);
       // Reset to decks mode for any later assertions
       await win.evaluate(() => {
         document.querySelector('#activity-rail .rail-btn[data-mode="decks"]').click();

@@ -159,6 +159,11 @@ export function rebuildThumbnails() {
     card.addEventListener('click', () => {
       if (typeof Reveal !== 'undefined' && Reveal.slide) Reveal.slide(i);
     });
+    // Double-click → open the underlying .md in the user's default editor.
+    // Mirrors the deck-tab dblclick behavior so muscle memory transfers.
+    card.addEventListener('dblclick', () => {
+      import('./toolbar.js').then(m => m.openInExternalEditor());
+    });
 
     thumbs.appendChild(card);
 
