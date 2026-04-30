@@ -180,7 +180,9 @@ Types: `overflow`, `missing-image`, `empty-slide`, `code-no-lang`, `theme-mismat
 
 ## Electron Dev Gotchas
 
-- `npm run electron -- <deck.md> [<deck.md> …]` opens 1+ decks in a session
+- `npm run electron -- <deck.md> [<deck.md> …]` opens 1+ decks in a session — **fast**, but macOS menu bar says "Electron" because it reads the name from the unmodified Electron framework binary's Info.plist (`app.setName()` cannot rewrite it at runtime)
+- `npm run app -- <deck.md> [<deck.md> …]` packages once (cached via mtime check) + opens `out/StellarDeck-<platform>-<arch>/StellarDeck.app`, so the menu bar correctly says "StellarDeck". Pass `--rebuild` after `--` to force a re-package
+- `npm run package` builds the .app without launching it; `npm run make` builds distributable artifacts under `out/make/` (zip + .dmg on macOS) via `forge.config.js`
 - The desktop runtime exposes `window.stellardeck.invoke(cmd, args)` (preload, sandboxed)
 - `app://./viewer.html` serves the repo with a real origin (ES modules + fetch work)
 - `deck://./<absolute-path>` serves any local file the markdown references — no allowlist (Tauri parity)

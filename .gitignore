@@ -13,6 +13,9 @@ codex-tmp
 # Tauri build artifacts
 src-tauri/target/
 
+# electron-forge build artifacts
+out/
+
 # Playwright
 test-results/
 playwright-report/

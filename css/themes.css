@@ -154,7 +154,7 @@
     .theme-alun.scheme-2 { --r-background-color: #0d0c0c; --r-heading-color: #ED1460; --r-main-color: #f3f2f2; --accent: #FF9414; }
     .theme-alun.scheme-3 { --r-background-color: #f3f2f2; --r-heading-color: #0d0c0c; --r-main-color: #333333; --accent: #FF9414; }
     .theme-alun.scheme-4 { --r-background-color: #FF9414; --r-heading-color: #0d0c0c; --r-main-color: #3a2000; --accent: #f3f2f2; }
-    .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #ffffff; --r-main-color: #f3f2f2; --accent: #FF9414; }
+    .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #ffffff; --r-main-color: #FF9414; --accent: #FF9414; }
 
     /* ===== Borneli — Inspired by Junior Borneli's "A Travessia Humana" ===== */
     /* Light corporate: warm gray bg, navy headings, magenta accents */
