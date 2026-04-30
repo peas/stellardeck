@@ -22,6 +22,8 @@ const ALLOWED_COMMANDS = new Set([
   'open_file_dialog',
   'open_presenter_window',
   'export_pdf',
+  'export_png',
+  'export_grid',
   'watch_file',
   'unwatch_file',
 ]);

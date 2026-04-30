@@ -16,6 +16,7 @@ const { app, BrowserWindow, ipcMain, dialog, shell, Menu, protocol, net } = requ
 const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
+const { spawn } = require('node:child_process');
 const { pathToFileURL } = require('node:url');
 const chokidar = require('chokidar');
 const Store = require('electron-store').default || require('electron-store');
@@ -225,10 +226,9 @@ function registerIPC() {
     return null;
   });
 
-  ipcMain.handle('export_pdf', async () => {
-    // Phase 3: wire up Playwright export pipeline.
-    throw new Error('PDF export not yet implemented in Electron shell');
-  });
+  ipcMain.handle('export_pdf', async (evt, opts = {}) => runExport(evt, 'pdf', opts));
+  ipcMain.handle('export_png', async (evt, opts = {}) => runExport(evt, 'png', opts));
+  ipcMain.handle('export_grid', async (evt, opts = {}) => runExport(evt, 'grid', opts));
 
   ipcMain.handle('watch_file', async (evt, { path: p }) => {
     const win = BrowserWindow.fromWebContents(evt.sender);
@@ -240,6 +240,54 @@ function registerIPC() {
   ipcMain.handle('unwatch_file', async (_evt, { path: p }) => {
     unwatchFile(p);
     return null;
+  });
+}
+
+// ----------------------------------------------------------------------------
+// Export pipeline (PDF / PNG / grid)
+//
+// Spawns the existing scripts/export.js CLI as a node child process so we
+// don't double-load Playwright + Chromium inside the Electron main process.
+// stdout/stderr are streamed back to the renderer as `export-progress`
+// events; resolves with {outputPath, format} on success, rejects on failure.
+// ----------------------------------------------------------------------------
+
+function runExport(evt, format, opts) {
+  return new Promise((resolve, reject) => {
+    const win = BrowserWindow.fromWebContents(evt.sender);
+    const inputPath = opts.input || opts.inputPath;
+    if (!inputPath) return reject(new Error('export: input path required'));
+
+    const ext = format === 'pdf' ? 'pdf' : 'png';
+    const defaultOut = inputPath.replace(/\.(md|markdown)$/i, `.${ext}`);
+    const outputPath = opts.output || opts.outputPath || defaultOut;
+
+    // export.js takes positional <input.md> [output] and --<format> flag.
+    const cliArgs = [path.join(ROOT, 'scripts', 'export.js'), `--${format}`];
+    if (opts.theme)  cliArgs.push('--theme', opts.theme);
+    if (opts.scheme) cliArgs.push('--scheme', opts.scheme);
+    if (opts.scale)  cliArgs.push('--scale', String(opts.scale));
+    if (opts.slides) cliArgs.push('--slides', opts.slides);
+    cliArgs.push(inputPath, outputPath);
+
+    const child = spawn(process.execPath, cliArgs, {
+      cwd: ROOT,
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+    });
+
+    const sendProgress = (line) => {
+      if (win && !win.isDestroyed()) {
+        win.webContents.send('export-progress', { format, line });
+      }
+    };
+    let stderrBuf = '';
+    child.stdout.on('data', (b) => sendProgress(b.toString()));
+    child.stderr.on('data', (b) => { stderrBuf += b.toString(); sendProgress(b.toString()); });
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (code === 0) resolve({ format, outputPath });
+      else reject(new Error(`export.js exited ${code}: ${stderrBuf.trim() || 'no stderr'}`));
+    });
   });
 }
 

@@ -605,15 +605,54 @@ function skip(name, _fn, reason) {
     });
   });
 
-  // ── Phase 3 prep (still skipped) ──
-  await describe('Phase 3 contracts (skipped)', async () => {
-    skip('export_pdf IPC writes a valid PDF (%PDF- prefix, >10KB)',
-      async () => {/* invoke export_pdf, read bytes, assert magic + size */},
-      'PDF export not yet implemented in Electron shell (main.js:205)');
+  // ── Native export pipeline (Phase 3 step 11) ──
+  await describe('Native export via IPC (PDF/PNG/grid)', async () => {
+    let app;
+    let win;
+    const exportDir = path.join(SCREENSHOT_DIR, 'exports');
 
-    skip('export_png IPC writes one PNG per slide',
-      async () => {/* invoke export_png to dir, count files === slide count */},
-      'depends on export_pdf');
+    await it('boots fresh for export tests', async () => {
+      await fs.rm(exportDir, { recursive: true, force: true });
+      await fs.mkdir(exportDir, { recursive: true });
+      app = await electron.launch({
+        args: [ROOT, DEMO_DECK, `--user-data-dir=${isolatedUserData}`],
+        env: { ...process.env, ELECTRON_DEV: '' },
+        timeout: 30000,
+      });
+      win = await app.firstWindow();
+      await win.waitForLoadState('domcontentloaded');
+      await win.waitForFunction(
+        () => document.querySelectorAll('.reveal .slides > section').length > 0,
+        null, { timeout: 10000 }
+      );
+    });
+
+    await it('export_pdf IPC writes a valid PDF (%PDF- magic, >5KB)', async () => {
+      const out = path.join(exportDir, 'bean.pdf');
+      const result = await win.evaluate(({ input, output }) =>
+        window.stellardeck.invoke('export_pdf', { input, output })
+      , { input: DEMO_DECK, output: out });
+      assert.equal(result.outputPath, out);
+      const buf = await fs.readFile(out);
+      assert.ok(buf.length > 5000, `expected PDF >5KB, got ${buf.length}`);
+      assert.equal(buf.slice(0, 5).toString(), '%PDF-', `expected %PDF- prefix, got ${buf.slice(0, 5).toString()}`);
+    });
+
+    await it('export_png IPC writes one PNG per slide', async () => {
+      const out = path.join(exportDir, 'bean-pngs');
+      await win.evaluate(({ input, output }) =>
+        window.stellardeck.invoke('export_png', { input, output })
+      , { input: DEMO_DECK, output: out });
+      const files = (await fs.readdir(out)).filter(f => f.endsWith('.png'));
+      assert.ok(files.length >= 15, `expected ≥15 PNGs from a 19-slide deck, got ${files.length}`);
+      // Verify first file is actually a PNG
+      const head = await fs.readFile(path.join(out, files.sort()[0]));
+      assert.equal(head.slice(1, 4).toString(), 'PNG', `expected PNG header, got ${head.slice(0, 8).toString('hex')}`);
+    });
+
+    await it('shuts down cleanly', async () => {
+      await app.close();
+    });
   });
 
   console.log(`\n${'═'.repeat(40)}`);
