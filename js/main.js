@@ -25,14 +25,17 @@ import { setupWelcomeScreen } from './welcome.js';
 if (IS_PRINT) document.documentElement.classList.add('print-mode');
 if (IS_EMBED) document.documentElement.classList.add('embed-mode');
 if (IS_DESKTOP) document.body.classList.add('desktop-app');
+const isMac = navigator.platform.startsWith('Mac') || navigator.userAgent.includes('Macintosh');
 if (IS_TAURI) {
   document.body.classList.add('tauri-app');
-  // Traffic light padding only on macOS (not Windows/Linux)
-  if (navigator.platform.startsWith('Mac') || navigator.userAgent.includes('Macintosh')) {
-    document.body.classList.add('tauri-overlay');
-  }
+  if (isMac) document.body.classList.add('tauri-overlay', 'desktop-overlay');
 }
-if (IS_ELECTRON) document.body.classList.add('electron-app');
+if (IS_ELECTRON) {
+  document.body.classList.add('electron-app');
+  // hiddenInset on macOS overlays the traffic lights into the app — pad for them.
+  // Win/Linux: titleBarOverlay draws controls into a 36px reserved strip.
+  document.body.classList.add('desktop-overlay');
+}
 
 // ============================================================
 // Initialize off-screen measurer

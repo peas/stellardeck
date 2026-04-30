@@ -217,6 +217,7 @@ function registerIPC() {
 let mainWindow = null;
 
 function createMainWindow() {
+  const isMac = process.platform === 'darwin';
   mainWindow = new BrowserWindow({
     title: 'StellarDeck',
     width: 1280,
@@ -225,6 +226,13 @@ function createMainWindow() {
     minHeight: 600,
     backgroundColor: '#0b1220',
     show: false,
+    // Chrome: hide native titlebar so our own UI extends full-height.
+    // macOS gets traffic-light overlay (positioned at x:16,y:16 to align
+    // with the activity rail's icon padding). Win/Linux gets a thin overlay
+    // bar with native window controls drawn over our app chrome.
+    titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
+    trafficLightPosition: isMac ? { x: 16, y: 16 } : undefined,
+    titleBarOverlay: !isMac ? { color: '#0b1220', symbolColor: '#e2e8f0', height: 36 } : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

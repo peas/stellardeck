@@ -135,19 +135,19 @@
     #toolbar.visible { display: flex; }
     /* Toolbar is always full-width; sidebar starts below toolbar */
     #tab-bar.visible ~ #toolbar { left: 0; }
-    /* Titlebar overlay: pad for macOS traffic lights */
-    body.tauri-overlay #toolbar { padding-left: 78px; }
-    /* Always-present drag region at top of window (Tauri overlay mode).
+    /* Titlebar overlay: pad for macOS traffic lights / Win+Linux overlay strip */
+    body.desktop-overlay #toolbar { padding-left: 78px; }
+    /* Always-present drag region at top of window (Tauri/Electron overlay mode).
        Sits behind the toolbar (z-index 100 < toolbar's 101).
        When toolbar is hidden, this is the only drag target. */
     #titlebar-drag {
       display: none;
     }
-    body.tauri-overlay #titlebar-drag {
+    body.desktop-overlay #titlebar-drag {
       display: block;
       position: fixed;
       top: 0; left: 0; right: 0;
-      height: 28px;
+      height: 36px;
       -webkit-app-region: drag;
       z-index: 100;
     }

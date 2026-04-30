@@ -225,6 +225,25 @@ function skip(name, _fn, reason) {
       console.log(`    saved ${out}`);
     });
 
+    await it('chrome: titleBarStyle hiddenInset (macOS) → draggable region present', async () => {
+      // body.desktop-overlay flips on the always-present #titlebar-drag region
+      // and the 78px left-pad on the toolbar (so the traffic lights have room).
+      const info = await win.evaluate(() => {
+        const dragRegion = document.getElementById('titlebar-drag');
+        const toolbar = document.getElementById('toolbar');
+        return {
+          hasOverlayClass: document.body.classList.contains('desktop-overlay'),
+          hasElectronClass: document.body.classList.contains('electron-app'),
+          dragRegionDisplay: dragRegion ? getComputedStyle(dragRegion).display : 'no-element',
+          toolbarPaddingLeft: toolbar ? getComputedStyle(toolbar).paddingLeft : 'no-toolbar',
+        };
+      });
+      assert.equal(info.hasOverlayClass, true, 'body needs .desktop-overlay class');
+      assert.equal(info.hasElectronClass, true, 'body needs .electron-app class');
+      assert.equal(info.dragRegionDisplay, 'block', `#titlebar-drag should be visible, got display:${info.dragRegionDisplay}`);
+      assert.equal(info.toolbarPaddingLeft, '78px', `toolbar should have 78px left padding for traffic lights, got ${info.toolbarPaddingLeft}`);
+    });
+
     await it('shuts down cleanly', async () => {
       await app.close();
     });
