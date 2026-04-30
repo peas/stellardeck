@@ -23,7 +23,7 @@ const Store = require('electron-store').default || require('electron-store');
 
 const ROOT = path.resolve(__dirname, '..');
 const isDev = !!process.env.ELECTRON_DEV;
-const APP_ICON = path.join(ROOT, 'src-tauri', 'icons', 'icon.png');
+const APP_ICON = path.join(__dirname, 'icons', 'icon.png');
 
 // Set the app name BEFORE app.whenReady() so it propagates to the dock
 // label, menu bar, and userData dir. In dev (`electron .`) macOS still

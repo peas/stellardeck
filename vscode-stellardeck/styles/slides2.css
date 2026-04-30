@@ -1,0 +1,143 @@
+/* slides2.css — StellarSlides engine styles
+   Replaces reveal.css + theme/black.css (~54KB → ~120 lines)
+   Only engine-level concerns: visibility, transforms, backgrounds, fragments */
+
+/* ===== Heading sizes (from reveal.js theme/black.css) ===== */
+.reveal h1 { font-size: 2.5em; }
+.reveal h2 { font-size: 1.6em; }
+.reveal h3 { font-size: 1.3em; }
+.reveal h4 { font-size: 1.0em; }
+.reveal p, .reveal li { line-height: 1.3; }
+
+/* ===== Slides container: positioned center, scaled by JS ===== */
+.reveal .slides {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* width, height, transform set by StellarSlides.layout() */
+  overflow: visible;
+}
+
+/* ===== Individual slides: stacked, only .present is visible ===== */
+.reveal .slides > section {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: none;
+  box-sizing: border-box;
+}
+.reveal .slides > section.present {
+  display: block;
+  z-index: 1;
+}
+
+/* ===== Backgrounds layer ===== */
+.sd-backgrounds {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+.sd-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: none;
+  background-color: var(--r-background-color, #0a0a0a);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.sd-bg.present {
+  display: block;
+}
+/* Filtered background: dark overlay via pseudo-element */
+.sd-bg[data-filtered]::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* ===== Background videos ===== */
+.sd-bg video {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%; min-height: 100%;
+  object-fit: cover;
+}
+
+/* ===== Fragments: hidden by default, shown when .visible ===== */
+.reveal .slides section .fragment {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.reveal .slides section .fragment.visible {
+  opacity: 1;
+}
+
+/* ===== Slide number ===== */
+.sd-slide-number {
+  position: absolute;
+  bottom: 8px; right: 12px;
+  font-size: 12px;
+  font-family: var(--r-main-font, Inter, sans-serif);
+  color: rgba(255, 255, 255, 0.4);
+  z-index: 10;
+}
+
+/* ===== Progress bar ===== */
+.sd-progress {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 10;
+}
+.sd-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent, #0ea5e9);
+  transition: width 0.3s ease;
+  width: 0;
+}
+
+/* ===== Controls (embed mode) ===== */
+.sd-controls {
+  position: absolute;
+  bottom: 24px;
+  right: 16px;
+  z-index: 20;
+  display: flex;
+  gap: 8px;
+}
+.sd-controls button {
+  width: 32px; height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.sd-controls button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== Reveal container base (replaces reveal.css + theme/black.css) ===== */
+/* CSS variable DEFAULTS are in themes.css :root — NOT here.
+   This only applies the variables to the .reveal element. */
+.reveal {
+  position: relative;
+  overflow: hidden;
+  font-family: var(--r-main-font, Inter, sans-serif);
+  font-size: var(--r-main-font-size, 28px);
+  color: var(--r-main-color, #e2e8f0);
+  background-color: var(--r-background-color, #0a0a0a);
+}

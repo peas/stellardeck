@@ -1,5 +1,5 @@
 import { state, IS_PRINT } from './state.js';
-import { IS_DESKTOP, IS_TAURI, desktopInvoke } from './desktop.js';
+import { IS_DESKTOP, desktopInvoke } from './desktop.js';
 import { showToast } from './toast.js';
 import { THEMES, applySchemeColors, propagateThemeVars, syncThemeDropdown } from './themes.js';
 import { syncMeasurer, fitText } from './fittext.js';
@@ -138,17 +138,9 @@ export async function runPdfExport() {
   if (progressEl) progressEl.classList.add('active', 'indeterminate');
   if (progressBar) progressBar.style.width = '0%';
 
+  // Electron forwards `export-progress` events from main during native
+  // export. The legacy in-browser path doesn't emit progress.
   let unlisten;
-  if (IS_TAURI && window.__TAURI__?.event?.listen) {
-    unlisten = await window.__TAURI__.event.listen('pdf-progress', (event) => {
-      const payload = event.payload;
-      if (payload.startsWith('prep:')) return;
-      const [current, total] = payload.split('/');
-      const pct = Math.round(current / total * 100);
-      progressEl?.classList.remove('indeterminate');
-      if (progressBar) progressBar.style.width = pct + '%';
-    });
-  }
   try {
     const pdfModule = await import('./pdf-export.js');
     const mdName = (state.currentFile || 'slides').split('/').pop().replace(/\.md$/, '');

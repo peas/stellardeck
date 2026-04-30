@@ -37,10 +37,12 @@ export function enterFullscreen() {
 export function updatePlayState() {
   const isFS = state.isFullscreen || !!(document.fullscreenElement || document.webkitFullscreenElement);
   const tabBar = document.getElementById('tab-bar');
-  const titlebar = document.getElementById('titlebar-drag');
+  // body.is-fullscreen is the single CSS hook that hides every chrome
+  // element (titlebar, activity rail, sidebar, status bar) when the
+  // user is "playing" the deck. Toggling individual element styles got
+  // unwieldy with N panes; one class drives them all from chrome.css.
+  document.body.classList.toggle('is-fullscreen', isFS);
   if (tabBar) tabBar.classList.toggle('visible', !isFS && (IS_DESKTOP || state.tabs.length > 1));
-  // Hide the chrome titlebar (with traffic-light overlay) in fullscreen.
-  if (titlebar) titlebar.style.display = isFS ? 'none' : '';
   updateChromeHeight();
 }
 

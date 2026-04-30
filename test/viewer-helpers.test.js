@@ -49,17 +49,18 @@ test('handles absolute path (no resolution needed)', () => {
 });
 
 // ── convertFileSrc ──
+// Note: as of 2026-04-30 the Tauri-only `localfile://` scheme was removed
+// alongside the Tauri shell. In Electron the `deck://` URL is built by
+// window.stellardeck.fileSrc (preload-side), not by this Node-side helper.
+// In Node tests, convertFileSrc returns a path-encoded relative form —
+// the encoding rules below are still asserted because every shell needs
+// them (preserve slashes, encode spaces/unicode per segment).
 
-console.log('\n── convertFileSrc ──');
-
-test('preserves slashes in path', () => {
-  const result = convertFileSrc('/home/user/deck-project/assets/img.webp');
-  assert.strictEqual(result, 'localfile://localhost/home/user/deck-project/assets/img.webp');
-});
+console.log('\n── convertFileSrc (encoding only — scheme is shell-side) ──');
 
 test('does NOT encode slashes as %2F', () => {
   const result = convertFileSrc('/Users/peas/file.webp');
-  assert.ok(!result.includes('%2F'), `URL should not contain %2F: ${result}`);
+  assert.ok(!result.includes('%2F'), `should not contain %2F: ${result}`);
 });
 
 test('encodes spaces in path segments', () => {
@@ -73,21 +74,19 @@ test('encodes special characters in filenames', () => {
   assert.ok(result.includes('caf%C3%A9'), `special chars should be encoded: ${result}`);
 });
 
-test('handles path with no special chars', () => {
-  const result = convertFileSrc('/simple/path/img.png');
-  assert.strictEqual(result, 'localfile://localhost/simple/path/img.png');
-});
-
 // ── Integration: resolve + convert ──
 
 console.log('\n── resolve + convert (integration) ──');
 
-test('full pipeline: ../assets/ from vibe/ dir', () => {
+test('full pipeline: ../assets/ from vibe/ dir keeps slashes intact', () => {
   const baseDir = '/home/user/deck-project/vibe';
   const relative = '../assets/karpathy-vibe.webp';
   const absolute = resolveRelativePath(baseDir, relative);
   const url = convertFileSrc(absolute);
-  assert.strictEqual(url, 'localfile://localhost/home/user/deck-project/assets/karpathy-vibe.webp');
+  // The resolved + encoded path has slashes preserved between segments
+  assert.ok(url.includes('home/user/deck-project/assets/karpathy-vibe.webp'),
+    `expected resolved path in result, got: ${url}`);
+  assert.ok(!url.includes('%2F'), `slashes should NOT be encoded: ${url}`);
 });
 
 test('full pipeline: ../../assets/ from deep dir', () => {
@@ -95,7 +94,8 @@ test('full pipeline: ../../assets/ from deep dir', () => {
   const relative = '../../assets/img.webp';
   const absolute = resolveRelativePath(baseDir, relative);
   const url = convertFileSrc(absolute);
-  assert.strictEqual(url, 'localfile://localhost/home/user/deck-project/assets/img.webp');
+  assert.ok(url.includes('home/user/deck-project/assets/img.webp'),
+    `expected resolved path in result, got: ${url}`);
 });
 
 // ── Summary ──

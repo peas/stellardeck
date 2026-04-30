@@ -40,16 +40,15 @@ test('browser only — IS_TAURI/IS_ELECTRON/IS_DESKTOP all false', () => {
   assert.strictEqual(r.IS_DESKTOP, false);
 });
 
-test('Tauri runtime — __TAURI_INTERNALS__.invoke present', () => {
-  const r = evalShim({ __TAURI_INTERNALS__: { invoke: () => {} } });
-  assert.strictEqual(r.IS_TAURI, true);
+// Tauri shell removed 2026-04-30 (Phase 3 step 13). IS_TAURI is now a
+// permanent `false` export so any straggling caller still imports it
+// without crashing — but stale Tauri globals on `window` no longer
+// flip it to `true`.
+test('Tauri globals on window do NOT flip IS_TAURI back on (shell removed)', () => {
+  const r = evalShim({ __TAURI_INTERNALS__: { invoke: () => {} }, isTauri: true });
+  assert.strictEqual(r.IS_TAURI, false);
   assert.strictEqual(r.IS_ELECTRON, false);
-  assert.strictEqual(r.IS_DESKTOP, true);
-});
-
-test('Tauri runtime — fallback via window.isTauri', () => {
-  const r = evalShim({ isTauri: true });
-  assert.strictEqual(r.IS_TAURI, true);
+  assert.strictEqual(r.IS_DESKTOP, false);
 });
 
 test('Electron runtime — window.stellardeck.isDesktop', () => {
@@ -71,24 +70,11 @@ test('routes to window.stellardeck.invoke when Electron is active', async () => 
   assert.deepStrictEqual(calls, [{ cmd: 'read_markdown', args: { path: '/x.md' }, runtime: 'electron' }]);
 });
 
-test('routes to __TAURI_INTERNALS__.invoke when Tauri is active', async () => {
-  const calls = [];
+test('rejects even with __TAURI_INTERNALS__ on window (shell removed)', async () => {
   const r = evalShim({
-    __TAURI_INTERNALS__: { invoke: (cmd, args) => { calls.push({ cmd, args, runtime: 'tauri' }); return Promise.resolve('ok-tauri'); } },
-  });
-  const result = await r.desktopInvoke('read_markdown', { path: '/x.md' });
-  assert.strictEqual(result, 'ok-tauri');
-  assert.deepStrictEqual(calls, [{ cmd: 'read_markdown', args: { path: '/x.md' }, runtime: 'tauri' }]);
-});
-
-test('Electron wins when both runtimes look present (defensive)', async () => {
-  // Shouldn't happen in practice but guards against a stray polyfill or test
-  // harness that injects both globals — we want a deterministic order.
-  const r = evalShim({
-    stellardeck: { isDesktop: true, invoke: () => Promise.resolve('electron') },
     __TAURI_INTERNALS__: { invoke: () => Promise.resolve('tauri') },
   });
-  assert.strictEqual(await r.desktopInvoke('read_markdown', {}), 'electron');
+  await assert.rejects(() => r.desktopInvoke('read_markdown', {}), /No desktop runtime/);
 });
 
 test('rejects in pure browser mode', async () => {

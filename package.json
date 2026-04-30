@@ -33,7 +33,6 @@
     "test:all": "npm test && npx playwright test --project=chromium",
     "export": "node scripts/export.js",
     "pdf": "node scripts/export.js --pdf",
-    "tauri": "cargo tauri dev",
     "electron": "electron .",
     "electron:dev": "ELECTRON_DEV=1 electron ."
   },

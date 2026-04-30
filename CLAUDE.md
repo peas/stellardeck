@@ -1,6 +1,6 @@
 # stellardeck
 
-A markdown presentation tool: write Deckset-flavored markdown, get a polished slideshow with auto-inferred layouts, no build step, render parity across desktop (Tauri), browser, embed, and CLI export.
+A markdown presentation tool: write Deckset-flavored markdown, get a polished slideshow with auto-inferred layouts, no build step, render parity across desktop (Electron), browser, embed, and CLI export.
 
 ## What StellarDeck is
 
@@ -9,7 +9,7 @@ Built on four ideas:
 1. **Storytelling.** Slides are moments. Markdown's constraints keep focus on what you're saying.
 2. **Autoflow.** Convention over configuration. Write content, get layouts. 9 rules, anti-monotony. Default ON — opt-out with `autoflow: false`.
 3. **Agent-native.** CLI with JSON output, stdin, batch mode, structured diagnostics. `--preview` opens browser, `--serve` starts dev server. Agents create decks from source text, export, validate, iterate.
-4. **Simple.** No build step, no bundler. The `.md` file is the artifact. Render parity across Tauri, browser, embed, CLI.
+4. **Simple.** No build step, no bundler. The `.md` file is the artifact. Render parity across Electron, browser, embed, CLI.
 
 Design principle: **"Can an LLM generate this?"** If yes, it belongs. If no, it doesn't.
 
@@ -79,14 +79,14 @@ npm run tauri              # cargo tauri dev (HTTP server + desktop app)
 ├── scripts/                  # CLI export, dev-server, helpers
 ├── test/                     # Unit + integration tests
 ├── docs/                     # format-spec.yaml, autoflow plan, roadmap
-├── src-tauri/                # Tauri 2.0 desktop app
+├── electron/                 # Electron 40 desktop shell (main + preload + icons)
 ├── demo/                     # Demo decks (bean-to-bar, hand-balancing, vibe-coding)
 └── .claude/skills/stellardeck/ # Claude Code skill: source text → slides
 ```
 
 ## Architecture (1-paragraph version)
 
-A `.md` file is parsed by `deckset-parser.js` into a list of `<section>` HTML, optionally pre-processed by `autoflow.js` (which infers layouts from content shape), then rendered by `slides2.js` (the StellarSlides engine — vanilla JS, ~380 lines). The same pipeline runs in 4 environments: Tauri (WKWebView), browser (`viewer.html`), embed (`stellar-embed.js`), and CLI (`scripts/export.js` via Playwright). `stellar-embed.js` is the shared rendering layer for embed; the other three reuse the engine modules directly. **Render parity is a hard rule** — never add a feature in one environment without the others.
+A `.md` file is parsed by `deckset-parser.js` into a list of `<section>` HTML, optionally pre-processed by `autoflow.js` (which infers layouts from content shape), then rendered by `slides2.js` (the StellarSlides engine — vanilla JS, ~380 lines). The same pipeline runs in 4 environments: Electron (Chromium + Node), browser (`viewer.html`), embed (`stellar-embed.js`), and CLI (`scripts/export.js` via Playwright). `stellar-embed.js` is the shared rendering layer for embed; the other three reuse the engine modules directly. **Render parity is a hard rule** — never add a feature in one environment without the others.
 
 ## Module system gotcha
 
@@ -178,13 +178,15 @@ Types: `overflow`, `missing-image`, `empty-slide`, `code-no-lang`, `theme-mismat
 - PPTX/Google Slides importer → markdown + autoflow
 - Web platform: GitHub OAuth + static editor
 
-## Tauri Dev Gotchas
+## Electron Dev Gotchas
 
-- WKWebView caches aggressively: `_cb=N` cache-buster URLs in dev
-- JS errors are silent: use `log::info!()` in Rust + dynamic `import()` to debug
-- `cargo tauri dev` only hot-reloads Rust: HTML/JS need Cmd+R
-- cwd is `src-tauri/`: use `get_project_root` to resolve paths
-- Tauri errors are strings: `err?.message || String(err)`
+- `npm run electron -- <deck.md> [<deck.md> …]` opens 1+ decks in a session
+- The desktop runtime exposes `window.stellardeck.invoke(cmd, args)` (preload, sandboxed)
+- `app://./viewer.html` serves the repo with a real origin (ES modules + fetch work)
+- `deck://./<absolute-path>` serves any local file the markdown references — no allowlist (Tauri parity)
+- File watcher (chokidar) emits `file-changed` IPC events; renderer subscribes via `window.stellardeck.onFileChanged`
+- Native menus: a small `menu-action` IPC pipes the menu item id to the renderer; handlers live in `js/main.js`
+- Test isolation: pass `--user-data-dir=<tmp>` to `electron.launch()` so userData/localStorage doesn't leak between runs
 - `[.background-color: #hex]` overrides scheme (correct Deckset behavior)
 
 ## Repo origin

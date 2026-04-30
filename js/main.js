@@ -1,6 +1,6 @@
 import { state, IS_PRINT, IS_EMBED, urlParams } from './state.js';
 import { getSlideWidth, getSlideHeight, setDimensions, parseAspect, applyDimensionVars } from './dimensions.js';
-import { IS_DESKTOP, IS_TAURI, IS_ELECTRON, desktopInvoke } from './desktop.js';
+import { IS_DESKTOP, IS_ELECTRON, desktopInvoke } from './desktop.js';
 import { showToast } from './toast.js';
 import { resolveImageSrcs, setupBrokenImageHandlers } from './images.js';
 import { syncMeasurer, fitText } from './fittext.js';
@@ -46,15 +46,10 @@ if (IS_DESKTOP) {
     if (window._openPresenter) window._openPresenter();
   });
 }
-const isMac = navigator.platform.startsWith('Mac') || navigator.userAgent.includes('Macintosh');
-if (IS_TAURI) {
-  document.body.classList.add('tauri-app');
-  if (isMac) document.body.classList.add('tauri-overlay', 'desktop-overlay');
-}
 if (IS_ELECTRON) {
   document.body.classList.add('electron-app');
-  // hiddenInset on macOS overlays the traffic lights into the app — pad for them.
-  // Win/Linux: titleBarOverlay draws controls into a 36px reserved strip.
+  // hiddenInset on macOS overlays the traffic lights into the app — pad for
+  // them. Win/Linux: titleBarOverlay draws controls into a 36px strip.
   document.body.classList.add('desktop-overlay');
 }
 
@@ -178,7 +173,7 @@ function showBootError(context, err) {
     errorDiv.innerHTML = `
       <h1>Could not start</h1>
       <p><strong>${context}:</strong> <code>${msg}</code></p>
-      <p style="color:#94a3b8;margin-top:1rem">Try launching StellarDeck with <code>cargo tauri dev</code> (or <code>npm run tauri</code>) from the project directory.</p>
+      <p style="color:#94a3b8;margin-top:1rem">Try launching StellarDeck with <code>npm run electron</code> from the project directory.</p>
     `;
     errorDiv.style.display = 'block';
   }

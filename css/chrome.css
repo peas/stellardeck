@@ -686,6 +686,21 @@
       left: 0 !important;
       bottom: 0 !important;
     }
+
+    /* ===== Fullscreen "Play" mode: hide every chrome surface =====
+       The slide must own the entire viewport during a real presentation —
+       no rail, no sidebar, no titlebar, no status bar. Driven by a single
+       body class set in js/fullscreen.js::updatePlayState. */
+    body.is-fullscreen #activity-rail,
+    body.is-fullscreen #titlebar-drag,
+    body.is-fullscreen #tab-bar,
+    body.is-fullscreen #status-bar { display: none !important; }
+    body.is-fullscreen #slide-area {
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+    }
     #status-file {
       cursor: pointer;
       white-space: nowrap;
