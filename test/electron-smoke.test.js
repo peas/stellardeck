@@ -37,8 +37,21 @@ async function it(name, fn) {
   }
 }
 
+let skipped = 0;
+function skip(name, _fn, reason) {
+  skipped++;
+  console.log(`  ⊘ ${name}  [skip: ${reason || 'pending'}]`);
+}
+
 (async () => {
   await fs.mkdir(SCREENSHOT_DIR, { recursive: true });
+
+  // Use an isolated userData directory so previous runs (or a developer's
+  // real recent files / saved session) don't leak into the test app and
+  // change which screen renders at boot.
+  const isolatedUserData = path.join(SCREENSHOT_DIR, 'userData');
+  await fs.rm(isolatedUserData, { recursive: true, force: true });
+  await fs.mkdir(isolatedUserData, { recursive: true });
 
   await describe('Electron shell smoke', async () => {
     let app;
@@ -46,7 +59,7 @@ async function it(name, fn) {
 
     await it('boots and shows a BrowserWindow', async () => {
       app = await electron.launch({
-        args: [ROOT],
+        args: [ROOT, `--user-data-dir=${isolatedUserData}`],
         env: { ...process.env, ELECTRON_DEV: '' },
         timeout: 30000,
       });
@@ -95,6 +108,65 @@ async function it(name, fn) {
       assert.ok(after.includes(DEMO_DECK), `expected recent to include ${DEMO_DECK}, got ${after}`);
     });
 
+    await it('IPC: read_file on missing path resolves to null (no throw)', async () => {
+      const result = await win.evaluate(() =>
+        window.stellardeck.invoke('read_file', { path: '/nonexistent/path/no-such-sidecar.json' })
+      );
+      assert.equal(result, null, 'ENOENT should yield null so renderer try/catch is clean');
+    });
+
+    await it('IPC: write_file → read_file round-trip in temp dir', async () => {
+      const tmpFile = path.join(SCREENSHOT_DIR, 'roundtrip.txt');
+      await win.evaluate(async (p) => {
+        await window.stellardeck.invoke('write_file', { path: p, content: 'hello-stellardeck\n' });
+      }, tmpFile);
+      const readBack = await win.evaluate((p) =>
+        window.stellardeck.invoke('read_file', { path: p })
+      , tmpFile);
+      assert.equal(readBack, 'hello-stellardeck\n');
+      await fs.unlink(tmpFile).catch(() => {});
+    });
+
+    // NOTE: we considered an end-to-end "app:// rejects ../../etc/passwd" test
+    // but the WHATWG URL parser normalizes `..` segments before fetch hits the
+    // protocol handler, so a renderer can't actually express a traversal here.
+    // The defense-in-depth `startsWith(ROOT)` check in main.js stays as a
+    // belt-and-suspenders guard. If we ever bypass URL normalization (e.g. via
+    // `webContents.loadURL` from main), this becomes worth testing.
+
+    await it('deck:// serves arbitrary local files (Tauri parity, no allowlist)', async () => {
+      // Decks reference assets in shared dirs above the deck folder. Confirm
+      // we serve any local file rather than enforce a directory whitelist.
+      const tmpAsset = path.join(SCREENSHOT_DIR, 'asset.txt');
+      await fs.writeFile(tmpAsset, 'asset-payload');
+      const url = `deck://./${encodeURI(tmpAsset).replace(/^\/+/, '')}`;
+      const body = await win.evaluate((u) => fetch(u).then(r => r.ok ? r.text() : `status:${r.status}`), url);
+      assert.equal(body, 'asset-payload');
+      await fs.unlink(tmpAsset).catch(() => {});
+    });
+
+    await it('IPC: file watcher emits file-changed on mutation', async () => {
+      const tmpDeck = path.join(SCREENSHOT_DIR, 'watched.md');
+      await fs.writeFile(tmpDeck, '# v1\n');
+      // Subscribe in renderer, ask main to watch, then mutate from Node.
+      const promise = win.evaluate((p) => new Promise((resolve) => {
+        const off = window.stellardeck.onFileChanged((payload) => {
+          if (payload.path === p) { off(); resolve(payload); }
+        });
+        window.stellardeck.invoke('watch_file', { path: p });
+      }), tmpDeck);
+      // Give chokidar a beat to register the path before we mutate.
+      await new Promise(r => setTimeout(r, 250));
+      await fs.writeFile(tmpDeck, '# v2\n');
+      const payload = await Promise.race([
+        promise,
+        new Promise((_, rej) => setTimeout(() => rej(new Error('watcher timeout')), 5000)),
+      ]);
+      assert.equal(payload.path, tmpDeck);
+      await win.evaluate((p) => window.stellardeck.invoke('unwatch_file', { path: p }), tmpDeck);
+      await fs.unlink(tmpDeck).catch(() => {});
+    });
+
     await it('captures a welcome-screen screenshot', async () => {
       const out = path.join(SCREENSHOT_DIR, 'welcome.png');
       await win.screenshot({ path: out });
@@ -115,7 +187,7 @@ async function it(name, fn) {
 
     await it('boots with a .md path on argv and renders slides', async () => {
       app = await electron.launch({
-        args: [ROOT, DEMO_DECK],
+        args: [ROOT, DEMO_DECK, `--user-data-dir=${isolatedUserData}`],
         env: { ...process.env, ELECTRON_DEV: '' },
         timeout: 30000,
       });
@@ -130,13 +202,15 @@ async function it(name, fn) {
       assert.ok(count >= 1, `expected ≥1 slide, got ${count}`);
     });
 
-    await it('uses deck:// scheme for relative deck images', async () => {
-      // Wait a tick for image resolution to run
-      await win.waitForTimeout(1000);
-      const images = await win.evaluate(() => {
-        return Array.from(document.querySelectorAll('.reveal img')).map(i => i.src);
-      });
-      // No images is acceptable; if any exist, the desktop ones must be deck://
+    await it('uses deck:// scheme for at least one deck image', async () => {
+      await win.waitForTimeout(1500);
+      const images = await win.evaluate(() =>
+        Array.from(document.querySelectorAll('.reveal img'))
+          .map(i => i.currentSrc || i.src)
+      );
+      assert.ok(images.length > 0, 'demo deck should render at least one image');
+      const deckScheme = images.filter(s => s.startsWith('deck://'));
+      assert.ok(deckScheme.length > 0, `expected ≥1 deck:// image, got ${images.slice(0, 3).join(', ')}`);
       for (const src of images) {
         assert.ok(
           !src.startsWith('file://') && !src.startsWith('localfile://'),
@@ -156,8 +230,76 @@ async function it(name, fn) {
     });
   });
 
+  // ── Third boot: multi-deck precedence regression ──
+  // Bug we hit on 2026-04-30: launching `electron . a.md b.md c.md` only
+  // showed the deck saved in localStorage from a previous session. URL
+  // params (file=… / also=…) must win over restored session.
+  await describe('Multi-deck precedence: URL beats session', async () => {
+    const HAND = path.join(ROOT, 'demo', 'hand-balancing.md');
+    const VIBE = path.join(ROOT, 'demo', 'vibe-coding.md');
+    let app;
+    let win;
+
+    await it('opens 3 decks via argv even with stale session in localStorage', async () => {
+      app = await electron.launch({
+        args: [ROOT, DEMO_DECK, HAND, VIBE, `--user-data-dir=${isolatedUserData}`],
+        env: { ...process.env, ELECTRON_DEV: '' },
+        timeout: 30000,
+      });
+      win = await app.firstWindow();
+      await win.waitForLoadState('domcontentloaded');
+
+      // Plant a stale session that points at a different single deck. If the
+      // bug regresses, this would override the URL params and we'd see 1 tab.
+      await win.evaluate((stalePath) => {
+        localStorage.setItem('stellardeck-session', JSON.stringify({
+          tabs: [{ file: stalePath, slideIndex: 0 }],
+          activeTabIndex: 0,
+          currentSlide: 0,
+        }));
+      }, '/tmp/does-not-exist.md');
+
+      // Reload so main() runs with both URL params AND the stale session present.
+      await win.reload();
+      await win.waitForFunction(
+        () => document.querySelectorAll('.reveal .slides > section').length > 0,
+        null,
+        { timeout: 15000 }
+      );
+      await win.waitForTimeout(500);
+      const tabs = await win.evaluate(() => (window._tabs || []).map(t => t.file));
+      assert.equal(tabs.length, 3, `expected 3 tabs from URL, got ${tabs.length}: ${tabs}`);
+      assert.ok(tabs.includes(DEMO_DECK));
+      assert.ok(tabs.includes(HAND));
+      assert.ok(tabs.includes(VIBE));
+    });
+
+    await it('shuts down cleanly', async () => {
+      await app.close();
+    });
+  });
+
+  // ── Phase 3 prep: contracts written, skipped until implementation lands ──
+  await describe('Phase 3 contracts (skipped)', async () => {
+    skip('open_presenter_window IPC opens a 2nd BrowserWindow on /presenter.html',
+      async () => {/* await app.windows() length === 2; second.url() includes presenter.html */},
+      'presenter window not yet implemented in Electron shell (main.js:200)');
+
+    skip('presenter window receives state-update via BroadcastChannel',
+      async () => {/* navigate main, assert presenter #counter updates */},
+      'depends on open_presenter_window');
+
+    skip('export_pdf IPC writes a valid PDF (%PDF- prefix, >10KB)',
+      async () => {/* invoke export_pdf, read bytes, assert magic + size */},
+      'PDF export not yet implemented in Electron shell (main.js:205)');
+
+    skip('export_png IPC writes one PNG per slide',
+      async () => {/* invoke export_png to dir, count files === slide count */},
+      'depends on export_pdf');
+  });
+
   console.log(`\n${'═'.repeat(40)}`);
-  console.log(`  ${passed} passed, ${failed} failed`);
+  console.log(`  ${passed} passed, ${failed} failed${skipped ? `, ${skipped} skipped` : ''}`);
   console.log(`${'═'.repeat(40)}\n`);
   process.exit(failed === 0 ? 0 : 1);
 })().catch(err => {

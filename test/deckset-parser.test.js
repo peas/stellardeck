@@ -1255,6 +1255,58 @@ test('adding a new directive to registry works (round-trip)', () => {
 });
 
 // ============================================================
+// Slide transitions (was e2e tests, moved 2026-04-30 — pure parser, no DOM)
+// ============================================================
+console.log('\n── slide transitions ──');
+
+test('frontmatter slide-transition produces data-transition on every section', () => {
+  const html = parseDecksetMarkdown('slide-transition: fade\n\n# Slide 1\n\n---\n\n# Slide 2');
+  const matches = html.match(/data-transition="fade"/g) || [];
+  assert.equal(matches.length, 2);
+});
+
+test('per-slide directive overrides global transition', () => {
+  const md = 'slide-transition: fade\n\n# Slide 1\n\n---\n\n[.slide-transition: slide]\n\n# Slide 2';
+  const html = parseDecksetMarkdown(md);
+  assert.ok(html.includes('data-transition="fade"'));
+  assert.ok(html.includes('data-transition="slide"'));
+});
+
+// ============================================================
+// Build lists (was e2e tests, moved 2026-04-30)
+// ============================================================
+console.log('\n── build-lists ──');
+
+test('build-lists directive adds fragment class to list items', () => {
+  const html = parseDecksetMarkdown('[.build-lists: true]\n\n# Test\n\n- A\n- B\n- C');
+  const matches = html.match(/class="fragment"/g) || [];
+  assert.equal(matches.length, 3);
+});
+
+test('build-lists absent does not add fragment class', () => {
+  const html = parseDecksetMarkdown('# Test\n\n- A\n- B\n- C');
+  assert.ok(!html.includes('class="fragment"'));
+});
+
+test('global build-lists frontmatter applies to all slides', () => {
+  const md = 'build-lists: true\n\n# Slide 1\n\n- A\n- B\n\n---\n\n# Slide 2\n\n- C\n- D';
+  const html = parseDecksetMarkdown(md);
+  const matches = html.match(/class="fragment"/g) || [];
+  assert.equal(matches.length, 4);
+});
+
+// ============================================================
+// Filtered background (was e2e test, moved 2026-04-30)
+// ============================================================
+console.log('\n── ![filtered] background ──');
+
+test('![filtered] image produces black background + 0.5 opacity', () => {
+  const html = parseDecksetMarkdown('![filtered](test.jpg)');
+  assert.ok(html.includes('data-background-opacity="0.5"'));
+  assert.ok(html.includes('data-background-color="#000"'));
+});
+
+// ============================================================
 // Results
 // ============================================================
 

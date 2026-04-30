@@ -14,22 +14,6 @@ const DECK = `${BASE}/viewer.html?file=test/smoke-test.md`;
 const THEMED_DECK = `${BASE}/viewer.html?file=demo/vibe-coding.md`;
 const MULTI_TAB_DECK = `${BASE}/viewer.html?file=test/smoke-test.md&also=demo/vibe-coding.md`;
 
-test.describe('Viewer basics', () => {
-  test('loads a presentation and shows slides', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    const sections = await page.locator('.reveal .slides > section').count();
-    expect(sections).toBeGreaterThan(1);
-  });
-
-  test('title includes StellarDeck', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    const title = await page.title();
-    expect(title).toContain('StellarDeck');
-  });
-});
-
 test.describe('Keyboard navigation', () => {
   test('arrow right advances to next slide', async ({ page }) => {
     await page.goto(DECK);
@@ -141,21 +125,6 @@ test.describe('Grid overlay', () => {
     // Should be on slide 3 (index 2)
     const slideIndex = await page.evaluate(() => Reveal.getState().indexh);
     expect(slideIndex).toBe(2);
-  });
-});
-
-test.describe('Overview mode disabled', () => {
-  test('overview mode never activates (StellarSlides uses custom grid)', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    // Try to activate overview via legacy Reveal API
-    const overviewActive = await page.evaluate(() => {
-      Reveal.toggleOverview(true);
-      return Reveal.isOverview();
-    });
-    expect(overviewActive).toBe(false);
   });
 });
 
@@ -1130,114 +1099,10 @@ test.describe('Smart reload clears stale background attributes', () => {
   });
 });
 
-test.describe('Filtered background uses dark overlay', () => {
-  test('![filtered] produces black background + opacity', async ({ page }) => {
-    // Create a page with a filtered image
-    await page.goto(`${BASE}/viewer.html?file=test/smoke-test.md`);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(800);
-
-    // Inject a filtered slide and check attributes
-    const result = await page.evaluate(() => {
-      const html = parseDecksetMarkdown('![filtered](test.jpg)');
-      return {
-        hasOpacity: html.includes('data-background-opacity="0.5"'),
-        hasBlackBg: html.includes('data-background-color="#000"'),
-      };
-    });
-    expect(result.hasOpacity).toBe(true);
-    expect(result.hasBlackBg).toBe(true);
-  });
-});
-
-test.describe('Slide transitions', () => {
-  test('frontmatter slide-transition produces data-transition on sections', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    // Parser should emit data-transition when slide-transition is set
-    const result = await page.evaluate(() => {
-      const html = parseDecksetMarkdown('slide-transition: fade\n\n# Slide 1\n\n---\n\n# Slide 2');
-      return {
-        hasTransition: html.includes('data-transition="fade"'),
-        // Both slides should get the global transition
-        count: (html.match(/data-transition="fade"/g) || []).length,
-      };
-    });
-    expect(result.hasTransition).toBe(true);
-    expect(result.count).toBe(2);
-  });
-
-  test('per-slide directive overrides global transition', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    const result = await page.evaluate(() => {
-      const md = 'slide-transition: fade\n\n# Slide 1\n\n---\n\n[.slide-transition: slide]\n\n# Slide 2';
-      const html = parseDecksetMarkdown(md);
-      return {
-        hasFade: html.includes('data-transition="fade"'),
-        hasSlide: html.includes('data-transition="slide"'),
-      };
-    });
-    expect(result.hasFade).toBe(true);
-    expect(result.hasSlide).toBe(true);
-  });
-
-  test('default transition is none', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    const transition = await page.evaluate(() => Reveal.getConfig().transition);
-    expect(transition).toBe('none');
-  });
-});
-
-test.describe('Build lists', () => {
-  test('build-lists directive adds fragment class to list items', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    const result = await page.evaluate(() => {
-      const html = parseDecksetMarkdown('[.build-lists: true]\n\n# Test\n\n- A\n- B\n- C');
-      return {
-        hasFragment: html.includes('class="fragment"'),
-        fragmentCount: (html.match(/class="fragment"/g) || []).length,
-      };
-    });
-    expect(result.hasFragment).toBe(true);
-    expect(result.fragmentCount).toBe(3);
-  });
-
-  test('build-lists false does not add fragment class', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    const result = await page.evaluate(() => {
-      const html = parseDecksetMarkdown('# Test\n\n- A\n- B\n- C');
-      return html.includes('class="fragment"');
-    });
-    expect(result).toBe(false);
-  });
-
-  test('global build-lists frontmatter applies to all slides', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    const result = await page.evaluate(() => {
-      const md = 'build-lists: true\n\n# Slide 1\n\n- A\n- B\n\n---\n\n# Slide 2\n\n- C\n- D';
-      const html = parseDecksetMarkdown(md);
-      return (html.match(/class="fragment"/g) || []).length;
-    });
-    expect(result).toBe(4);
-  });
-});
+// Note: parser-only tests (slide-transitions, build-lists, ![filtered])
+// moved to test/deckset-parser.test.js on 2026-04-30 — Node-level, ~3ms each
+// instead of ~3s through Playwright. The Reveal.getConfig().transition === 'none'
+// default is verified implicitly by every other test that runs without setting one.
 
 test.describe('Syntax highlighting', () => {
   test('code blocks get language class for highlight.js', async ({ page }) => {

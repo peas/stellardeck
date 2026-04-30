@@ -183,9 +183,11 @@ async function main() {
     // Users can open files via Cmd+O or the welcome screen buttons.
   }
 
-  // Restore previous session if available (desktop mode)
-  // Session takes priority over URL params (which are static in shell config)
-  if (IS_DESKTOP) {
+  // Restore previous session if available (desktop mode).
+  // Explicit URL params (file/also) win over session — that way launching
+  // the app with `electron . a.md b.md` always opens those decks, even if
+  // a previous session had different tabs saved.
+  if (IS_DESKTOP && !params.has('file')) {
     try {
       const saved = JSON.parse(localStorage.getItem('stellardeck-session') || 'null');
       if (saved?.tabs?.length) {

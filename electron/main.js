@@ -37,22 +37,12 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'deck', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } },
 ]);
 
-// Directories that deck:// is allowed to serve from. Populated when a deck
-// is opened (read_markdown / open_file_dialog / add_recent_file).
-const allowedDeckDirs = new Set();
-
-function allowDeckDir(dir) {
-  if (!dir) return;
-  allowedDeckDirs.add(path.resolve(dir));
-}
-
-function isPathInAllowedDir(absPath) {
-  for (const allowed of allowedDeckDirs) {
-    if (absPath === allowed) return true;
-    if (absPath.startsWith(allowed + path.sep)) return true;
-  }
-  return false;
-}
+// allowDeckDir is kept as a no-op for now (call sites still invoke it). The
+// Tauri shell served any local file the markdown referenced — including
+// shared `assets/` directories that sit beside or above the deck's folder —
+// and we need the same parity here. If we ever sandbox this, do it via an
+// explicit user-toggleable setting, not silently.
+function allowDeckDir(_dir) { /* no-op — match Tauri parity */ }
 
 function registerProtocols() {
   // app://./viewer.html — serves repo root, gives renderer a real origin
@@ -70,15 +60,14 @@ function registerProtocols() {
     }
   });
 
-  // deck://./<absolute-path-of-image> — serves files relative to open deck dirs
+  // deck://./<absolute-path> — serves any local file the open decks reference.
+  // Matches Tauri's localfile:// behavior (no allowlist). Decks routinely
+  // reference assets in directories outside their own (shared `assets/`,
+  // sibling folders), so a path-prefix sandbox would break real decks.
   protocol.handle('deck', async (req) => {
     try {
       const url = new URL(req.url);
-      // pathname includes leading '/'; decode to recover the absolute filesystem path
       const absPath = path.normalize(decodeURIComponent(url.pathname));
-      if (!isPathInAllowedDir(absPath)) {
-        return new Response(`forbidden: ${absPath}`, { status: 403 });
-      }
       return net.fetch(pathToFileURL(absPath).toString());
     } catch (err) {
       return new Response(String(err), { status: 500 });
@@ -130,7 +119,15 @@ function registerIPC() {
   });
 
   ipcMain.handle('read_file', async (_evt, { path: p }) => {
-    return fs.readFile(p, 'utf8');
+    // ENOENT is expected (e.g. .stellar.json sidecars that don't exist yet).
+    // Return null so the renderer's try/catch path is hit cleanly without
+    // Electron logging the rejection as an unhandled IPC error.
+    try {
+      return await fs.readFile(p, 'utf8');
+    } catch (err) {
+      if (err && err.code === 'ENOENT') return null;
+      throw err;
+    }
   });
 
   ipcMain.handle('write_file', async (_evt, { path: p, content }) => {
@@ -248,35 +245,35 @@ function createMainWindow() {
     if (isDev) mainWindow.webContents.openDevTools({ mode: 'detach' });
   });
 
-  // Launch-time deck: any argv that's an existing .md file gets passed to
-  // viewer.html as ?file=…&autoflow=1 (URL-encoded). Mirrors the Tauri
-  // tauri.conf.json `url` field so dev/test usage matches between shells.
-  const initialFile = pickInitialFileFromArgv();
+  // Launch-time decks: every argv entry that's an existing .md file is opened.
+  // First file → ?file=… ; rest → &also=… (mirrors Tauri tauri.conf.json `url`).
+  const files = pickFilesFromArgv();
   let url = 'app://./viewer.html';
-  if (initialFile) {
-    allowDeckDir(path.dirname(initialFile));
-    url += `?file=${encodeURIComponent(initialFile)}`;
+  if (files.length) {
+    files.forEach(f => allowDeckDir(path.dirname(f)));
+    const params = new URLSearchParams();
+    params.set('file', files[0]);
+    files.slice(1).forEach(f => params.append('also', f));
+    url += '?' + params.toString();
   }
   mainWindow.loadURL(url);
 }
 
-function pickInitialFileFromArgv() {
+function pickFilesFromArgv() {
   // process.argv = [electron, <app-path>, ...userArgs]. In dev `npm run electron`
   // passes `.` as app-path; packaged apps may include their own resource args.
-  // We accept any argv entry that:
-  //   - exists on disk
-  //   - is a regular file
-  //   - ends in .md or .markdown
+  // Accept any argv entry that exists on disk and ends in .md/.markdown.
+  const out = [];
   for (const arg of process.argv.slice(1)) {
     if (typeof arg !== 'string') continue;
     if (arg.startsWith('-')) continue;
     if (!/\.(md|markdown)$/i.test(arg)) continue;
     try {
       const abs = path.resolve(arg);
-      if (fsSync.statSync(abs).isFile()) return abs;
+      if (fsSync.statSync(abs).isFile()) out.push(abs);
     } catch { /* not a file */ }
   }
-  return null;
+  return out;
 }
 
 // ----------------------------------------------------------------------------
