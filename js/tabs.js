@@ -122,19 +122,33 @@ export function rebuildThumbnails() {
     card.className = 'sb-thumb' + (i === idx ? ' active' : '');
     card.dataset.index = i;
 
-    // Tiny 16:9 preview of the slide
+    // Tiny 16:9 preview of the slide. Two stacked layers so we can match
+    // the real renderer's behavior: bgcolor on the inner, bgimage in a
+    // separate ::before-style child that respects data-background-opacity
+    // (used by `![filtered]` to dim images over a black backdrop).
     const inner = document.createElement('div');
     inner.className = 'sb-thumb-inner sd-slide';
     const bgImage = section.getAttribute('data-background-image');
     const bgColor = section.getAttribute('data-background-color');
-    if (bgImage) {
-      inner.style.backgroundImage = `url('${bgImage}')`;
-      inner.style.backgroundSize = section.getAttribute('data-background-size') || 'cover';
-      inner.style.backgroundPosition = 'center';
-    }
+    const bgOpacity = section.getAttribute('data-background-opacity');
     if (bgColor) inner.style.backgroundColor = bgColor;
-    inner.innerHTML = section.innerHTML;
-    inner.querySelectorAll('aside.notes').forEach(n => n.remove());
+
+    if (bgImage) {
+      const bgLayer = document.createElement('div');
+      bgLayer.className = 'sb-thumb-bg';
+      bgLayer.style.backgroundImage = `url('${bgImage}')`;
+      bgLayer.style.backgroundSize = section.getAttribute('data-background-size') || 'cover';
+      bgLayer.style.backgroundPosition = 'center';
+      bgLayer.style.backgroundRepeat = 'no-repeat';
+      if (bgOpacity) bgLayer.style.opacity = bgOpacity;
+      inner.appendChild(bgLayer);
+    }
+
+    const content = document.createElement('div');
+    content.className = 'sb-thumb-content';
+    content.innerHTML = section.innerHTML;
+    content.querySelectorAll('aside.notes').forEach(n => n.remove());
+    inner.appendChild(content);
     card.appendChild(inner);
 
     const num = document.createElement('span');

@@ -203,6 +203,15 @@
       background: var(--r-background-color, #0a0a0a);
       overflow: hidden;
     }
+    .sb-thumb-bg {
+      position: absolute; inset: 0;
+      pointer-events: none;
+    }
+    .sb-thumb-content {
+      position: relative;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
     .sb-thumb-inner .deckset-fit { overflow: hidden; }
     .sb-thumb-inner .fragment { opacity: 1 !important; }
     .sb-thumb-num {

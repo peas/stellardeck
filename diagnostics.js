@@ -29,26 +29,41 @@
     if (!section) return [];
     const warnings = [];
 
-    // Overflow: any visible descendant extends past the slide frame
+    // Overflow: any visible descendant extends past the slide frame.
+    // Identify the offender so the warning is actionable: tag name + class
+    // hint + truncated text + which side it overflowed on, with px amount.
     const frame = section.getBoundingClientRect();
     if (frame.width > 0 && frame.height > 0) {
       for (const el of section.querySelectorAll('*')) {
         const r = el.getBoundingClientRect();
         if (r.width === 0 || r.height === 0) continue;
-        if (
-          r.right > frame.right + OVERFLOW_TOLERANCE ||
-          r.bottom > frame.bottom + OVERFLOW_TOLERANCE ||
-          r.left < frame.left - OVERFLOW_TOLERANCE ||
-          r.top < frame.top - OVERFLOW_TOLERANCE
-        ) {
-          warnings.push({
-            type: 'overflow',
-            severity: 'warn',
-            slide: slideIndex,
-            message: 'content extends beyond slide frame (consider [.autoscale: true] or splitting)',
-          });
-          break;
-        }
+        // Skip ancestors of other elements we'd flag — focus on leaves
+        if (el.children.length > 0 && Array.from(el.children).some(c => {
+          const cr = c.getBoundingClientRect();
+          return cr.width > 0 && cr.height > 0;
+        })) continue;
+        const overshoots = [];
+        if (r.right > frame.right + OVERFLOW_TOLERANCE) overshoots.push(`right by ${Math.round(r.right - frame.right)}px`);
+        if (r.bottom > frame.bottom + OVERFLOW_TOLERANCE) overshoots.push(`bottom by ${Math.round(r.bottom - frame.bottom)}px`);
+        if (r.left < frame.left - OVERFLOW_TOLERANCE) overshoots.push(`left by ${Math.round(frame.left - r.left)}px`);
+        if (r.top < frame.top - OVERFLOW_TOLERANCE) overshoots.push(`top by ${Math.round(frame.top - r.top)}px`);
+        if (overshoots.length === 0) continue;
+
+        const tag = el.tagName.toLowerCase();
+        const isImg = tag === 'img';
+        const desc = isImg
+          ? `<img src="${(el.getAttribute('src') || '').split('/').pop()}">`
+          : `<${tag}> "${(el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)}${el.textContent && el.textContent.length > 40 ? '…' : ''}"`;
+
+        warnings.push({
+          type: 'overflow',
+          severity: 'warn',
+          slide: slideIndex,
+          element: tag,
+          overshoot: overshoots.join(', '),
+          message: `${desc} overflows ${overshoots.join(', ')}`,
+        });
+        break; // one overflow warning per slide is plenty
       }
     }
 
