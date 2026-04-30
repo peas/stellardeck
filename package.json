@@ -8,7 +8,15 @@
     "url": "https://github.com/peas/stellardeck.git"
   },
   "homepage": "https://stellardeck.dev",
-  "keywords": ["presentation", "markdown", "slides", "deckset", "autoflow", "cli"],
+  "keywords": [
+    "presentation",
+    "markdown",
+    "slides",
+    "deckset",
+    "autoflow",
+    "cli"
+  ],
+  "main": "electron/main.js",
   "engines": {
     "node": ">=20"
   },
@@ -21,15 +29,21 @@
     "test:visual:update": "npx playwright test --project=chromium test/visual.test.js --update-snapshots",
     "test:export": "node test/export.test.js",
     "test:export:unit": "EXPORT_SKIP_INTEGRATION=1 node test/export.test.js",
+    "test:electron": "node test/electron-smoke.test.js",
     "test:all": "npm test && npx playwright test --project=chromium",
     "export": "node scripts/export.js",
     "pdf": "node scripts/export.js --pdf",
-    "tauri": "cargo tauri dev"
+    "tauri": "cargo tauri dev",
+    "electron": "electron .",
+    "electron:dev": "ELECTRON_DEV=1 electron ."
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2"
+    "@playwright/test": "^1.58.2",
+    "electron": "^40.0.0"
   },
   "dependencies": {
+    "chokidar": "^3.6.0",
+    "electron-store": "^8.2.0",
     "pdf-lib": "^1.17.1",
     "pptxgenjs": "^4.0.1",
     "sharp": "^0.34.5"

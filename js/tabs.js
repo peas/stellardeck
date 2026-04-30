@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { IS_TAURI, tauriInvoke } from './tauri.js';
+import { IS_DESKTOP, desktopInvoke } from './desktop.js';
 import { restoreTabTheme, saveTabThemeOverride } from './themes.js';
 import { loadSidecar } from './sidecar.js';
 import { updateChromeHeight } from './fullscreen.js';
@@ -42,7 +42,7 @@ export function tabFirstHeading(md) {
 export function renderTabs() {
   const bar = document.getElementById('tab-bar');
   bar.innerHTML = '';
-  bar.classList.toggle('visible', IS_TAURI || state.tabs.length > 1);
+  bar.classList.toggle('visible', IS_DESKTOP || state.tabs.length > 1);
 
   state.tabs.forEach((tab, i) => {
     const el = document.createElement('div');
@@ -123,7 +123,7 @@ export async function switchTab(index) {
   restoreTabTheme(tab);
   await renderDeck({ slideIndex: tab.slideIndex });
   renderTabs();
-  if (IS_TAURI) tauriInvoke('watch_file', { path: tab.file }).catch(() => {});
+  if (IS_DESKTOP) desktopInvoke('watch_file', { path: tab.file }).catch(() => {});
 }
 
 export async function closeTab(index) {
@@ -139,5 +139,5 @@ export async function closeTab(index) {
   restoreTabTheme(tab);
   await renderDeck({ slideIndex: tab.slideIndex });
   renderTabs();
-  if (IS_TAURI) tauriInvoke('watch_file', { path: tab.file }).catch(() => {});
+  if (IS_DESKTOP) desktopInvoke('watch_file', { path: tab.file }).catch(() => {});
 }

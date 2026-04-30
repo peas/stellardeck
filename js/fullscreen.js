@@ -1,13 +1,13 @@
 import { state } from './state.js';
-import { IS_TAURI, tauriInvoke } from './tauri.js';
+import { IS_DESKTOP, desktopInvoke } from './desktop.js';
 
 // ============================================================
 // Fullscreen state machine (shared by toolbar + keyboard)
 // ============================================================
 
 export function exitFullscreen() {
-  if (IS_TAURI) {
-    tauriInvoke('toggle_fullscreen');
+  if (IS_DESKTOP) {
+    desktopInvoke('toggle_fullscreen');
   } else {
     (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
   }
@@ -16,8 +16,8 @@ export function exitFullscreen() {
 }
 
 export function enterFullscreen() {
-  if (IS_TAURI) {
-    tauriInvoke('toggle_fullscreen');
+  if (IS_DESKTOP) {
+    desktopInvoke('toggle_fullscreen');
   } else {
     const el = document.documentElement;
     (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
@@ -39,7 +39,7 @@ export function updatePlayState() {
   const toolbar = document.getElementById('toolbar');
   const tabBar = document.getElementById('tab-bar');
   if (toolbar) toolbar.classList.toggle('visible', !isFS);
-  if (tabBar) tabBar.classList.toggle('visible', !isFS && (IS_TAURI || state.tabs.length > 1));
+  if (tabBar) tabBar.classList.toggle('visible', !isFS && (IS_DESKTOP || state.tabs.length > 1));
   updateChromeHeight();
 }
 

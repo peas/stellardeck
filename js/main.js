@@ -1,6 +1,6 @@
 import { state, IS_PRINT, IS_EMBED, urlParams } from './state.js';
 import { getSlideWidth, getSlideHeight, setDimensions, parseAspect, applyDimensionVars } from './dimensions.js';
-import { IS_TAURI, tauriInvoke } from './tauri.js';
+import { IS_DESKTOP, IS_TAURI, IS_ELECTRON, desktopInvoke } from './desktop.js';
 import { showToast } from './toast.js';
 import { resolveImageSrcs, setupBrokenImageHandlers } from './images.js';
 import { syncMeasurer, fitText } from './fittext.js';
@@ -24,6 +24,7 @@ import { setupWelcomeScreen } from './welcome.js';
 // ============================================================
 if (IS_PRINT) document.documentElement.classList.add('print-mode');
 if (IS_EMBED) document.documentElement.classList.add('embed-mode');
+if (IS_DESKTOP) document.body.classList.add('desktop-app');
 if (IS_TAURI) {
   document.body.classList.add('tauri-app');
   // Traffic light padding only on macOS (not Windows/Linux)
@@ -31,6 +32,7 @@ if (IS_TAURI) {
     document.body.classList.add('tauri-overlay');
   }
 }
+if (IS_ELECTRON) document.body.classList.add('electron-app');
 
 // ============================================================
 // Initialize off-screen measurer
@@ -79,12 +81,39 @@ async function loadFile(file) {
   document.getElementById('slides').innerHTML = parseDecksetMarkdown(state.currentMd, { autoflow: tab.autoflow });
   resolveImageSrcs();
   refreshUI();
-  if (IS_TAURI) tauriInvoke('add_recent_file', { filePath: file }).catch(() => {});
+  if (IS_DESKTOP) desktopInvoke('add_recent_file', { filePath: file }).catch(() => {});
 }
 
 // Expose loadFile for keyboard handler (Cmd+O) and native menu (Open Recent)
 window._loadFile = loadFile;
 window._addTab = addTab;
+
+// Electron native menus dispatch through window.stellardeck.onMenuAction.
+// IDs match the Tauri menu IDs so the same JS handlers fire either way.
+if (IS_ELECTRON && window.stellardeck?.onMenuAction) {
+  window.stellardeck.onMenuAction(async (id) => {
+    if (id === 'open') {
+      const dir = state.currentFile ? state.currentFile.substring(0, state.currentFile.lastIndexOf('/')) : null;
+      try {
+        const f = await desktopInvoke('open_file_dialog', { currentDir: dir });
+        if (f) await window._loadFileFromMenu(f);
+      } catch (err) { console.error('menu:open', err); }
+    } else if (id === 'close-tab') {
+      if (window.closeCurrentTab) window.closeCurrentTab();
+    } else if (id === 'export-pdf') {
+      document.getElementById('btn-export')?.click();
+    } else if (id === 'grid') {
+      document.getElementById('btn-grid')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    } else if (id === 'presenter') {
+      if (window._openPresenter) window._openPresenter();
+    } else if (id === 'fullscreen') {
+      document.getElementById('btn-play')?.click();
+    } else if (id.startsWith('recent:')) {
+      const path = id.slice('recent:'.length);
+      if (window._loadFileFromMenu) await window._loadFileFromMenu(path);
+    }
+  });
+}
 window._loadFileFromMenu = async (path) => {
   const welcome = document.getElementById('welcome-screen');
   const wasWelcomeVisible = welcome?.classList.contains('visible');
@@ -136,16 +165,15 @@ async function main() {
   const params = new URLSearchParams(window.location.search);
   let file = params.get('file');
 
-  // Tauri mode: resolve relative path to absolute, or show file dialog
-  if (IS_TAURI) {
+  // Desktop mode: resolve relative path to absolute, or show file dialog
+  if (IS_DESKTOP) {
     if (file && !file.startsWith('/')) {
       try {
-        const cwd = await tauriInvoke('get_project_root');
+        const cwd = await desktopInvoke('get_project_root');
         file = cwd + '/' + file;
       } catch (err) {
-        // Happens when the binary is launched directly (via `open`) instead
-        // of `cargo tauri dev` — cwd is wrong and the walker can't find
-        // viewer.html. Fall back to the welcome screen instead of hanging.
+        // Happens when the binary is launched without project context.
+        // Fall back to the welcome screen instead of hanging.
         console.warn('[StellarDeck] get_project_root failed, falling back to welcome screen:', err);
         file = null;
       }
@@ -155,9 +183,9 @@ async function main() {
     // Users can open files via Cmd+O or the welcome screen buttons.
   }
 
-  // Restore previous session if available (Tauri mode)
-  // Session takes priority over URL params (which are static in tauri.conf.json)
-  if (IS_TAURI) {
+  // Restore previous session if available (desktop mode)
+  // Session takes priority over URL params (which are static in shell config)
+  if (IS_DESKTOP) {
     try {
       const saved = JSON.parse(localStorage.getItem('stellardeck-session') || 'null');
       if (saved?.tabs?.length) {
@@ -168,17 +196,17 @@ async function main() {
   }
 
   if (!file) {
-    if (IS_TAURI) {
+    if (IS_DESKTOP) {
       // Show welcome screen with recent files
       const welcome = document.getElementById('welcome-screen');
       welcome.classList.add('visible');
       document.querySelector('.reveal').style.display = 'none';
       document.getElementById('welcome-open').addEventListener('click', async () => {
-        const f = await tauriInvoke('open_file_dialog', { currentDir: null });
+        const f = await desktopInvoke('open_file_dialog', { currentDir: null });
         if (f) { welcome.classList.remove('visible'); document.querySelector('.reveal').style.display = ''; await loadFile(f); location.reload(); }
       });
       try {
-        const recent = await tauriInvoke('get_recent_files');
+        const recent = await desktopInvoke('get_recent_files');
         if (recent.length) {
           const list = document.getElementById('recent-list');
           list.innerHTML = '<div style="color:#475569;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;padding:0 14px">Recent</div>';
@@ -364,10 +392,12 @@ async function main() {
     // Open presenter window
     function openPresenter() {
       if (IS_TAURI) {
-        tauriInvoke('open_presenter_window').catch(e => {
+        desktopInvoke('open_presenter_window').catch(e => {
           showToast('Presenter: ' + (e?.message || String(e)), 4000);
         });
       } else {
+        // Browser AND Electron: window.open works inside Chromium renderers.
+        // Phase 3 will replace this with a real BrowserWindow in Electron.
         window.open('presenter.html', 'stellardeck-presenter', 'width=1100,height=700');
       }
       // Send state after a short delay for the window to load
@@ -403,8 +433,8 @@ async function main() {
       for (const extra of alsoFiles) {
         try {
           let extraPath = extra;
-          if (IS_TAURI && !extraPath.startsWith('/')) {
-            const root = await tauriInvoke('get_project_root');
+          if (IS_DESKTOP && !extraPath.startsWith('/')) {
+            const root = await desktopInvoke('get_project_root');
             extraPath = root + '/' + extra;
           }
           const extraMd = await fetchMarkdown(extraPath);
@@ -442,11 +472,16 @@ async function main() {
       state._restoring = false;
     }
 
-    // Auto-reload: native file watcher in Tauri, polling in browser
+    // Auto-reload: native file watcher in Tauri/Electron, polling in browser
     // Started AFTER session restore to avoid race conditions
-    if (IS_TAURI) {
-      // Rust watcher calls smartReload() via webview.eval on file change
-      tauriInvoke('watch_file', { path: state.currentFile }).catch(() => {
+    if (IS_DESKTOP) {
+      // Tauri Rust watcher calls smartReload() via webview.eval on file change.
+      // Electron preload subscribes to 'file-changed' and we trigger smartReload
+      // here once.
+      if (IS_ELECTRON && window.stellardeck?.onFileChanged) {
+        window.stellardeck.onFileChanged(() => smartReload());
+      }
+      desktopInvoke('watch_file', { path: state.currentFile }).catch(() => {
         // Fallback to polling if watcher fails
         setInterval(smartReload, 1000);
       });

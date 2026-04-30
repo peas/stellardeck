@@ -6,7 +6,7 @@
 // only adds drag-and-drop and localStorage recent files.
 
 import { state } from './state.js';
-import { IS_TAURI } from './tauri.js';
+import { IS_DESKTOP } from './desktop.js';
 import { getSlideWidth, getSlideHeight, applyDimensionVars } from './dimensions.js';
 import { resolveImageSrcs, setupBrokenImageHandlers } from './images.js';
 import { syncMeasurer, fitText } from './fittext.js';
@@ -172,7 +172,7 @@ async function renderFromText(md, fileName) {
   refreshUI();
 
   // Add to recent files (browser mode only)
-  if (!IS_TAURI) {
+  if (!IS_DESKTOP) {
     addRecentFile(fileName);
   }
 }
@@ -241,7 +241,7 @@ export function setupWelcomeScreen() {
   });
 
   // Render recent files (browser mode — Tauri has its own recent list via IPC)
-  if (!IS_TAURI) {
+  if (!IS_DESKTOP) {
     renderRecentFiles(recentList);
   }
 }

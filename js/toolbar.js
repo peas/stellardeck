@@ -1,5 +1,5 @@
 import { state, IS_PRINT } from './state.js';
-import { IS_TAURI, tauriInvoke } from './tauri.js';
+import { IS_DESKTOP, IS_TAURI, desktopInvoke } from './desktop.js';
 import { showToast } from './toast.js';
 import { THEMES, applySchemeColors, propagateThemeVars, syncThemeDropdown } from './themes.js';
 import { syncMeasurer, fitText } from './fittext.js';
@@ -65,8 +65,8 @@ export function updateStatusBar() {
     fileEl.innerHTML = `<span class="status-dir">${dir}/</span><span class="status-name">${name}</span>`;
     fileEl.title = state.currentFile;
     fileEl.onclick = () => {
-      if (IS_TAURI) {
-        tauriInvoke('reveal_in_finder', { path: state.currentFile }).catch(() => {});
+      if (IS_DESKTOP) {
+        desktopInvoke('reveal_in_finder', { path: state.currentFile }).catch(() => {});
       }
     };
   }
@@ -99,8 +99,8 @@ export function showToolbar() {
 
 export function openInExternalEditor() {
   if (!state.currentFile) return;
-  if (IS_TAURI) {
-    tauriInvoke('open_in_editor', { path: state.currentFile }).catch(e => {
+  if (IS_DESKTOP) {
+    desktopInvoke('open_in_editor', { path: state.currentFile }).catch(e => {
       showToast('Failed to open editor: ' + e, 4000);
     });
   } else {
@@ -172,8 +172,8 @@ export function setupToolbar() {
       await pdfModule.exportAndDownload(filename, progressCb);
       progressBar.style.width = '100%';
 
-      if (IS_TAURI) {
-        // WKWebView saves downloads to ~/Downloads/
+      if (IS_DESKTOP) {
+        // WKWebView/Chromium save downloads to ~/Downloads/
         const homedir = state.currentFile.match(/^(\/Users\/[^/]+)/)?.[1] || '';
         const downloadPath = homedir + '/Downloads/' + filename;
         showToast('PDF exported — click to open in Finder', true);
@@ -181,7 +181,7 @@ export function setupToolbar() {
         toast.style.cursor = 'pointer';
         const span = toast.querySelector('span');
         if (span) span.onclick = () => {
-          tauriInvoke('reveal_in_finder', { path: downloadPath });
+          desktopInvoke('reveal_in_finder', { path: downloadPath });
           toast.classList.remove('show');
         };
       } else {

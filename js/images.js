@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { IS_TAURI } from './tauri.js';
+import { IS_DESKTOP } from './desktop.js';
 import { convertFileSrc, resolveRelativePath } from './path-utils.js';
 
 export { convertFileSrc, resolveRelativePath };
@@ -14,6 +14,7 @@ function isExternal(s) {
     || s.startsWith('http')
     || s.startsWith('data:')
     || s.startsWith('localfile:')
+    || s.startsWith('deck:')
     || s.startsWith('blob:')
     || s.startsWith('/');
 }
@@ -34,7 +35,7 @@ export function resolveImageSrcs() {
     const src = img.dataset.originalSrc;
     if (!src || isExternal(src)) return;
     const resolved = resolveRelativePath(state.fileDir, src);
-    img.src = IS_TAURI ? convertFileSrc(resolved) : resolved;
+    img.src = IS_DESKTOP ? convertFileSrc(resolved) : resolved;
   });
 
   document.querySelectorAll('section[data-background-image]').forEach(sec => {
@@ -44,7 +45,7 @@ export function resolveImageSrcs() {
     const bg = sec.dataset.originalBg;
     if (!bg || isExternal(bg)) return;
     const resolved = resolveRelativePath(state.fileDir, bg);
-    sec.setAttribute('data-background-image', IS_TAURI ? convertFileSrc(resolved) : resolved);
+    sec.setAttribute('data-background-image', IS_DESKTOP ? convertFileSrc(resolved) : resolved);
   });
 }
 

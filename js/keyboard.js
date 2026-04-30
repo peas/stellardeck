@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { IS_TAURI, tauriInvoke } from './tauri.js';
+import { IS_DESKTOP, desktopInvoke } from './desktop.js';
 import { switchTab, closeTab, tabName } from './tabs.js';
 import { toggleGrid, isGridOpen, selectGridSlide, getGridColumns, openSlideFromGrid } from './grid.js';
 import { enterFullscreen, exitFullscreen, toggleSidebar } from './fullscreen.js';
@@ -14,10 +14,10 @@ export function setupKeyboard() {
     // Cmd/Ctrl shortcuts (work in all states)
     if (e.metaKey || e.ctrlKey) {
       if (e.key === 'r') { e.preventDefault(); window.location.reload(); return; }
-      if (IS_TAURI && e.key === 'o') {
+      if (IS_DESKTOP && e.key === 'o') {
         e.preventDefault();
         const dir = state.currentFile ? state.currentFile.substring(0, state.currentFile.lastIndexOf('/')) : null;
-        tauriInvoke('open_file_dialog', { currentDir: dir }).then(async (newFile) => {
+        desktopInvoke('open_file_dialog', { currentDir: dir }).then(async (newFile) => {
           if (!newFile) return;
           if (state.isFullscreen) exitFullscreen();
           try {

@@ -148,8 +148,9 @@ export async function exportAndDownload(filename, options = {}) {
 export async function exportToFile(filePath, options = {}) {
   const blob = await exportPDF(options);
   const bytes = new Uint8Array(await blob.arrayBuffer());
-  if (window.__TAURI_INTERNALS__) {
-    await window.__TAURI_INTERNALS__.invoke('write_binary_file', { path: filePath, contents: Array.from(bytes) });
+  const desktop = await import('./desktop.js');
+  if (desktop.IS_DESKTOP) {
+    await desktop.desktopInvoke('write_binary_file', { path: filePath, contents: Array.from(bytes) });
   }
   return filePath;
 }

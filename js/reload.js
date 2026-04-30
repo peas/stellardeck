@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { IS_TAURI, tauriInvoke } from './tauri.js';
+import { IS_DESKTOP, desktopInvoke } from './desktop.js';
 import { applyTheme } from './themes.js';
 import { resolveImageSrcs, setupBrokenImageHandlers } from './images.js';
 import { syncMeasurer, fitText } from './fittext.js';
@@ -13,9 +13,9 @@ import { renderDeck } from './render.js';
 // ============================================================
 
 export async function fetchMarkdown(file) {
-  if (IS_TAURI) {
-    // Tauri mode: read file via Rust command (absolute path)
-    return await tauriInvoke('read_markdown', { path: file });
+  if (IS_DESKTOP) {
+    // Desktop mode (Tauri/Electron): read file via IPC (absolute path)
+    return await desktopInvoke('read_markdown', { path: file });
   }
   // Browser mode: fetch via HTTP server
   const resp = await fetch(file + '?t=' + Date.now());
