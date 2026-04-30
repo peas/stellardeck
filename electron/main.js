@@ -22,6 +22,20 @@ const Store = require('electron-store').default || require('electron-store');
 
 const ROOT = path.resolve(__dirname, '..');
 const isDev = !!process.env.ELECTRON_DEV;
+const APP_ICON = path.join(ROOT, 'src-tauri', 'icons', 'icon.png');
+
+// Set the app name BEFORE app.whenReady() so it propagates to the dock
+// label, menu bar, and userData dir. In dev (`electron .`) macOS still
+// shows "Electron" in the menu bar — that only changes when packaged via
+// electron-forge in a later phase. setAboutPanelOptions improves the
+// fallback About dialog.
+app.setName('StellarDeck');
+app.setAboutPanelOptions({
+  applicationName: 'StellarDeck',
+  applicationVersion: '0.9.0',
+  copyright: 'Paulo Silveira — MIT licensed',
+  iconPath: APP_ICON,
+});
 
 const store = new Store({
   name: 'stellardeck',
@@ -220,6 +234,7 @@ function createMainWindow() {
   const isMac = process.platform === 'darwin';
   mainWindow = new BrowserWindow({
     title: 'StellarDeck',
+    icon: APP_ICON,
     width: 1280,
     height: 820,
     minWidth: 800,
@@ -364,6 +379,11 @@ function rebuildMenu() {
 // ----------------------------------------------------------------------------
 
 app.whenReady().then(() => {
+  // macOS dev: override the default Electron-bundled dock icon. In packaged
+  // builds the .icns inside the bundle takes over and this is a no-op.
+  if (process.platform === 'darwin' && app.dock && fsSync.existsSync(APP_ICON)) {
+    try { app.dock.setIcon(APP_ICON); } catch {}
+  }
   registerProtocols();
   registerIPC();
   rebuildMenu();

@@ -355,6 +355,10 @@ function skip(name, _fn, reason) {
     });
 
     await it('sidebar theme mode: lists themes + schemes, clicking applies', async () => {
+      // IMPORTANT: clicking a theme persists to a `.stellar.json` sidecar
+      // next to the deck file — i.e. it MUTATES the user's repo. We delete
+      // the sidecar at the end of this test so the deck reverts to its
+      // frontmatter-defined theme on the next launch.
       const before = await win.evaluate(() => {
         document.querySelector('#activity-rail .rail-btn[data-mode="theme"]').click();
         const items = Array.from(document.querySelectorAll('.sb-theme-item'))
@@ -365,7 +369,6 @@ function skip(name, _fn, reason) {
       assert.ok(before.itemCount >= 3, `expected ≥3 themes, got ${before.itemCount}`);
       assert.ok(before.swatchCount >= 1, 'active theme should expose at least 1 scheme swatch');
 
-      // Click the second theme — it should activate
       const switched = await win.evaluate(() => {
         const items = document.querySelectorAll('.sb-theme-item');
         const target = items[1];
@@ -380,7 +383,13 @@ function skip(name, _fn, reason) {
       });
       assert.equal(switched.activeName, switched.targetName, 'clicked theme should become active');
       assert.match(switched.revealClass, /theme-/);
-      // Reset to decks mode for any later assertions
+
+      // Teardown: restore the deck's pristine state by deleting the sidecar
+      // we just wrote. Sidecars are gitignored but deleting keeps the
+      // developer's actual workspace from drifting between test runs.
+      const sidecarPath = DEMO_DECK.replace(/\.md$/, '.stellar.json');
+      await fs.rm(sidecarPath, { force: true });
+
       await win.evaluate(() => {
         document.querySelector('#activity-rail .rail-btn[data-mode="decks"]').click();
       });
