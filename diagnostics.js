@@ -19,6 +19,13 @@
   // on images that overshoot by more than 10% of the slide dimension. Text
   // elements always warn — text overflow is always visible/ugly.
   const IMG_OVERFLOW_FRAC = 0.10;
+  // Cumulative overflow: section.scrollHeight past clientHeight. Catches
+  // multi-line text wraps and stacks of fit headings whose individual
+  // overshoots fall under OVERFLOW_TOLERANCE but together extend past the
+  // slide bottom. 16px ≈ one line of small text, below that = layout noise.
+  const CUMULATIVE_OVERFLOW_TOLERANCE = 16;
+  const TOO_SMALL_FONT_PX = 14; // back-row legibility floor
+  const DENSE_WORD_COUNT = 120; // words on one slide that signal cramming
   const CURRENT_SLIDE_SELECTOR = '.reveal .slides section.present';
   const TEXT_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'blockquote', 'pre', 'code', 'span']);
 
@@ -82,6 +89,70 @@
         });
         break; // one overflow warning per slide is plenty
       }
+    }
+
+    // Cumulative text overflow: scrollHeight > clientHeight AND at least one
+    // text/image leaf actually extends past the frame bottom. The leaf check
+    // filters false positives from empty containers sized to grid/column
+    // tracks (e.g. `:::columns` cells with min-height equal to slide height).
+    if (frame.height > 0) {
+      const cumulative = section.scrollHeight - section.clientHeight;
+      if (cumulative > CUMULATIVE_OVERFLOW_TOLERANCE) {
+        let realOvershoot = 0;
+        for (const el of section.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, blockquote, img, pre, code')) {
+          const r = el.getBoundingClientRect();
+          if (r.width === 0 || r.height === 0) continue;
+          const past = r.bottom - frame.bottom;
+          if (past > realOvershoot) realOvershoot = past;
+        }
+        if (realOvershoot > 4) {
+          warnings.push({
+            type: 'text-cumulative-overflow',
+            severity: 'warn',
+            slide: slideIndex,
+            overflow: Math.round(realOvershoot),
+            message: `content extends ${Math.round(realOvershoot)}px past slide bottom — split or use [.autoscale: true]`,
+          });
+        }
+      }
+    }
+
+    // Text too small: any text element rendered below the legibility floor.
+    // fitText writes inline font-size, so getComputedStyle is reliable.
+    let smallest = Infinity;
+    let smallestEl = null;
+    for (const el of section.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, blockquote')) {
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) continue;
+      const fs = parseFloat(getComputedStyle(el).fontSize);
+      if (fs > 0 && fs < smallest) { smallest = fs; smallestEl = el; }
+    }
+    if (smallestEl && smallest < TOO_SMALL_FONT_PX) {
+      warnings.push({
+        type: 'text-too-small',
+        severity: 'warn',
+        slide: slideIndex,
+        fontSize: Math.round(smallest * 10) / 10,
+        message: `text rendered at ${Math.round(smallest)}px (< ${TOO_SMALL_FONT_PX}px floor) — illegible to a back-row audience`,
+      });
+    }
+
+    // Slide too dense: total visible word count above DENSE_WORD_COUNT.
+    // Speaker notes (<aside class="notes">) are excluded.
+    const visibleText = Array.from(section.children)
+      .filter(c => c.tagName !== 'ASIDE')
+      .map(c => c.textContent || '')
+      .join(' ')
+      .trim();
+    const wordCount = visibleText ? visibleText.split(/\s+/).length : 0;
+    if (wordCount > DENSE_WORD_COUNT) {
+      warnings.push({
+        type: 'slide-too-dense',
+        severity: 'warn',
+        slide: slideIndex,
+        wordCount,
+        message: `slide has ${wordCount} words (> ${DENSE_WORD_COUNT}) — consider splitting`,
+      });
     }
 
     // Empty slide: no text AND no background image AND no inline img

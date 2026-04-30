@@ -44,30 +44,33 @@ export async function renderDeck(opts = {}) {
   setupBrokenImageHandlers();
   if (!opts.skipExtras && window._renderExtras) window._renderExtras();
   if (window._sendSlideUpdate) window._sendSlideUpdate();
-  requestAnimationFrame(() => fitText());
+  requestAnimationFrame(() => {
+    fitText();
+    // Diagnostics measure layout (overflow, font-size). Run AFTER fitText
+    // so cumulative-overflow / text-too-small see stable measurements.
+    requestAnimationFrame(() => runRenderDiagnostics(tab));
+  });
 
   state.gridBuilt = false;
   if (isGridOpen()) buildGrid();
   if (window._saveSession) window._saveSession();
 
-  // Run diagnostics on current slide + merge into tab's cumulative list.
-  // Incremental approach avoids visible slide-flashing on initial load;
-  // warnings accumulate as user navigates through the deck.
-  if (window.StellarDiagnostics) {
-    tab.diagnostics = tab.diagnostics || [];
-    // Clear deck-level diagnostics on each render (they may have changed)
-    tab.diagnostics = tab.diagnostics.filter(w => w.slide != null);
-    const deckWarnings = window.StellarDiagnostics.diagnoseDeck({ theme: tab.themeOverride });
-    const current = window.StellarDiagnostics.diagnoseCurrent({ theme: tab.themeOverride });
-    window.StellarDiagnostics.merge(tab.diagnostics, [...deckWarnings, ...current.filter(w => w.slide != null)]);
-    refreshDiagnosticsUI(tab.diagnostics);
-    notifyDiagnosticsChanged(state.tabs.reduce((s, t) => s + (t.diagnostics?.length || 0), 0));
-  }
-
   if (opts.toast) {
     const { showToast } = await import('./toast.js');
     showToast(opts.toast);
   }
+}
+
+function runRenderDiagnostics(tab) {
+  if (!window.StellarDiagnostics) return;
+  tab.diagnostics = tab.diagnostics || [];
+  // Clear deck-level diagnostics on each render (they may have changed)
+  tab.diagnostics = tab.diagnostics.filter(w => w.slide != null);
+  const deckWarnings = window.StellarDiagnostics.diagnoseDeck({ theme: tab.themeOverride });
+  const current = window.StellarDiagnostics.diagnoseCurrent({ theme: tab.themeOverride });
+  window.StellarDiagnostics.merge(tab.diagnostics, [...deckWarnings, ...current.filter(w => w.slide != null)]);
+  refreshDiagnosticsUI(tab.diagnostics);
+  notifyDiagnosticsChanged(state.tabs.reduce((s, t) => s + (t.diagnostics?.length || 0), 0));
 }
 
 /**
@@ -78,10 +81,16 @@ export function updateDiagnosticsForCurrentSlide() {
   if (!window.StellarDiagnostics) return;
   const tab = state.tabs[state.activeTabIndex];
   if (!tab) return;
-  tab.diagnostics = tab.diagnostics || [];
-  const current = window.StellarDiagnostics.diagnoseCurrent({ theme: tab.themeOverride });
-  const perSlide = current.filter(w => w.slide != null);
-  if (perSlide.length === 0) return;
-  window.StellarDiagnostics.merge(tab.diagnostics, perSlide);
-  refreshDiagnosticsUI(tab.diagnostics);
+  // Defer one rAF so fitText / autoflow rendering settles before we
+  // measure overflow + font-size — otherwise cumulative-overflow fires
+  // on transient pre-fit layout.
+  requestAnimationFrame(() => {
+    tab.diagnostics = tab.diagnostics || [];
+    const current = window.StellarDiagnostics.diagnoseCurrent({ theme: tab.themeOverride });
+    const perSlide = current.filter(w => w.slide != null);
+    if (perSlide.length === 0) return;
+    window.StellarDiagnostics.merge(tab.diagnostics, perSlide);
+    refreshDiagnosticsUI(tab.diagnostics);
+    notifyDiagnosticsChanged(state.tabs.reduce((s, t) => s + (t.diagnostics?.length || 0), 0));
+  });
 }
