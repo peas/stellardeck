@@ -57,7 +57,19 @@ function isListItem(line) { return /^\s*[-*+]\s/.test(line) || /^\s*\d+\.\s/.tes
 function isBlockquote(line) { return /^>/.test(line.trim()); }
 function isPlainText(line) { return !isHeading(line) && !hasImage(line) && !isListItem(line) && !isBlockquote(line); }
 
-function wordCount(line) { return line.trim().split(/\s+/).filter(Boolean).length; }
+// Count actual words. Pure-symbol tokens like → / | + & · are separators
+// (not "words"), so "Servidor próprio → AWS / OCI / Azure / GCP" counts as
+// 7 words, not 11. Without this filter, decks that use arrow- or slash-
+// separated lists hit statement-rule cliffs every time the user adds one
+// item — autoflow silently falls through to plain rendering.
+function wordCount(line) {
+  return line
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter(t => /[\p{L}\p{N}]/u.test(t))
+    .length;
+}
 
 /**
  * Remove HTML comments (single- and multi-line). Used by getContentLines and

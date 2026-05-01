@@ -53,6 +53,15 @@ test('empty string returns 0', () => {
   assert.equal(wordCount(''), 0);
 });
 
+test('symbol-only tokens are not words (arrow, slash, pipe)', () => {
+  // → / | + & · between words are separators, not words. Without this
+  // filter, arrow/slash-separated lists hit statement-rule cliffs every
+  // time the user adds one item (the OCI bug, 2026-05-01).
+  assert.equal(wordCount('C → Java'), 2);
+  assert.equal(wordCount('Servidor próprio → AWS / OCI / Azure / GCP'), 6);
+  assert.equal(wordCount('foo + bar | baz'), 3);
+});
+
 // ============================================================
 // Unit tests: getContentLines
 // ============================================================
