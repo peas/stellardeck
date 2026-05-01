@@ -273,18 +273,26 @@ function showDeckContextMenu(x, y, tabIndex) {
 
   items.push({ type: 'separator' });
   items.push({
-    label: 'Publish…',
+    label: 'Export to PDF…',
+    shortcut: 'Cmd+Shift+E',
+    onClick: async () => {
+      // Make sure we export the right tab — switch first if needed.
+      if (tabIndex !== state.activeTabIndex) await switchTab(tabIndex);
+      const { runPdfExport } = await import('./toolbar.js');
+      await runPdfExport();
+    },
+  });
+  items.push({
+    label: 'Embed…',
     onClick: () => showToast('Embed guide coming in next phase', 3000),
   });
 
-  if (state.tabs.length > 1) {
-    items.push({ type: 'separator' });
-    items.push({
-      label: 'Close Tab',
-      shortcut: 'Cmd+W',
-      onClick: () => closeTab(tabIndex),
-    });
-  }
+  items.push({ type: 'separator' });
+  items.push({
+    label: 'Close Tab',
+    shortcut: 'Cmd+W',
+    onClick: () => closeTab(tabIndex),
+  });
 
   showContextMenu(x, y, items);
 }

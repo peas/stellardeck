@@ -36,6 +36,7 @@
     "electron": "electron .",
     "electron:dev": "ELECTRON_DEV=1 electron .",
     "app": "node scripts/run-packaged.js",
+    "app:debug": "electron . --remote-debugging-port=9222",
     "start": "electron-forge start --",
     "package": "electron-forge package",
     "make": "electron-forge make"

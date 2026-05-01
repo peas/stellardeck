@@ -76,7 +76,7 @@
     }
     .theme-serif.scheme-1 { --r-background-color: #f5f0eb; --r-heading-color: #1a1a1a; --r-main-color: #333333; --accent: #8b4513; }
     .theme-serif.scheme-2 { --r-background-color: #1a1a2e; --r-heading-color: #e0d5c1; --r-main-color: #c4b99a; --accent: #d4a574; }
-    .theme-serif.scheme-3 { --r-background-color: #fefefe; --r-heading-color: #2c3e50; --r-main-color: #444444; --accent: #2980b9; }
+    .theme-serif.scheme-3 { --r-background-color: #fefefe; --r-heading-color: #2c3e50; --r-main-color: #6b7280; --accent: #2980b9; }
     .theme-serif.scheme-4 { --r-background-color: #0d1117; --r-heading-color: #f0e6d3; --r-main-color: #b0a080; --accent: #e6c07b; }
 
     /* ===== Minimal — Clean whitespace, system fonts ===== */
@@ -115,8 +115,8 @@
     }
     .theme-hacker.scheme-1 { --r-background-color: #0d1117; --r-heading-color: #58a6ff; --r-main-color: #c9d1d9; --accent: #3fb950; }
     .theme-hacker.scheme-2 { --r-background-color: #282a36; --r-heading-color: #bd93f9; --r-main-color: #f8f8f2; --accent: #ff79c6; }
-    .theme-hacker.scheme-3 { --r-background-color: #002b36; --r-heading-color: #b58900; --r-main-color: #839496; --accent: #268bd2; }
-    .theme-hacker.scheme-4 { --r-background-color: #1a1b26; --r-heading-color: #7aa2f7; --r-main-color: #a9b1d6; --accent: #bb9af7; }
+    .theme-hacker.scheme-3 { --r-background-color: #002b36; --r-heading-color: #b58900; --r-main-color: #eee8d5; --accent: #268bd2; }
+    .theme-hacker.scheme-4 { --r-background-color: #1a1b26; --r-heading-color: #7aa2f7; --r-main-color: #c0caf5; --accent: #bb9af7; }
 
     /* ===== Poster — Big bold, max impact ===== */
     .theme-poster {
@@ -153,7 +153,7 @@
     .theme-alun.scheme-1 { --r-background-color: #0d0c0c; --r-heading-color: #FF9414; --r-main-color: #f3f2f2; --accent: #ED1460; }
     .theme-alun.scheme-2 { --r-background-color: #0d0c0c; --r-heading-color: #ED1460; --r-main-color: #f3f2f2; --accent: #FF9414; }
     .theme-alun.scheme-3 { --r-background-color: #f3f2f2; --r-heading-color: #0d0c0c; --r-main-color: #333333; --accent: #FF9414; }
-    .theme-alun.scheme-4 { --r-background-color: #FF9414; --r-heading-color: #0d0c0c; --r-main-color: #3a2000; --accent: #f3f2f2; }
+    .theme-alun.scheme-4 { --r-background-color: #FF9414; --r-heading-color: #0d0c0c; --r-main-color: #ffffff; --accent: #f3f2f2; }
     .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #ffffff; --r-main-color: #FF9414; --accent: #FF9414; }
 
     /* ===== Borneli — Inspired by Junior Borneli's "A Travessia Humana" ===== */
@@ -173,7 +173,7 @@
     .theme-borneli.scheme-1 { --r-background-color: #ece7e2; --r-heading-color: #1a1050; --r-main-color: #3a3060; --accent: #8a2080; }
     .theme-borneli.scheme-2 { --r-background-color: #1a1050; --r-heading-color: #ece7e2; --r-main-color: #c4b8d0; --accent: #8a2080; }
     .theme-borneli.scheme-3 { --r-background-color: #ffffff; --r-heading-color: #1a1050; --r-main-color: #444444; --accent: #8a2080; }
-    .theme-borneli.scheme-4 { --r-background-color: #8a2080; --r-heading-color: #ffffff; --r-main-color: #f0e0f0; --accent: #1a1050; }
+    .theme-borneli.scheme-4 { --r-background-color: #8a2080; --r-heading-color: #ffffff; --r-main-color: #fbb6ce; --accent: #1a1050; }
     .theme-borneli.scheme-5 { --r-background-color: #f5f0eb; --r-heading-color: #1a1050; --r-main-color: #5a4070; --accent: #c040a0; }
 
     /* ===== Nordic — Poppins + Lato, contemporary Scandinavian (replaces "Letters from Brazil" name) ===== */

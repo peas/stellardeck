@@ -50,6 +50,10 @@ if (IS_DESKTOP) {
     const { toggleGrid } = await import('./grid.js');
     toggleGrid();
   });
+  document.getElementById('btn-chrome-export')?.addEventListener('click', async () => {
+    const { runPdfExport } = await import('./toolbar.js');
+    await runPdfExport();
+  });
 }
 if (IS_ELECTRON) {
   document.body.classList.add('electron-app');

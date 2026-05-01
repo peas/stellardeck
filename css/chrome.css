@@ -2,13 +2,15 @@
 
     /* ===== Grid overview (custom, smooth) ===== */
     #grid-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      position: fixed; top: 36px; left: 0; right: 0; bottom: 0;
       z-index: 100;
       background: #2d2d32; /* neutral gray canvas, not theme color */
       overflow-y: auto;
       padding: 1.5rem;
       display: none;
     }
+    /* On desktop, sidebar stays visible too — grid only takes the slide area. */
+    body.desktop-overlay #grid-overlay { left: var(--sidebar-width, 0px); }
     #grid-overlay.active { display: block; }
     #grid-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -655,13 +657,24 @@
       transition: background 0.12s, color 0.12s, border-color 0.12s;
     }
     .chrome-btn:hover { background: rgba(255,255,255,0.08); color: #f1f5f9; }
-    .chrome-btn.chrome-btn-primary {
-      background: #0ea5e9;
-      color: #0a1726;
-      border-color: #0ea5e9;
-      font-weight: 600;
+    /* "active" = button reflects an open mode (e.g. Grid is open) */
+    .chrome-btn.active {
+      background: rgba(56,189,248,0.18);
+      color: #f0f9ff;
+      border-color: rgba(56,189,248,0.45);
     }
-    .chrome-btn.chrome-btn-primary:hover { background: #38bdf8; border-color: #38bdf8; }
+    .chrome-btn.active:hover { background: rgba(56,189,248,0.26); }
+    .chrome-btn.chrome-btn-primary {
+      background: rgba(56,189,248,0.16);
+      color: #e0f2fe;
+      border-color: rgba(56,189,248,0.4);
+      font-weight: 500;
+    }
+    .chrome-btn.chrome-btn-primary:hover {
+      background: rgba(56,189,248,0.28);
+      border-color: rgba(56,189,248,0.55);
+      color: #f0f9ff;
+    }
     /* Progress bar for PDF export — anchored under the titlebar chrome */
     #export-progress {
       display: none; position: fixed;

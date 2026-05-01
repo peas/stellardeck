@@ -86,8 +86,11 @@ export function toggleGrid() {
     // Scroll to current slide after grid is visible and laid out
     requestAnimationFrame(() => selectGridSlide(state.gridSelected));
   }
+  const isActive = overlay.classList.contains('active');
   const btn = document.getElementById('btn-grid');
-  if (btn) btn.classList.toggle('active', overlay.classList.contains('active'));
+  if (btn) btn.classList.toggle('active', isActive);
+  const chromeBtn = document.getElementById('btn-chrome-grid');
+  if (chromeBtn) chromeBtn.classList.toggle('active', isActive);
 }
 
 export function isGridOpen() {
