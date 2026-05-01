@@ -47,6 +47,15 @@ export function renderTabs() {
   bar.innerHTML = '';
   bar.classList.toggle('visible', IS_DESKTOP || state.tabs.length > 1);
 
+  // Empty state: no open decks. Render the drop zone + recents inline so
+  // the user has a single, consistent home base instead of bouncing to
+  // a separate welcome screen. Done lazily — async render the recents.
+  if (state.tabs.length === 0) {
+    renderEmptyDecksPanel(bar);
+    updateChromeHeight();
+    return;
+  }
+
   // Section: Open Decks ──────────────────────────────────────────────
   const decksHeader = document.createElement('div');
   decksHeader.className = 'sb-section-header';
@@ -70,7 +79,7 @@ export function renderTabs() {
         ${dirLabel ? `<div class="tab-meta">${dirLabel}</div>` : ''}
         <div class="tab-meta">${slides} slides ${warnBadge}</div>
       </div>` +
-      (state.tabs.length > 1 ? `<span class="close-btn" data-index="${i}">&times;</span>` : '');
+      `<span class="close-btn" data-index="${i}">&times;</span>`;
     el.addEventListener('click', (e) => {
       if (e.target.classList.contains('close-btn')) {
         closeTab(parseInt(e.target.dataset.index));
@@ -114,6 +123,82 @@ export function renderTabs() {
   }
 
   updateChromeHeight();
+}
+
+// Empty Decks panel: drop zone + Open button + Recents list. Replaces
+// the legacy `#welcome-screen` modal so the chrome (activity rail +
+// sidebar) stays put when the user closes the last deck.
+function renderEmptyDecksPanel(bar) {
+  const empty = document.createElement('div');
+  empty.className = 'sb-empty-decks';
+  empty.innerHTML = `
+    <div class="sb-empty-actions">
+      <button class="sb-empty-btn" data-action="open">
+        <span class="sb-empty-btn-icon">+</span>
+        <span class="sb-empty-btn-label">Open deck…</span>
+        <span class="sb-empty-btn-meta">⌘O</span>
+      </button>
+      <div class="sb-empty-drophint">or drop a <code>.md</code> anywhere in the window</div>
+    </div>
+    <div class="sb-section-header">RECENT</div>
+    <div class="sb-recent-list" id="sb-recent-list">
+      <div class="sb-empty-state">Loading…</div>
+    </div>
+  `;
+  bar.appendChild(empty);
+
+  empty.querySelector('[data-action="open"]').addEventListener('click', async () => {
+    if (IS_DESKTOP) {
+      const f = await desktopInvoke('open_file_dialog', { currentDir: null });
+      if (f && window._loadFileFromMenu) await window._loadFileFromMenu(f);
+    } else if (window._showBrowserPicker) {
+      window._showBrowserPicker();
+    }
+  });
+
+  const list = empty.querySelector('#sb-recent-list');
+  if (IS_DESKTOP) {
+    desktopInvoke('get_recent_files').then(recent => {
+      renderRecentList(list, recent);
+    }).catch(() => {
+      list.innerHTML = '<div class="sb-empty-state">No recent files yet.</div>';
+    });
+  } else {
+    list.innerHTML = '<div class="sb-empty-state">Drag a <code>.md</code> file to start.</div>';
+  }
+}
+
+function renderRecentList(container, recent) {
+  if (!recent || recent.length === 0) {
+    container.innerHTML = '<div class="sb-empty-state">No recent decks yet — open one above to get started.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  recent.forEach(filePath => {
+    const name = filePath.split('/').pop();
+    const dir = filePath.substring(0, filePath.lastIndexOf('/'));
+    const shortDir = dir.replace(/^\/Users\/[^/]+/, '~');
+    const el = document.createElement('button');
+    el.className = 'sb-recent-item';
+    el.innerHTML = `
+      <span class="sb-recent-name">${escapeHtml(name)}</span>
+      <span class="sb-recent-path">${escapeHtml(shortDir)}</span>
+    `;
+    el.addEventListener('click', async () => {
+      try {
+        if (window._loadFileFromMenu) await window._loadFileFromMenu(filePath);
+      } catch (err) {
+        showToast(`Failed to open: ${err?.message || err}`, 4000);
+      }
+    });
+    container.appendChild(el);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[c]);
 }
 
 // Extract every relative image src from a deck's markdown, resolve each
@@ -337,8 +422,22 @@ export async function switchTab(index) {
 }
 
 export async function closeTab(index) {
-  if (state.tabs.length <= 1) return; // don't close last tab
   state.tabs.splice(index, 1);
+  if (state.tabs.length === 0) {
+    // Drop back to the empty Decks panel — chrome stays put, no welcome
+    // bounce. The renderTabs() call below will render the empty state.
+    state.activeTabIndex = 0;
+    state.currentFile = null;
+    state.currentMd = '';
+    state.fileDir = '';
+    document.body.classList.add('no-deck');
+    const slides = document.getElementById('slides');
+    if (slides) slides.innerHTML = '';
+    if (typeof Reveal !== 'undefined' && Reveal.sync) Reveal.sync();
+    renderTabs();
+    if (window._saveSession) window._saveSession();
+    return;
+  }
   if (state.activeTabIndex >= state.tabs.length) state.activeTabIndex = state.tabs.length - 1;
   else if (index < state.activeTabIndex) state.activeTabIndex--;
   // Reload the now-active tab

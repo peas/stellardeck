@@ -17,10 +17,10 @@ import { renderQRCodes } from './qr.js';
 import { renderMath } from './math.js';
 import { renderDiagrams } from './diagrams.js';
 import { renderDeck } from './render.js';
-import { setupWelcomeScreen } from './welcome.js';
 import { setupActivityRail, updateDiagnosticsBadge } from './sidebar.js';
 import { rebuildThumbnails } from './tabs.js';
 import { setupCommandPaletteShortcut } from './command-palette.js';
+import { setupQuickOpenShortcut } from './quick-open.js';
 import { registerBaseCommands } from './commands.js';
 
 // ============================================================
@@ -35,6 +35,7 @@ if (IS_DESKTOP) document.body.classList.add('desktop-app');
 setupActivityRail();
 registerBaseCommands();
 setupCommandPaletteShortcut();
+setupQuickOpenShortcut();
 
 // Chrome buttons in the titlebar zone (Play / Presenter).
 if (IS_DESKTOP) {
@@ -44,6 +45,10 @@ if (IS_DESKTOP) {
   });
   document.getElementById('btn-chrome-presenter')?.addEventListener('click', () => {
     if (window._openPresenter) window._openPresenter();
+  });
+  document.getElementById('btn-chrome-grid')?.addEventListener('click', async () => {
+    const { toggleGrid } = await import('./grid.js');
+    toggleGrid();
   });
 }
 if (IS_ELECTRON) {
@@ -137,31 +142,73 @@ if (IS_ELECTRON && window.stellardeck?.onMenuAction) {
   });
 }
 window._loadFileFromMenu = async (path) => {
-  const welcome = document.getElementById('welcome-screen');
-  const wasWelcomeVisible = welcome?.classList.contains('visible');
-  const reveal = document.querySelector('.reveal');
-  const prevRevealDisplay = reveal.style.display;
-
-  welcome?.classList.remove('visible');
-  reveal.style.display = '';
+  const wasEmpty = document.body.classList.contains('no-deck');
+  document.body.classList.remove('no-deck');
 
   try {
     await loadFile(path);
     await renderDeck();
   } catch (err) {
-    // Show the error as a toast + restore the previous visual state so the
-    // user isn't left staring at a blank screen.
     const msg = err?.message || String(err);
     const shortPath = path.split('/').pop();
     showToast(`Could not open ${shortPath}: ${msg}`, 6000);
     console.error('_loadFileFromMenu failed:', err);
-    // If the user had nothing open before, bring the welcome screen back.
-    if (wasWelcomeVisible || state.tabs.length === 0) {
-      welcome?.classList.add('visible');
-      reveal.style.display = prevRevealDisplay || 'none';
+    // If we came from the empty state, stay there (don't strand the user
+    // on a blank deck after a failed load).
+    if (wasEmpty || state.tabs.length === 0) {
+      document.body.classList.add('no-deck');
+      const { renderTabs } = await import('./tabs.js');
+      renderTabs();
     }
   }
 };
+
+// Wire window-wide drag-drop so a .md file dropped anywhere in the app
+// opens it. Replaces the per-welcome-screen drop zone — the user no
+// longer needs to aim at a specific target.
+function setupGlobalDropTarget() {
+  ['dragenter', 'dragover'].forEach(evt => {
+    document.body.addEventListener(evt, (e) => {
+      // Only react when files are being dragged (not text selection, etc.).
+      if (e.dataTransfer && Array.from(e.dataTransfer.types).includes('Files')) {
+        e.preventDefault();
+        document.body.classList.add('dropping');
+      }
+    });
+  });
+  document.body.addEventListener('dragleave', (e) => {
+    if (e.relatedTarget == null) document.body.classList.remove('dropping');
+  });
+  document.body.addEventListener('drop', async (e) => {
+    if (!e.dataTransfer?.files?.length) return;
+    e.preventDefault();
+    document.body.classList.remove('dropping');
+    for (const f of e.dataTransfer.files) {
+      if (!/\.(md|markdown|txt)$/i.test(f.name)) continue;
+      if (IS_DESKTOP && f.path) {
+        if (window._loadFileFromMenu) await window._loadFileFromMenu(f.path);
+      } else {
+        readBrowserFile(f);
+      }
+    }
+  });
+}
+
+function readBrowserFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.body.classList.remove('no-deck');
+    state.currentMd = String(reader.result);
+    state.currentFile = file.name;
+    state.fileDir = '';
+    addTab(file.name, state.currentMd);
+    document.getElementById('slides').innerHTML = parseDecksetMarkdown(state.currentMd, {});
+    if (window.Reveal?.sync) window.Reveal.sync();
+  };
+  reader.onerror = () => showToast(`Could not read ${file.name}`, 4000);
+  reader.readAsText(file);
+}
+window._setupGlobalDropTarget = setupGlobalDropTarget;
 
 // Fail-loud helper: shows the error screen and returns. Used for any
 // unrecoverable boot error so the user never sees a blank screen.
@@ -179,8 +226,7 @@ function showBootError(context, err) {
   }
   const reveal = document.querySelector('.reveal');
   if (reveal) reveal.style.display = 'none';
-  const welcome = document.getElementById('welcome-screen');
-  if (welcome) welcome.classList.remove('visible');
+  document.body.classList.remove('no-deck');
 }
 
 async function main() {
@@ -195,14 +241,14 @@ async function main() {
         file = cwd + '/' + file;
       } catch (err) {
         // Happens when the binary is launched without project context.
-        // Fall back to the welcome screen instead of hanging.
-        console.warn('[StellarDeck] get_project_root failed, falling back to welcome screen:', err);
+        // Fall back to the empty Decks panel instead of hanging.
+        console.warn('[StellarDeck] get_project_root failed, falling back to empty state:', err);
         file = null;
       }
     }
     // Note: we no longer auto-open a file picker on launch — if there's no
-    // file in the URL and no session, fall through to the welcome screen.
-    // Users can open files via Cmd+O or the welcome screen buttons.
+    // file in the URL and no session, fall through to the empty Decks panel.
+    // Users can open files via Cmd+O or the sidebar's Open button.
   }
 
   // Restore previous session if available (desktop mode).
@@ -220,37 +266,28 @@ async function main() {
   }
 
   if (!file) {
-    if (IS_DESKTOP) {
-      // Show welcome screen with recent files
-      const welcome = document.getElementById('welcome-screen');
-      welcome.classList.add('visible');
-      document.querySelector('.reveal').style.display = 'none';
-      document.getElementById('welcome-open').addEventListener('click', async () => {
-        const f = await desktopInvoke('open_file_dialog', { currentDir: null });
-        if (f) { welcome.classList.remove('visible'); document.querySelector('.reveal').style.display = ''; await loadFile(f); location.reload(); }
+    // Empty state: no deck open. Sidebar's Decks panel will render the
+    // recents + drop hint + Open button (see js/tabs.js::renderTabs +
+    // renderEmptyDecksPanel). The slide area shows a minimal placeholder.
+    // Activity rail + sidebar stay visible so the chrome is identical
+    // whether or not a deck is open.
+    document.body.classList.add('no-deck');
+    const { renderTabs } = await import('./tabs.js');
+    renderTabs();
+    setupGlobalDropTarget();
+    if (!IS_DESKTOP) {
+      // Browser mode: hidden file input the empty-decks "Open deck…"
+      // button can trigger. Same single code path as desktop.
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.md,.markdown,.txt';
+      input.style.display = 'none';
+      document.body.appendChild(input);
+      input.addEventListener('change', () => {
+        const f = input.files?.[0];
+        if (f) readBrowserFile(f);
       });
-      try {
-        const recent = await desktopInvoke('get_recent_files');
-        if (recent.length) {
-          const list = document.getElementById('recent-list');
-          list.innerHTML = '<div style="color:#475569;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;padding:0 14px">Recent</div>';
-          recent.forEach(f => {
-            const name = f.split('/').pop();
-            const dir = f.substring(0, f.lastIndexOf('/'));
-            const el = document.createElement('div');
-            el.className = 'recent-item';
-            el.innerHTML = `<div><div class="recent-name">${name}</div><div class="recent-path">${dir}</div></div>`;
-            el.addEventListener('click', async () => { welcome.classList.remove('visible'); document.querySelector('.reveal').style.display = ''; await loadFile(f); location.reload(); });
-            list.appendChild(el);
-          });
-        }
-      } catch {}
-    } else {
-      // Browser mode: show welcome screen with drag & drop / file picker
-      const welcome = document.getElementById('welcome-screen');
-      welcome.classList.add('visible');
-      document.querySelector('.reveal').style.display = 'none';
-      setupWelcomeScreen();
+      window._showBrowserPicker = () => input.click();
     }
     return;
   }

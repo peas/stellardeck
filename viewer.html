@@ -13,6 +13,10 @@
   <div id="titlebar-drag">
     <span id="titlebar-counter" class="titlebar-counter"></span>
     <div class="titlebar-actions">
+      <button class="chrome-btn" id="btn-chrome-grid" title="Grid view (Esc)" aria-label="Toggle slide grid">
+        <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+        <span>Grid</span>
+      </button>
       <button class="chrome-btn" id="btn-chrome-presenter" title="Presenter mode (P)" aria-label="Open presenter window">
         <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M3 4h18v12H3zm9 14l-3 3h6l-3-3z"/></svg>
         <span>Presenter</span>
@@ -65,35 +69,20 @@
     <p>Exemplo: <code>viewer.html?file=1bi-dev/IA-carreiras-educacao-para-professores-light.md</code></p>
   </div>
 
-  <div id="welcome-screen">
-    <div class="welcome-content">
-      <div class="welcome-logo">
-        <img src="assets/brand/stellardeck-simplified-min.svg" width="80" height="80" alt="StellarDeck">
-      </div>
-      <h1 class="welcome-title">StellarDeck</h1>
-      <p class="welcome-tagline">Markdown presentations for storytellers</p>
-
-      <div id="welcome-dropzone" class="welcome-dropzone">
-        <div class="dropzone-icon">&#128196;</div>
-        <p class="dropzone-label">Drop a <code>.md</code> file here</p>
-        <p class="dropzone-hint">or</p>
-        <button id="welcome-open" class="welcome-btn">Open file</button>
-        <input type="file" id="welcome-file-input" accept=".md,.markdown,.txt" hidden>
-      </div>
-
-      <div id="recent-list" class="welcome-recent"></div>
-
-      <div class="welcome-footer">
-        <a href="https://stellardeck.dev" target="_blank" rel="noopener">Documentation</a>
-        <span class="welcome-footer-sep">&middot;</span>
-        <a href="https://github.com/peas/stellardeck" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-  </div>
-
   <div id="slide-area">
     <div class="reveal">
       <div class="slides" id="slides"></div>
+    </div>
+    <!-- Shown only when body.no-deck is set. Sidebar's empty Decks
+         panel hosts the actual recents/drop/open affordances; this
+         is just a quiet placeholder so the main pane isn't blank. -->
+    <div id="empty-slide-placeholder" aria-hidden="true">
+      <div class="esp-card">
+        <img class="esp-logo" src="assets/brand/stellardeck-simplified-min.svg" width="48" height="48" alt="">
+        <h2>No deck open</h2>
+        <p>Drop a <code>.md</code> anywhere in the window, pick one in the sidebar, or press <kbd>⌘O</kbd> to open.</p>
+        <p class="esp-hint">Press <kbd>⌘P</kbd> for recent decks.</p>
+      </div>
     </div>
   </div>
 

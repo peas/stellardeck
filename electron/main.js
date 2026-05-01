@@ -168,7 +168,22 @@ function registerIPC() {
     return null;
   });
 
-  ipcMain.handle('get_recent_files', async () => store.get('recent', []));
+  ipcMain.handle('get_recent_files', async () => {
+    // Drop paths that no longer exist on disk so the welcome screen never
+    // shows a recent that opens to a flash + bounce-back. Persist the
+    // pruned list so the next call is a no-op.
+    const recent = store.get('recent', []);
+    const alive = [];
+    for (const p of recent) {
+      try { if ((await fs.stat(p)).isFile()) alive.push(p); }
+      catch { /* missing or unreadable — drop */ }
+    }
+    if (alive.length !== recent.length) {
+      store.set('recent', alive);
+      rebuildMenu();
+    }
+    return alive;
+  });
 
   ipcMain.handle('add_recent_file', async (_evt, { filePath }) => {
     const recent = store.get('recent', []).filter(p => p !== filePath);

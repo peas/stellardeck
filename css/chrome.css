@@ -228,6 +228,142 @@
     body[data-sidebar-mode="diagnostics"] .sb-thumbs + *,
     body[data-sidebar-mode="theme"] .sb-thumbs { display: none; }
 
+    /* ===== Empty Decks panel (no decks open) ===== */
+    .sb-empty-decks {
+      padding: 14px 12px 12px;
+      -webkit-app-region: no-drag;
+    }
+    .sb-empty-actions { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .sb-empty-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 6px;
+      color: #e0f2fe;
+      font: inherit;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .sb-empty-btn:hover {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+    .sb-empty-btn-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px;
+      background: rgba(56, 189, 248, 0.2);
+      border-radius: 4px;
+      font-size: 1rem; line-height: 1;
+      color: #7dd3fc;
+    }
+    .sb-empty-btn-label { flex: 1; text-align: left; }
+    .sb-empty-btn-meta { font-size: 0.7rem; color: #64748b; font-family: 'SF Mono', ui-monospace, Menlo, monospace; }
+    .sb-empty-drophint {
+      font-size: 0.7rem; color: #64748b; padding: 4px 4px;
+    }
+    .sb-empty-drophint code {
+      font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+      font-size: 0.68rem; color: #94a3b8;
+      padding: 1px 4px; background: rgba(255,255,255,0.04); border-radius: 3px;
+    }
+    .sb-empty-state {
+      padding: 8px 14px;
+      font-size: 0.72rem; color: #64748b;
+    }
+    .sb-recent-list {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 0 4px 12px;
+    }
+    .sb-recent-item {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 8px 10px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .sb-recent-item:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.06);
+    }
+    .sb-recent-name {
+      font-size: 0.78rem; color: #e2e8f0; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sb-recent-path {
+      font-size: 0.68rem; color: #64748b;
+      font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl;
+    }
+
+    /* Slide-area placeholder when no deck open. Sidebar has the
+       primary affordances; this is a quiet "you're not lost" hint. */
+    #empty-slide-placeholder {
+      display: none;
+      position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    body.no-deck #empty-slide-placeholder { display: flex; }
+    body.no-deck .reveal { opacity: 0; pointer-events: none; }
+    .esp-card {
+      max-width: 460px;
+      padding: 32px 36px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px dashed rgba(148, 163, 184, 0.25);
+      text-align: center;
+      color: #cbd5e1;
+    }
+    .esp-logo { display: block; margin: 0 auto 16px; opacity: 0.85; }
+    .esp-card h2 {
+      margin: 0 0 8px; font-size: 1.05rem; font-weight: 500;
+      color: #e2e8f0; letter-spacing: 0.01em;
+    }
+    .esp-card p {
+      margin: 0 0 6px; font-size: 0.85rem; line-height: 1.55;
+      color: #94a3b8;
+    }
+    .esp-card kbd {
+      display: inline-block;
+      padding: 1px 6px; margin: 0 1px;
+      font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+    }
+    .esp-card code {
+      font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+      font-size: 0.78rem;
+      padding: 1px 4px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 3px;
+      color: #94a3b8;
+    }
+    .esp-hint { font-size: 0.78rem !important; color: #64748b !important; margin-top: 12px !important; }
+
+    /* Disable chrome action buttons when no deck is open — Play/Presenter/
+       Grid only make sense once there's a deck loaded. */
+    body.no-deck .chrome-btn { opacity: 0.4; pointer-events: none; }
+
+    /* Visual feedback during drag-drop. The activity rail + sidebar stay
+       interactive, but we tint the slide area so the user sees the target. */
+    body.dropping #slide-area::after {
+      content: ''; position: absolute; inset: 8px;
+      border: 2px dashed rgba(56, 189, 248, 0.6);
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.08);
+      pointer-events: none;
+    }
+
     /* ===== Diagnostics sidebar (mode "diagnostics") ===== */
     .sb-empty {
       padding: 24px 14px;
@@ -372,8 +508,9 @@
       margin: 4px 0;
     }
 
-    /* ===== Command palette (Cmd+K) ===== */
-    #command-palette {
+    /* ===== Command palette (Cmd+K) + Quick open (Cmd+P) ===== */
+    #command-palette,
+    #quick-open {
       position: fixed; inset: 0;
       z-index: 600;
       display: flex; flex-direction: column;
@@ -381,7 +518,8 @@
       padding-top: 12vh;
       pointer-events: auto;
     }
-    #command-palette[hidden] { display: none; }
+    #command-palette[hidden],
+    #quick-open[hidden] { display: none; }
     .cp-backdrop {
       position: absolute; inset: 0;
       background: rgba(8,10,15,0.55);
