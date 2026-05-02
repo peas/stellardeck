@@ -471,11 +471,56 @@ app.whenReady().then(() => {
   registerIPC();
   rebuildMenu();
   createMainWindow();
+  if (isDev) setupHotReload();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
 });
+
+// Dev-mode hot reload — when ELECTRON_DEV=1, watch source files in the
+// repo and reload the renderer on change. Skipped in packaged builds
+// (where ROOT points inside the .app bundle and no editing happens).
+function setupHotReload() {
+  const sourceDirs = [
+    path.join(ROOT, 'js'),
+    path.join(ROOT, 'css'),
+    path.join(ROOT, 'electron'),
+  ];
+  const sourceFiles = [
+    'viewer.html', 'presenter.html',
+    'autoflow.js', 'deckset-parser.js', 'slides2.js', 'slides2.css',
+    'diagnostics.js', 'print-mode.js', 'constants.js',
+  ].map(f => path.join(ROOT, f));
+  const watcher = chokidar.watch([...sourceDirs, ...sourceFiles], {
+    ignoreInitial: true,
+    awaitWriteFinish: { stabilityThreshold: 80, pollInterval: 30 },
+  });
+  let pending = false;
+  const reload = (changed) => {
+    if (pending) return;
+    pending = true;
+    setTimeout(() => {
+      pending = false;
+      const isMain = changed && (changed.includes(`${path.sep}electron${path.sep}`) || changed.endsWith(`${path.sep}preload.js`));
+      if (isMain) {
+        // Main-process changes need a full app restart, not just a renderer reload.
+        // Print a hint instead of guessing — restarting from inside the process
+        // we'd have to kill is fragile.
+        console.log(`[hot-reload] main-process change in ${path.relative(ROOT, changed)} — restart the app`);
+        return;
+      }
+      for (const win of BrowserWindow.getAllWindows()) {
+        if (!win.isDestroyed()) win.webContents.reloadIgnoringCache();
+      }
+      console.log(`[hot-reload] reloaded after ${path.relative(ROOT, changed)}`);
+    }, 50);
+  };
+  watcher.on('change', reload);
+  watcher.on('add', reload);
+  app.on('will-quit', () => watcher.close().catch(() => {}));
+  console.log('[hot-reload] watching js/, css/, electron/, top-level *.js/*.html');
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();

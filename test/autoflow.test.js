@@ -231,8 +231,20 @@ test('five short lines is NOT a statement', () => {
   assert.notEqual(result.rule, 'statement');
 });
 
-test('line with >8 words is NOT a statement', () => {
+test('line with 9-15 words is a tier-3 (dense) statement', () => {
+  // Bridges the cliff: 9-15 words used to fall through to plain rendering.
+  // Now: still treated as a statement, but rendered as h1 + autoscale
+  // instead of #[fit] (so the whole slide scales as a block).
   const result = applyAutoflow(lines('This is a very long line that has too many words'), 0);
+  assert.equal(result.rule, 'statement');
+  assert.equal(result.tier, 3);
+  assert.ok(result.lines.some(l => l.includes('[.autoscale: true]')),
+    `expected [.autoscale: true] directive, got: ${result.lines.join(' | ')}`);
+});
+
+test('line with >15 words falls through to default', () => {
+  const longLine = 'This is a very long line with way more than fifteen real words to test what happens when we exceed the dense ceiling here';
+  const result = applyAutoflow(lines(longLine), 0);
   assert.notEqual(result.rule, 'statement');
 });
 
