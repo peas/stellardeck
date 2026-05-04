@@ -36,9 +36,8 @@ function appIsFresh() {
   const appMtime = fs.statSync(APP_PATH).mtimeMs;
   const sourceFiles = [
     'electron', 'js', 'css', 'viewer.html', 'preload.js',
-    'autoflow.js', 'deckset-parser.js', 'slides2.js', 'slides2.css',
-    'diagnostics.js', 'print-mode.js', 'constants.js', 'package.json',
-    'forge.config.js',
+    'packages/core/src',
+    'slides2.js', 'slides2.css', 'package.json', 'forge.config.js',
   ];
   for (const f of sourceFiles) {
     const p = path.join(ROOT, f);

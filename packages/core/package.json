@@ -1,0 +1,42 @@
+{
+  "name": "@stellardeck/core",
+  "version": "0.0.1",
+  "description": "StellarDeck engine: Deckset-compatible markdown parser, autoflow layout inference, deck health diagnostics.",
+  "license": "MIT",
+  "private": true,
+  "type": "commonjs",
+  "main": "src/index.js",
+  "exports": {
+    ".": {
+      "require": "./src/index.js",
+      "import": "./src/index.js"
+    },
+    "./autoflow": "./src/autoflow.js",
+    "./parser": "./src/deckset-parser.js",
+    "./diagnostics": "./src/diagnostics.js",
+    "./constants": "./src/constants.js",
+    "./print-mode": "./src/print-mode.js"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node test/run.js"
+  },
+  "keywords": [
+    "presentation",
+    "markdown",
+    "deckset",
+    "autoflow"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peas/stellardeck.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://stellardeck.dev"
+}

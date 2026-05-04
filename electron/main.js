@@ -493,11 +493,11 @@ function setupHotReload() {
     path.join(ROOT, 'js'),
     path.join(ROOT, 'css'),
     path.join(ROOT, 'electron'),
+    path.join(ROOT, 'packages/core/src'),
   ];
   const sourceFiles = [
     'viewer.html', 'presenter.html',
-    'autoflow.js', 'deckset-parser.js', 'slides2.js', 'slides2.css',
-    'diagnostics.js', 'print-mode.js', 'constants.js',
+    'slides2.js', 'slides2.css',
   ].map(f => path.join(ROOT, f));
   const watcher = chokidar.watch([...sourceDirs, ...sourceFiles], {
     ignoreInitial: true,

@@ -20,6 +20,9 @@
   "engines": {
     "node": ">=20"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "serve": "python3 scripts/dev-server.py 3031",
     "test": "node test/deckset-parser.test.js && node test/viewer-helpers.test.js && node test/autoflow.test.js && node test/autoflow-fixtures.test.js && node test/parser-structure.test.js && node test/unit.test.js && node test/desktop-shim.test.js",
