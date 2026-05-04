@@ -1,6 +1,6 @@
 {
   "name": "@stellardeck/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "StellarDeck engine: Deckset-compatible markdown parser, autoflow layout inference, deck health diagnostics.",
   "license": "MIT",
   "private": true,
