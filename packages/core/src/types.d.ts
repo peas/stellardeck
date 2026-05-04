@@ -213,3 +213,24 @@ export interface GroupedDiagnostics {
 
 export function mergeDiagnostics(target: Diagnostic[], incoming: Diagnostic[]): Diagnostic[];
 export function groupDiagnostics(warnings: Diagnostic[]): GroupedDiagnostics;
+
+// ──────────────────────────────────────────────────────────────────────
+// Diagnose rules — pure, snapshot-driven (no DOM)
+// ──────────────────────────────────────────────────────────────────────
+
+export interface SlideSnapshot {
+  slideIndex: number;
+  attrs: {
+    autoflowTier?: string;
+    autoflowDetail?: string;
+  };
+  visibleText: string;
+  hasBgImage: boolean;
+  hasBgVideo: boolean;
+  hasBgColor: boolean;
+  hasBgBroken: boolean;
+  hasInlineImg: boolean;
+  codeBlocks: Array<{ hasLanguage: boolean; contentLength: number }>;
+}
+
+export type PureDiagnoseRule = (snap: SlideSnapshot) => Diagnostic[];

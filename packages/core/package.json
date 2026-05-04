@@ -15,6 +15,7 @@
     "./autoflow": "./src/autoflow.js",
     "./parser": "./src/deckset-parser.js",
     "./diagnostics": "./src/diagnostics.js",
+    "./diagnose-rules": "./src/diagnose-rules.js",
     "./constants": "./src/constants.js",
     "./print-mode": "./src/print-mode.js",
     "./browser-globals": "./dist/browser-globals.global.js"

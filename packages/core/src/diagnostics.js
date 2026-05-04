@@ -13,6 +13,13 @@
 (function () {
   'use strict';
 
+  // Pure deck-health rules — split into a sibling module so they can be
+  // unit-tested in plain Node (no DOM). The DOM-bound code in this file
+  // builds a SlideSnapshot and feeds it through `runPureRules`.
+  const pureRules = (typeof require !== 'undefined')
+    ? require('./diagnose-rules.js')
+    : (typeof window !== 'undefined' && window.StellarDiagnoseRules);
+
   const OVERFLOW_TOLERANCE = 20; // px — sub-pixel + border tolerance
   // Images crop via object-fit: cover so a few-pixel overshoot of the <img>
   // element is a layout-rounding artifact, NOT a visible problem. Only warn
@@ -25,9 +32,7 @@
   // slide bottom. 16px ≈ one line of small text, below that = layout noise.
   const CUMULATIVE_OVERFLOW_TOLERANCE = 16;
   const TOO_SMALL_FONT_PX = 14; // back-row legibility floor
-  const DENSE_WORD_COUNT = 120; // words on one slide that signal cramming
   const CURRENT_SLIDE_SELECTOR = '.reveal .slides section.present';
-  const TEXT_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'ul', 'ol', 'blockquote', 'pre', 'code', 'span']);
 
   /** Query the currently-presented slide section. */
   function currentSection(root) {
@@ -137,55 +142,35 @@
       });
     }
 
-    // Statement degraded to tier 3: autoflow's statement rule wanted to
-    // apply #[fit] but the line crossed the 8-word limit, so it fell
-    // back to plain h1 + [.autoscale: true]. Visually fine, but a
-    // gentle nudge: this slide could have more impact if you split it.
-    const tier = section.getAttribute('data-autoflow-tier');
-    if (tier === '3') {
-      const detail = section.getAttribute('data-autoflow-detail') || '';
-      warnings.push({
-        type: 'statement-degraded',
-        severity: 'info',
-        slide: slideIndex,
-        detail,
-        message: `slide rendered as a dense statement (${detail}) — split for stronger impact`,
-      });
-    }
-
-    // Slide too dense: total visible word count above DENSE_WORD_COUNT.
-    // Speaker notes (<aside class="notes">) are excluded.
+    // Build a serializable snapshot of the slide for the pure-rules pass.
+    // Visible text excludes speaker notes (<aside class="notes">).
     const visibleText = Array.from(section.children)
       .filter(c => c.tagName !== 'ASIDE')
       .map(c => c.textContent || '')
-      .join(' ')
-      .trim();
-    const wordCount = visibleText ? visibleText.split(/\s+/).length : 0;
-    if (wordCount > DENSE_WORD_COUNT) {
-      warnings.push({
-        type: 'slide-too-dense',
-        severity: 'warn',
-        slide: slideIndex,
-        wordCount,
-        message: `slide has ${wordCount} words (> ${DENSE_WORD_COUNT}) — consider splitting`,
-      });
-    }
-
-    // Empty slide: no text AND no background image AND no inline img
-    const text = section.textContent.trim();
-    const hasBgAttr = section.hasAttribute('data-background-image') ||
-                      section.hasAttribute('data-bg-broken') ||
-                      section.hasAttribute('data-background-video') ||
-                      section.hasAttribute('data-background-color');
-    const hasInlineImg = section.querySelector('img') ||
-                        section.querySelector('[style*="background-image"]');
-    if (!text && !hasBgAttr && !hasInlineImg) {
-      warnings.push({
-        type: 'empty-slide',
-        severity: 'warn',
-        slide: slideIndex,
-        message: 'slide has no visible content',
-      });
+      .join(' ');
+    const codeBlocks = Array.from(section.querySelectorAll('pre > code')).map(pre => ({
+      hasLanguage: Array.from(pre.classList).some(c => c.startsWith('language-')),
+      contentLength: (pre.textContent || '').trim().length,
+    }));
+    const snapshot = {
+      slideIndex,
+      attrs: {
+        autoflowTier: section.getAttribute('data-autoflow-tier') || undefined,
+        autoflowDetail: section.getAttribute('data-autoflow-detail') || undefined,
+      },
+      visibleText,
+      hasBgImage: section.hasAttribute('data-background-image'),
+      hasBgVideo: section.hasAttribute('data-background-video'),
+      hasBgColor: section.hasAttribute('data-background-color'),
+      hasBgBroken: section.hasAttribute('data-bg-broken'),
+      hasInlineImg: !!(section.querySelector('img') || section.querySelector('[style*="background-image"]')),
+      codeBlocks,
+    };
+    if (pureRules && pureRules.runPureRules) {
+      // Pure rules cover: statement-degraded, slide-too-dense, empty-slide,
+      // code-no-lang. DOM-bound rules below cover overflow / fonts / image
+      // load failures, which need pixel measurements or live <img> state.
+      for (const w of pureRules.runPureRules(snapshot)) warnings.push(w);
     }
 
     // Broken <img> elements
@@ -227,21 +212,6 @@
         url,
         message: `background image failed to load: ${url}`,
       });
-    }
-
-    // Code blocks without language (not highlighted)
-    for (const pre of section.querySelectorAll('pre > code')) {
-      const hasLang = Array.from(pre.classList).some(c => c.startsWith('language-'));
-      const content = pre.textContent.trim();
-      if (!hasLang && content.length > 20) {
-        warnings.push({
-          type: 'code-no-lang',
-          severity: 'info',
-          slide: slideIndex,
-          message: 'code block has no language — add ```js, ```py, etc. for syntax highlighting',
-        });
-        break; // one per slide
-      }
     }
 
     return warnings;
