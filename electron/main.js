@@ -16,7 +16,7 @@ const { app, BrowserWindow, ipcMain, dialog, shell, Menu, protocol, net } = requ
 const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
+const { spawn, spawnSync } = require('node:child_process');
 const { pathToFileURL } = require('node:url');
 const chokidar = require('chokidar');
 const Store = require('electron-store').default || require('electron-store');
@@ -504,6 +504,7 @@ function setupHotReload() {
     awaitWriteFinish: { stabilityThreshold: 80, pollInterval: 30 },
   });
   let pending = false;
+  const COREDIR = path.join(ROOT, 'packages', 'core', 'src') + path.sep;
   const reload = (changed) => {
     if (pending) return;
     pending = true;
@@ -516,6 +517,21 @@ function setupHotReload() {
         // we'd have to kill is fragile.
         console.log(`[hot-reload] main-process change in ${path.relative(ROOT, changed)} — restart the app`);
         return;
+      }
+      // viewer.html loads packages/core/dist/browser-globals.global.js; when
+      // a core source file changes, rebuild the bundle synchronously so the
+      // reloaded renderer picks up fresh code.
+      if (changed && changed.startsWith(COREDIR)) {
+        try {
+          const t0 = Date.now();
+          spawnSync('npx', ['tsup'], {
+            cwd: path.join(ROOT, 'packages', 'core'),
+            stdio: 'ignore',
+          });
+          console.log(`[hot-reload] rebuilt @stellardeck/core in ${Date.now() - t0}ms`);
+        } catch (e) {
+          console.log('[hot-reload] core rebuild failed:', e.message);
+        }
       }
       for (const win of BrowserWindow.getAllWindows()) {
         if (!win.isDestroyed()) win.webContents.reloadIgnoringCache();

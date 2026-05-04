@@ -27,7 +27,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "prepare": "tsup"
   },
   "keywords": [
     "presentation",
