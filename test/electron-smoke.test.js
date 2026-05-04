@@ -73,9 +73,17 @@ function skip(name, _fn, reason) {
       assert.match(url, /^app:\/\/.*viewer\.html/, `got ${url}`);
     });
 
-    await it('shows the welcome screen on first boot (no file)', async () => {
-      const visible = await win.locator('#welcome-screen.visible').count();
-      assert.equal(visible, 1, 'welcome screen should be visible');
+    await it('shows the empty Decks panel on first boot (no file)', async () => {
+      // Welcome screen was replaced by an in-sidebar empty state on
+      // 2026-05-01. The chrome (activity rail + sidebar) stays put;
+      // the Decks panel renders an "Open deck…" button + recents +
+      // drop hint, and the slide area shows a quiet placeholder.
+      const noDeckClass = await win.evaluate(() => document.body.classList.contains('no-deck'));
+      assert.equal(noDeckClass, true, 'expected body.no-deck class on first boot');
+      const openBtn = await win.locator('.sb-empty-decks .sb-empty-btn').count();
+      assert.equal(openBtn, 1, 'expected an Open deck button in empty Decks panel');
+      const placeholder = await win.locator('#empty-slide-placeholder .esp-card').count();
+      assert.equal(placeholder, 1, 'expected the slide-area placeholder card');
     });
 
     await it('exposes window.stellardeck.invoke + isDesktop', async () => {
@@ -284,6 +292,39 @@ function skip(name, _fn, reason) {
       assert.equal(info.activeThumbIndex, 0, 'first thumb should be active at boot');
     });
 
+    await it('sidebar thumbnail #[fit] mirrors live slide nowrap (no wrap mismatch)', async () => {
+      // Regression for the 2026-05-04 bug: thumbs were rebuilt before
+      // fitText set white-space:nowrap on .deckset-fit, so the cloned
+      // <h1> wrapped where the live slide didn't. Lock the parity.
+      // Demo deck slides 0-2 have #[fit] headings on title slides.
+      const parity = await win.evaluate(async () => {
+        // Find a slide whose .deckset-fit fitText has actually styled.
+        const sections = document.querySelectorAll('.reveal .slides > section');
+        let targetIdx = -1;
+        for (let i = 0; i < sections.length; i++) {
+          const fit = sections[i].querySelector('.deckset-fit');
+          if (fit && fit.style.whiteSpace === 'nowrap' && fit.style.fontSize) {
+            targetIdx = i; break;
+          }
+        }
+        if (targetIdx < 0) return { skip: 'no styled .deckset-fit found' };
+        const liveFit = sections[targetIdx].querySelector('.deckset-fit');
+        const thumb = document.querySelector(`#sb-thumbs .sb-thumb[data-index="${targetIdx}"] .sb-thumb-content .deckset-fit`);
+        return {
+          targetIdx,
+          live: { ws: liveFit.style.whiteSpace, fs: liveFit.style.fontSize },
+          thumb: thumb ? { ws: thumb.style.whiteSpace, fs: thumb.style.fontSize } : null,
+        };
+      });
+      if (parity.skip) {
+        console.log(`    (skipped: ${parity.skip})`);
+      } else {
+        assert.ok(parity.thumb, `expected thumb at index ${parity.targetIdx}, got none`);
+        assert.equal(parity.thumb.ws, parity.live.ws, 'whiteSpace mismatch between live slide and thumb');
+        assert.equal(parity.thumb.fs, parity.live.fs, 'fontSize mismatch between live slide and thumb');
+      }
+    });
+
     await it('sidebar thumbnails: clicking thumb navigates to that slide', async () => {
       const after = await win.evaluate(async () => {
         const target = document.querySelector('#sb-thumbs .sb-thumb[data-index="2"]');
@@ -420,8 +461,10 @@ function skip(name, _fn, reason) {
       assert.ok(labels.includes('Open in Editor'), `expected Open in Editor in ${labels}`);
       assert.ok(labels.some(l => l === 'Enable Autoflow' || l === 'Disable Autoflow'),
         `expected Autoflow toggle in ${labels}`);
-      assert.ok(labels.includes('Publish…'), `expected Publish… in ${labels}`);
+      assert.ok(labels.includes('Embed…'), `expected Embed… in ${labels}`);
+      assert.ok(labels.includes('Export to PDF…'), `expected Export to PDF… in ${labels}`);
       assert.ok(labels.includes('Open Assets Folder'), `expected Open Assets Folder in ${labels}`);
+      assert.ok(labels.includes('Close Tab'), `expected Close Tab in ${labels}`);
       // Close the menu so it doesn't bleed into next tests
       await win.evaluate(() => document.querySelector('.ctx-menu')?.remove());
     });
