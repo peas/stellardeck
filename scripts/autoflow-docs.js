@@ -25,7 +25,7 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
   process.exit(0);
 }
 
-const { RULES, SKIP_CHECKS, AUTOFLOW_DEFAULTS } = require('../autoflow.js');
+const { RULES, SKIP_CHECKS, AUTOFLOW_DEFAULTS } = require('@stellardeck/core/autoflow');
 
 const sorted = [...RULES].sort((a, b) => a.priority - b.priority);
 

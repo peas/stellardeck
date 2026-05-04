@@ -16,7 +16,7 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const { test, summary } = require('./helpers/harness');
-const { applyAutoflow, createContext } = require('../autoflow.js');
+const { applyAutoflow, createContext } = require('@stellardeck/core/autoflow');
 
 const FIXTURES_DIR = path.join(__dirname, 'autoflow-fixtures');
 

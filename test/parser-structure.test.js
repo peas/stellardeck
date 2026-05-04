@@ -7,10 +7,10 @@
 
 const assert = require('assert');
 const { test, summary } = require('./helpers/harness');
-const { parseDecksetMarkdown } = require('../deckset-parser.js');
+const { parseDecksetMarkdown } = require('@stellardeck/core/parser');
 
 // Load autoflow globally so parser can find it (same pattern as autoflow.test.js)
-global.applyAutoflow = require('../autoflow.js').applyAutoflow;
+global.applyAutoflow = require('@stellardeck/core/autoflow').applyAutoflow;
 
 // ── #[fit] headings ──
 

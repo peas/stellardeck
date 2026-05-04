@@ -13,7 +13,7 @@ const { chromium } = require('@playwright/test');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { CDN, SLIDE, THEMES } = require('../constants.js');
+const { CDN, SLIDE, THEMES } = require('@stellardeck/core/constants');
 
 const PROJECT_DIR = path.resolve(__dirname, '..');
 const SLIDE_W = SLIDE.WIDTH;

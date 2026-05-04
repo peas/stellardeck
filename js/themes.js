@@ -1,8 +1,9 @@
 import { state } from './state.js';
 import { syncMeasurer, fitText } from './fittext.js';
 
-// Theme registry comes from constants.js (dual-exported: window.StellarConstants
-// in the browser, require('../constants.js') in Node CLI).
+// Theme registry comes from @stellardeck/core/constants (dual-exported:
+// window.StellarConstants in the browser via the bundled IIFE,
+// require('@stellardeck/core/constants') in Node CLI).
 export const THEMES = window.StellarConstants.THEMES;
 
 // Backward compat

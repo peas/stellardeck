@@ -20,7 +20,7 @@ const {
   getContentLines,
   wordCount,
   AUTOFLOW_DEFAULTS,
-} = require('../autoflow.js');
+} = require('@stellardeck/core/autoflow');
 
 const config = { ...AUTOFLOW_DEFAULTS };
 
@@ -378,7 +378,7 @@ test('paragraph with >10 words is NOT diagonal', () => {
 // ============================================================
 console.log('\n── Rule: Bare Image Position Variation ──');
 
-const { createContext } = require('../autoflow.js');
+const { createContext } = require('@stellardeck/core/autoflow');
 
 test('bare image + text → filtered background + text rule', () => {
   const input = lines('![](photo.jpg)\n\nSome text');
@@ -722,8 +722,8 @@ test('many lines of text get autoscale only if no custom blocks', () => {
 console.log('\n── Parser integration ──');
 
 // Load autoflow globally so parseDecksetMarkdown can find it
-global.applyAutoflow = require('../autoflow.js').applyAutoflow;
-const { parseDecksetMarkdown } = require('../deckset-parser.js');
+global.applyAutoflow = require('@stellardeck/core/autoflow').applyAutoflow;
+const { parseDecksetMarkdown } = require('@stellardeck/core/parser');
 
 test('autoflow: true in frontmatter enables autoflow', () => {
   const md = 'autoflow: true\n\n2026';

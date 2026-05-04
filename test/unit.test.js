@@ -16,7 +16,7 @@ const {
   CLIError,
   HelpRequested,
 } = require('../scripts/export.js');
-const { merge, groupWarnings } = require('../diagnostics.js');
+const { merge, groupWarnings } = require('@stellardeck/core/diagnostics');
 
 const PROJECT_DIR = path.resolve(__dirname, '..');
 let passed = 0, failed = 0;

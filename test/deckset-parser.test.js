@@ -24,7 +24,7 @@ const {
   FRONTMATTER_NAMES,
   isFrontmatterLine,
   sectionAttrsFromDirectives,
-} = require('../deckset-parser.js');
+} = require('@stellardeck/core/parser');
 
 // ============================================================
 // Unit tests: findMedia
