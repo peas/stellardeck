@@ -15,7 +15,7 @@ Last updated: 2026-03-27
 | **Obsidian Slides** | Obsidian plugin | Cross-platform | Free (Obsidian req.) | ~800 (Slides Extended) | Yes (Oct 2025) |
 | **iA Presenter** | Native app | macOS, iOS/iPadOS | $89 (one-time) | N/A (proprietary) | Yes (2025) |
 | **Marpit** | Framework (lib) | Cross-platform (Node) | Free, MIT | ~1.1k | Yes (Mar 2026) |
-| **StellarDeck** | Tauri desktop + web | macOS (Win/Linux planned) | Free (in dev) | N/A (not released) | Active |
+| **StellarDeck** | Electron desktop + web | macOS (Win/Linux planned) | Free (MIT) | N/A (not released) | Active |
 
 ## Feature Matrix
 

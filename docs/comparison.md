@@ -91,7 +91,7 @@ manual directives.
 - **Skill + scoring**: the `stellardeck` Claude skill converts source text
   (blog posts, transcripts) into slides with quality scoring against benchmarks
   from 347 real-world decks.
-- **Multiple render targets**: same `.md` renders in the desktop app (Tauri),
+- **Multiple render targets**: same `.md` renders in the desktop app (Electron),
   browser viewer, embeddable component, and CLI export.
 
 **Trade-offs:**
@@ -118,7 +118,7 @@ manual directives.
 | Split layouts (`![right]`) | ✅ | 🔶 manual CSS | ✅ plugin | ✅ |
 | `#[fit]` auto-sizing | ✅ | ❌ | ❌ | ✅ |
 | Presenter mode | ✅ | 🔶 VS Code only | ✅ | ✅ |
-| Desktop app | ✅ | ❌ | ❌ | ✅ Tauri |
+| Desktop app | ✅ | ❌ | ❌ | ✅ Electron |
 | Embeddable component | ❌ | ❌ | ✅ | ✅ |
 | VS Code extension | ❌ | ✅ | ❌ | 🔶 planned |
 | Custom CSS themes | ❌ | ✅ | ✅ | ✅ |

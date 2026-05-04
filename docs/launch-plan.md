@@ -39,7 +39,7 @@
 - [ ] No pricing, no testimonials at launch (add later)
 
 ### Packaging
-- [ ] macOS .dmg (signed + notarized via `cargo tauri build`)
+- [ ] macOS .dmg (signed + notarized via `npm run make` / electron-forge maker-dmg)
 - [ ] Windows .msi
 - [ ] Linux .AppImage + .deb
 - [ ] GitHub Releases with auto-generated changelog
@@ -59,10 +59,10 @@
 
 | Day | Platform | Action |
 |-----|----------|--------|
-| Mon 10AM PT | **Hacker News** | "Show HN: StellarDeck — open-source Markdown presentations with Tauri" → link to GitHub |
+| Mon 10AM PT | **Hacker News** | "Show HN: StellarDeck — open-source Markdown presentations (Electron desktop + browser viewer)" → link to GitHub |
 | Tue 12:01AM PST | **Product Hunt** | Launch with tagline, screenshots, video |
 | Tue afternoon | **Reddit** | r/programming, r/rust, r/webdev — tailored posts per subreddit |
-| Wed | **Dev.to** | Technical post: "Building a presentation app with Tauri 2.0 and StellarSlides" |
+| Wed | **Dev.to** | Technical post: "Building a presentation app with Electron + StellarSlides (and why Tauri didn't work for us)" |
 | All week | **X/Twitter** | Thread with GIFs, reply to every mention |
 | All week | **LinkedIn** | Post targeting CTOs/tech leads |
 

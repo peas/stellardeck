@@ -59,7 +59,11 @@ npm run preview -- deck.md # open in browser (starts server, Ctrl+C stops)
 npm run export -- deck.md  # export (--pdf default, --png, --grid, --json, --help)
 npm run export -- --serve  # start dev server + open viewer
 npm run pdf -- deck.md     # alias for --pdf
-npm run tauri              # cargo tauri dev (HTTP server + desktop app)
+npm run electron -- deck.md     # fast desktop dev (menu says "Electron")
+npm run electron:dev -- deck.md # same + ELECTRON_DEV=1 (hot reload, devtools)
+npm run app -- deck.md          # packaged StellarDeck.app (menu says "StellarDeck")
+npm run package                 # build .app without launching
+npm run make                    # produce .dmg + .zip via electron-forge
 ```
 
 ## Project structure
@@ -186,7 +190,7 @@ Types: `overflow`, `missing-image`, `empty-slide`, `code-no-lang`, `theme-mismat
 - `npm run package` builds the .app without launching it; `npm run make` builds distributable artifacts under `out/make/` (zip + .dmg on macOS) via `forge.config.js`
 - The desktop runtime exposes `window.stellardeck.invoke(cmd, args)` (preload, sandboxed)
 - `app://./viewer.html` serves the repo with a real origin (ES modules + fetch work)
-- `deck://./<absolute-path>` serves any local file the markdown references — no allowlist (Tauri parity)
+- `deck://./<absolute-path>` serves any local file the markdown references — no allowlist (legacy Tauri parity, kept since real decks reference shared `assets/` outside their own folder)
 - File watcher (chokidar) emits `file-changed` IPC events; renderer subscribes via `window.stellardeck.onFileChanged`
 - Native menus: a small `menu-action` IPC pipes the menu item id to the renderer; handlers live in `js/main.js`
 - Test isolation: pass `--user-data-dir=<tmp>` to `electron.launch()` so userData/localStorage doesn't leak between runs

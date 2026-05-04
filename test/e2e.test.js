@@ -128,33 +128,23 @@ test.describe('Grid overlay', () => {
   });
 });
 
-test.describe('Toolbar', () => {
-  test('toolbar is visible after loading', async ({ page }) => {
+test.describe('Chrome / shortcuts', () => {
+  // Phase 3 (2026-04-30) removed the floating `#toolbar` and `#slide-
+  // counter` from browser-mode viewer. Chrome buttons now live in the
+  // Electron titlebar (desktop only); browser mode relies on keyboard
+  // shortcuts. The remaining browser-mode test asserts the keyboard
+  // path still works.
+
+  test('grid keyboard shortcut (g) opens grid', async ({ page }) => {
+    // Phase 3 removed the floating toolbar `#btn-grid` button — grid is
+    // now reached via the chrome bar Grid button (desktop-only) or the
+    // keyboard shortcut `g` (works in any context). Browser mode tests
+    // use the keyboard path since the chrome bar is desktop-shell only.
     await page.goto(DECK);
     await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(500);
 
-    const visible = await page.locator('#toolbar').evaluate(
-      el => el.classList.contains('visible')
-    );
-    expect(visible).toBe(true);
-  });
-
-  test('shows slide counter', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(800);
-
-    const counter = await page.locator('#slide-counter').textContent();
-    expect(counter).toMatch(/1 \/ \d+/);
-  });
-
-  test('grid button opens grid', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    await page.click('#btn-grid');
+    await page.keyboard.press('g');
     await page.waitForTimeout(300);
 
     const gridOpen = await page.locator('#grid-overlay').evaluate(
@@ -503,97 +493,53 @@ test.describe('Grid Esc returns to selected slide', () => {
   });
 });
 
-test.describe('Play fullscreen', () => {
-  test('Play button triggers fullscreen command in Tauri or Fullscreen API', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
+// `#btn-play` toolbar button removed in Phase 3. Browser mode reaches
+// fullscreen via the keyboard `f` shortcut; the desktop chrome has
+// `#btn-chrome-play`. Coverage moved to test/electron-smoke.test.js.
 
-    // In browser mode, check that clicking Play attempts fullscreen
-    // We can't actually go fullscreen in headless, but we can verify the handler runs
-    const result = await page.evaluate(() => {
-      let called = false;
-      // Mock fullscreen API
-      document.documentElement.requestFullscreen = () => { called = true; return Promise.resolve(); };
-      document.getElementById('btn-play').click();
-      return called;
-    });
-    expect(result).toBe(true);
-  });
-});
-
-test.describe('PDF export', () => {
-  test('export button exists and is clickable', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    const btn = page.locator('#btn-export');
-    await expect(btn).toBeVisible();
-    await expect(btn).toBeEnabled();
-    expect(await btn.textContent()).toContain('PDF');
-  });
-
-  test('clicking export triggers PDF generation', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
-
-    // Export button should exist and be enabled
-    const btn = page.locator('#btn-export');
-    await expect(btn).toBeEnabled();
-
-    // Click starts export — button becomes disabled during export
-    await page.click('#btn-export');
-    await page.waitForTimeout(1000);
-    // Button text changes to progress indicator during export
-    const text = await btn.textContent();
-    expect(text).toMatch(/⏳|PDF/);
-  });
-});
+// PDF export from browser mode used to live on `#btn-export` in the
+// floating toolbar; that button was removed in Phase 3 (export now
+// happens via the chrome bar in desktop, the context menu, Cmd+Shift+E,
+// or the CLI). Browser-mode PDF coverage stays in scripts/export.js's
+// integration tests (test/export.test.js) — no longer covered here.
 
 test.describe('Theme switching', () => {
-  test('theme dropdown changes heading font', async ({ page }) => {
+  // Phase 3 removed `#theme-select` (toolbar dropdown). The Electron
+  // sidebar now hosts the picker (covered by electron-smoke). Browser-
+  // mode theme switching uses URL params `?theme=…&scheme=…`, which is
+  // also the path the export pipeline uses.
+
+  test('?theme=hacker URL param applies the theme font', async ({ page }) => {
     await page.goto(THEMED_DECK);
     await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(800);
-
-    // Get initial font (Letters from Brazil = Oswald/Big Shoulders)
     const initialFont = await page.evaluate(() =>
       getComputedStyle(document.querySelector('.reveal')).getPropertyValue('--r-heading-font')
     );
 
-    // Switch to Hacker theme
-    await page.selectOption('#theme-select', 'hacker');
+    await page.goto(`${BASE}/viewer.html?file=test/smoke-test.md&theme=hacker`);
+    await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(500);
-
     const newFont = await page.evaluate(() =>
       getComputedStyle(document.querySelector('.reveal')).getPropertyValue('--r-heading-font')
     );
-
     expect(newFont).not.toBe(initialFont);
     expect(newFont).toContain('JetBrains Mono');
   });
 
   test('theme persists across grid open/close', async ({ page }) => {
-    await page.goto(DECK);
+    await page.goto(`${BASE}/viewer.html?file=test/smoke-test.md&theme=serif`);
     await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(800);
-
-    // Switch to Serif theme
-    await page.selectOption('#theme-select', 'serif');
-    await page.waitForTimeout(500);
     const fontAfterSwitch = await page.evaluate(() =>
       getComputedStyle(document.querySelector('.reveal')).getPropertyValue('--r-heading-font').trim()
     );
 
-    // Open grid, close grid
     await page.keyboard.press('g');
     await page.waitForTimeout(500);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(500);
 
-    // Font should still be Serif
     const fontAfterGrid = await page.evaluate(() =>
       getComputedStyle(document.querySelector('.reveal')).getPropertyValue('--r-heading-font').trim()
     );
@@ -601,13 +547,9 @@ test.describe('Theme switching', () => {
   });
 
   test('switching theme then scheme then grid preserves both', async ({ page }) => {
-    await page.goto(DECK);
+    await page.goto(`${BASE}/viewer.html?file=test/smoke-test.md&theme=poster`);
     await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(800);
-
-    // Switch to Poster theme
-    await page.selectOption('#theme-select', 'poster');
-    await page.waitForTimeout(500);
 
     // Change to scheme 2
     await page.evaluate(() => {
@@ -641,23 +583,23 @@ test.describe('Theme switching', () => {
     expect(hasTheme).toBe(true);
   });
 
-  test('all themes are available in dropdown', async ({ page }) => {
+  test('all themes are registered (constants.js exposes ≥10)', async ({ page }) => {
+    // Phase 3 removed `#theme-select` — the registry now lives only in
+    // `constants.js`, surfaced in Electron via the sidebar Theme picker.
+    // Lock the registry shape itself so we don't silently lose a theme.
     await page.goto(DECK);
     await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(500);
 
-    const options = await page.locator('#theme-select option').allTextContents();
-    expect(options).toContain('Default (Inter)');
-    expect(options).toContain('Letters from Brazil');
-    expect(options).toContain('Serif');
-    expect(options).toContain('Minimal');
-    expect(options).toContain('Hacker');
-    expect(options).toContain('Poster');
-    expect(options).toContain('Borneli');
-    expect(options).toContain('Alun');
-    expect(options).toContain('Nordic');
-    expect(options).toContain('Keynote');
-    expect(options.length).toBe(10);
+    const themes = await page.evaluate(() => {
+      const t = window.StellarConstants?.THEMES;
+      return t ? Object.keys(t) : [];
+    });
+    for (const name of ['letters-from-brazil', 'serif', 'minimal', 'hacker',
+                        'poster', 'alun', 'borneli', 'nordic', 'keynote']) {
+      expect(themes).toContain(name);
+    }
+    expect(themes.length).toBeGreaterThanOrEqual(10);
   });
 });
 
@@ -739,43 +681,14 @@ test.describe('Grid background image dedup', () => {
   });
 });
 
-test.describe('About dialog', () => {
-  test('About button opens and closes dialog', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(500);
+// `#btn-about` + custom `#about-dialog` removed in Phase 3. Native
+// macOS About dialog now comes from app.setAboutPanelOptions in
+// electron/main.js (covered by an electron-smoke assertion).
 
-    await page.click('#btn-about');
-    await page.waitForTimeout(200);
-    const open = await page.locator('#about-dialog').evaluate(el => el.classList.contains('open'));
-    expect(open).toBe(true);
-
-    await page.click('#close-about');
-    await page.waitForTimeout(200);
-    const closed = await page.locator('#about-dialog').evaluate(el => !el.classList.contains('open'));
-    expect(closed).toBe(true);
-  });
-});
-
-test.describe('Slide counter', () => {
-  test('counter shows current/total format', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(800);
-    const counter = await page.locator('#slide-counter').textContent();
-    expect(counter).toMatch(/\d+ \/ \d+/);
-  });
-
-  test('counter updates on navigation', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(800);
-    await page.keyboard.press('ArrowRight');
-    await page.waitForTimeout(300);
-    const counter = await page.locator('#slide-counter').textContent();
-    expect(counter).toMatch(/^2 \//);
-  });
-});
+// `#slide-counter` (browser-mode toolbar) removed in Phase 3. The
+// desktop chrome shows `#titlebar-counter` (covered in electron-smoke
+// "chrome: ... counter renders"); browser mode no longer surfaces a
+// counter UI. Reveal's built-in still updates internal state.
 
 test.describe('Tab bar', () => {
   test('tab bar hidden in browser mode with single file', async ({ page }) => {
@@ -933,66 +846,46 @@ test.describe('Tab content isolation', () => {
     expect(titleBack).toContain('smoke-test');
   });
 
-  test('slide counter reflects active tab slide count', async ({ page }) => {
+  test('Reveal total-slides reflects active tab after switch', async ({ page }) => {
+    // Was: read `#slide-counter` text. That element was removed in
+    // Phase 3 — the desktop chrome shows `#titlebar-counter`, browser
+    // mode no longer has a counter UI. The underlying invariant (total
+    // slides changes when you switch decks) still matters; assert via
+    // Reveal directly so the test isn't UI-specific.
     await page.goto(MULTI_TAB_DECK);
     await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(800);
 
-    // Tab 0 counter
-    const counter0 = await page.evaluate(() => {
-      const el = document.getElementById('slide-counter');
-      return el ? el.textContent.trim() : '';
-    });
-    // Should show "1 / N" where N is smoke-test slide count
-    expect(counter0).toMatch(/^1\s*\/\s*\d+$/);
-    const total0 = parseInt(counter0.split('/')[1].trim());
+    const total0 = await page.evaluate(() => Reveal.getTotalSlides());
 
-    // Switch to tab 1
     await page.evaluate(() => switchTab(1));
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(600);
 
-    const counter1 = await page.evaluate(() => {
-      const el = document.getElementById('slide-counter');
-      return el ? el.textContent.trim() : '';
-    });
-    const total1 = parseInt(counter1.split('/')[1].trim());
-    // Different decks = different slide counts
+    const total1 = await page.evaluate(() => Reveal.getTotalSlides());
     expect(total1).not.toBe(total0);
   });
 });
 
 test.describe('Theme/scheme per-tab isolation', () => {
-  test('theme dropdown syncs when switching tabs', async ({ page }) => {
+  test('active theme class syncs when switching tabs (no dropdown anymore)', async ({ page }) => {
+    // Was: read `#theme-select` value. The dropdown was removed in
+    // Phase 3 — desktop uses sidebar (covered by electron-smoke). Lock
+    // the underlying behavior via the `.reveal.theme-X` class instead.
     await page.goto(MULTI_TAB_DECK);
     await page.waitForSelector('.reveal .slides section');
     await page.waitForTimeout(800);
 
-    // Tab 0 (smoke-test) has no theme in frontmatter — dropdown should be empty/default
-    const dropdown0 = await page.evaluate(() =>
-      document.getElementById('theme-select').value
-    );
-
-    // Change theme on tab 0 to Hacker
-    await page.selectOption('#theme-select', 'hacker');
-    await page.waitForTimeout(300);
-
-    // Switch to tab 1 (vibe-coding has theme: Alun, 1)
+    // Tab 1 (vibe-coding) has `theme: Alun, 1` in frontmatter
     await page.evaluate(() => switchTab(1));
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(600);
+    const cls1 = await page.evaluate(() => document.querySelector('.reveal').className);
+    expect(cls1).toMatch(/theme-alun/);
 
-    const dropdown1 = await page.evaluate(() =>
-      document.getElementById('theme-select').value
-    );
-    expect(dropdown1).toBe('alun');
-
-    // Switch back to tab 0 — should restore Hacker (user override)
+    // Tab 0 (smoke-test) — no theme in frontmatter, default class set
     await page.evaluate(() => switchTab(0));
-    await page.waitForTimeout(500);
-
-    const dropdownBack = await page.evaluate(() =>
-      document.getElementById('theme-select').value
-    );
-    expect(dropdownBack).toBe('hacker');
+    await page.waitForTimeout(600);
+    const cls0 = await page.evaluate(() => document.querySelector('.reveal').className);
+    expect(cls0).not.toMatch(/theme-alun/);
   });
 
   test('scheme change on one tab does not affect other tabs', async ({ page }) => {
@@ -1374,15 +1267,10 @@ test.describe('Presenter mode', () => {
     expect(openCalled[0]).toContain('presenter.html');
   });
 
-  test('presenter toolbar button exists', async ({ page }) => {
-    await page.goto(DECK);
-    await page.waitForSelector('.reveal .slides section');
-    await page.waitForTimeout(800);
-
-    const btn = await page.locator('#btn-presenter');
-    await expect(btn).toBeVisible();
-    expect(await btn.textContent()).toContain('Presenter');
-  });
+  // `#btn-presenter` browser-mode toolbar button removed in Phase 3 —
+  // the chrome bar's `#btn-chrome-presenter` is desktop-only, covered
+  // in electron-smoke. Browser mode opens presenter via the `p` key
+  // (above) or the Cmd+K command palette.
 
   test('BroadcastChannel sends slide data to presenter', async ({ context }) => {
     // Open viewer

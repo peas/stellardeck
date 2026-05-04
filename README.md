@@ -40,14 +40,21 @@ cd stellardeck
 npm run preview -- demo/getting-started.md
 ```
 
-## Desktop app (Tauri)
+## Desktop app (Electron)
 
 ```bash
 npm install
-cargo tauri dev
+npm run electron -- demo/getting-started.md
 ```
 
-Requires [Rust](https://rustup.rs/) and the [Tauri CLI](https://tauri.app/start/).
+For a packaged build (correct app name in the macOS menu bar, distributable via `.dmg`):
+
+```bash
+npm run app -- demo/getting-started.md   # packages on first run, caches after
+npm run make                              # produces out/make/*.dmg + .zip
+```
+
+Built with [Electron](https://www.electronjs.org/) + [electron-forge](https://www.electronforge.io/). No Rust toolchain required.
 
 ## CLI
 
