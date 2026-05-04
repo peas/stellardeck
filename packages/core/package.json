@@ -9,13 +9,14 @@
   "exports": {
     ".": {
       "require": "./src/index.js",
-      "import": "./src/index.js"
+      "import": "./src/index.mjs"
     },
     "./autoflow": "./src/autoflow.js",
     "./parser": "./src/deckset-parser.js",
     "./diagnostics": "./src/diagnostics.js",
     "./constants": "./src/constants.js",
-    "./print-mode": "./src/print-mode.js"
+    "./print-mode": "./src/print-mode.js",
+    "./browser-globals": "./dist/browser-globals.global.js"
   },
   "files": [
     "src",
@@ -25,7 +26,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node test/run.js"
+    "build": "tsup"
   },
   "keywords": [
     "presentation",
@@ -38,5 +39,8 @@
     "url": "https://github.com/peas/stellardeck.git",
     "directory": "packages/core"
   },
-  "homepage": "https://stellardeck.dev"
+  "homepage": "https://stellardeck.dev",
+  "devDependencies": {
+    "tsup": "^8.5.1"
+  }
 }

@@ -863,7 +863,8 @@ if (typeof module !== 'undefined' && module.exports) {
     phraseBulletsRule,
     autoscaleRule,
   };
-} else if (typeof window !== 'undefined') {
+}
+if (typeof window !== 'undefined') {
   window.applyAutoflow = applyAutoflow;
   window.createAutoflowContext = createContext;
 }

@@ -1504,7 +1504,8 @@ if (typeof module !== 'undefined' && module.exports) {
     isFrontmatterLine,
     sectionAttrsFromDirectives,
   };
-} else if (typeof window !== 'undefined') {
+}
+if (typeof window !== 'undefined') {
   // Browser global
   window.parseDecksetMarkdown = parseDecksetMarkdown;
 }

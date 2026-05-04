@@ -16,6 +16,9 @@ src-tauri/target/
 # electron-forge build artifacts
 out/
 
+# @stellardeck/core build output (regenerable via `npm run -w @stellardeck/core build`)
+packages/core/dist/
+
 # Playwright
 test-results/
 playwright-report/
