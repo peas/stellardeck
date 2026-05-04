@@ -116,9 +116,10 @@ export function renderTabs() {
     thumbs.id = 'sb-thumbs';
     bar.appendChild(thumbs);
 
-    // Defer the actual slide-element snapshotting to render.js cycle so we
-    // don't fight a half-built #slides DOM. The renderer fires sb-thumbs:rebuild
-    // events; we listen here.
+    // Initial snapshot so the structure is in the DOM. render.js will call
+    // rebuildThumbnails() again *after* fitText settles so the cloned
+    // .deckset-fit nodes carry the inline font-size + whiteSpace:nowrap
+    // and don't wrap differently from the live slide.
     requestAnimationFrame(() => rebuildThumbnails());
   }
 

@@ -347,8 +347,15 @@ function createMainWindow() {
   });
 
   // Forward menu events to renderer
+  // Open DevTools only on the very first load. `did-finish-load` fires
+  // again after every Cmd+R / hot-reload — without this once-flag the
+  // detached panel pops back open every time you save a file.
+  let devToolsOpened = false;
   mainWindow.webContents.on('did-finish-load', () => {
-    if (isDev) mainWindow.webContents.openDevTools({ mode: 'detach' });
+    if (isDev && !devToolsOpened) {
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
+      devToolsOpened = true;
+    }
   });
 
   // Launch-time decks: every argv entry that's an existing .md file is opened.

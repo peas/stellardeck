@@ -46,6 +46,13 @@ export async function renderDeck(opts = {}) {
   if (window._sendSlideUpdate) window._sendSlideUpdate();
   requestAnimationFrame(() => {
     fitText();
+    // Sidebar thumbnails clone section.innerHTML, which carries the
+    // inline font-size + whiteSpace:nowrap that fitText sets on
+    // .deckset-fit elements. Rebuilding here (after fitText) means the
+    // thumbnail's <h1> wraps the same way the live slide does — without
+    // this, the rebuildThumbnails rAF can fire before fitText and the
+    // thumbnail wraps text that's nowrap on the real slide.
+    import('./tabs.js').then(m => m.rebuildThumbnails());
     // Diagnostics measure layout (overflow, font-size). Run AFTER fitText
     // so cumulative-overflow / text-too-small see stable measurements.
     requestAnimationFrame(() => runRenderDiagnostics(tab));
