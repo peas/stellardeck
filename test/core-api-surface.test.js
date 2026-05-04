@@ -130,5 +130,52 @@ console.log('\n── core API surface (ESM) ──');
     }
   });
 
+  console.log('\n── types.d.ts ↔ runtime drift ──');
+
+  const dtsPath = path.join(CORE_ROOT, 'src', 'types.d.ts');
+  const dts = fs.readFileSync(dtsPath, 'utf8');
+
+  // Pull every `export const NAME` and `export function NAME` from the .d.ts.
+  // (Interfaces, types, and namespaces are ignored — they're compile-time only.)
+  const valueExports = new Set();
+  const constRe = /^export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm;
+  const fnRe = /^export\s+function\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm;
+  let m;
+  while ((m = constRe.exec(dts)) !== null) valueExports.add(m[1]);
+  while ((m = fnRe.exec(dts)) !== null) valueExports.add(m[1]);
+
+  test('types.d.ts declares at least 25 value exports (sanity floor)', () => {
+    if (valueExports.size < 25) {
+      throw new Error(`only found ${valueExports.size} exports — regex broken or surface shrunk`);
+    }
+  });
+
+  for (const name of valueExports) {
+    test(`types.d.ts export '${name}' has a runtime counterpart in CJS`, () => {
+      if (cjs[name] === undefined) {
+        throw new Error(
+          `types.d.ts declares '${name}' but require('@stellardeck/core')['${name}'] is undefined.\n` +
+          `    Either add it to src/index.js or remove from types.d.ts.`,
+        );
+      }
+    });
+  }
+
+  // Reverse direction — every CJS named export should be declared in types.d.ts.
+  // Skip a small allowlist of internal-but-exposed helpers we don't surface yet.
+  const TYPED_ALLOW_MISSING = new Set([
+    // none today; add names here only with a justification comment
+  ]);
+  for (const key of Object.keys(cjs)) {
+    if (TYPED_ALLOW_MISSING.has(key)) continue;
+    test(`CJS export '${key}' is declared in types.d.ts`, () => {
+      if (!valueExports.has(key)) {
+        throw new Error(
+          `CJS export '${key}' missing from types.d.ts — add it or whitelist it.`,
+        );
+      }
+    });
+  }
+
   summary();
 })();

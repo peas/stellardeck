@@ -6,6 +6,7 @@
   "private": true,
   "type": "commonjs",
   "main": "src/index.js",
+  "types": "src/types.d.ts",
   "exports": {
     ".": {
       "require": "./src/index.js",
