@@ -325,6 +325,18 @@ function skip(name, _fn, reason) {
       }
     });
 
+    await it('sidebar thumb right-click opens context menu (Copy Screenshot, Copy Markdown)', async () => {
+      await win.locator('#sb-thumbs .sb-thumb').first().click({ button: 'right' });
+      await win.waitForSelector('.ctx-menu', { timeout: 2000 });
+      const labels = await win.evaluate(() => {
+        const menu = document.querySelector('.ctx-menu');
+        return Array.from(menu.querySelectorAll('.ctx-item > .ctx-label')).map(el => el.textContent.trim());
+      });
+      assert.ok(labels.includes('Copy Screenshot to Clipboard'), `expected screenshot item, got ${labels}`);
+      assert.ok(labels.includes('Copy Slide Markdown'), `expected markdown item, got ${labels}`);
+      await win.evaluate(() => document.querySelector('.ctx-menu')?.remove());
+    });
+
     await it('sidebar thumbnails: clicking thumb navigates to that slide', async () => {
       const after = await win.evaluate(async () => {
         const target = document.querySelector('#sb-thumbs .sb-thumb[data-index="2"]');
@@ -508,6 +520,44 @@ function skip(name, _fn, reason) {
       await win.evaluate(() => {
         document.querySelector('#activity-rail .rail-btn[data-mode="decks"]').click();
       });
+    });
+
+    await it('sidebar theme mode: clicking a scheme swatch updates --accent on .reveal', async () => {
+      // Regression for the scheme-switching bug Paulo reported:
+      // changing schemes was supposed to repropagate every CSS var, but
+      // an earlier code path missed --accent on the per-scheme rule.
+      // Lock the invariant: clicking swatch N updates the live --accent.
+      const result = await win.evaluate(async () => {
+        // Switch to Alun (5 schemes, distinct accents per scheme).
+        const themeItems = Array.from(document.querySelectorAll('.sb-theme-item'));
+        const alun = themeItems.find(i => i.querySelector('.sb-theme-name')?.textContent?.trim() === 'Alun');
+        if (!alun) return { skip: 'Alun theme not present' };
+        alun.click();
+        await new Promise(r => requestAnimationFrame(r));
+        const revealCs = () => getComputedStyle(document.querySelector('.reveal'));
+        const accentBefore = revealCs().getPropertyValue('--accent').trim();
+        // Click a non-default swatch — there are typically 5 swatches.
+        const swatches = Array.from(document.querySelectorAll('.sb-scheme-swatch'));
+        const target = swatches[swatches.length - 1]; // last scheme
+        target.click();
+        await new Promise(r => requestAnimationFrame(r));
+        await new Promise(r => requestAnimationFrame(r));
+        const accentAfter = revealCs().getPropertyValue('--accent').trim();
+        return { accentBefore, accentAfter, swatchCount: swatches.length };
+      });
+      if (result.skip) {
+        console.log(`    (skipped: ${result.skip})`);
+      } else {
+        assert.ok(result.swatchCount >= 2, `expected ≥2 schemes, got ${result.swatchCount}`);
+        assert.notEqual(result.accentAfter, result.accentBefore,
+          `expected --accent to change between schemes (got ${result.accentBefore} → ${result.accentAfter})`);
+        assert.match(result.accentAfter, /^#?[0-9a-fA-F]/, '--accent should be a real color value');
+      }
+
+      // Teardown: clear sidecar so the deck reverts.
+      const sidecarPath = DEMO_DECK.replace(/\.md$/, '.stellar.json');
+      await fs.rm(sidecarPath, { force: true });
+      await win.evaluate(() => document.querySelector('#activity-rail .rail-btn[data-mode="decks"]').click());
     });
 
     await it('chrome: Play + Presenter buttons render in titlebar drag region', async () => {

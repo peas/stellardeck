@@ -1467,11 +1467,12 @@ function parseDecksetMarkdown(raw, options) {
         const result = autoflowFn(lines, slideIndexOffset + index, undefined, prevRules, autoflowCtx);
         prevRules.push(result.rule);
         lines = result.lines;
-        autoflowInfo = { rule: result.rule, detail: result.detail || '' };
+        autoflowInfo = { rule: result.rule, detail: result.detail || '', tier: result.tier };
       }
       let html = parseSlide(lines, globalDirectives);
       if (autoflowInfo) {
-        html = html.replace('<section', `<section data-autoflow="${autoflowInfo.rule}" data-autoflow-detail="${autoflowInfo.detail}"`);
+        const tierAttr = autoflowInfo.tier != null ? ` data-autoflow-tier="${autoflowInfo.tier}"` : '';
+        html = html.replace('<section', `<section data-autoflow="${autoflowInfo.rule}" data-autoflow-detail="${autoflowInfo.detail}"${tierAttr}`);
       }
       return html;
     })

@@ -66,6 +66,40 @@ test.describe('Diagnostics: text-too-small', () => {
   });
 });
 
+test.describe('Diagnostics: statement-degraded', () => {
+  test('fires (info severity) on a tier-3 statement slide', async ({ page }) => {
+    // Build a slide whose statement rule lands in tier 3 (9-15 words/line).
+    await page.goto(FIXTURE);
+    await waitForSlides(page);
+    await navigateToSlide(page, 0);
+    await page.waitForTimeout(300);
+    const result = await page.evaluate(() => {
+      const sec = document.querySelector('.reveal .slides section.present');
+      // Force a tier-3 marker so we don't depend on the fixture content.
+      sec.setAttribute('data-autoflow-tier', '3');
+      sec.setAttribute('data-autoflow-detail', '2 lines, max 11 words, dense (autoscale)');
+      return window.StellarDiagnostics.diagnoseSlide(sec, 1);
+    });
+    const w = result.find(x => x.type === 'statement-degraded');
+    expect(w).toBeTruthy();
+    expect(w.severity).toBe('info');
+    expect(w.detail).toContain('11 words');
+  });
+
+  test('does NOT fire on tier-1 / tier-2 statements', async ({ page }) => {
+    await page.goto(FIXTURE);
+    await waitForSlides(page);
+    await navigateToSlide(page, 0);
+    await page.waitForTimeout(200);
+    const result = await page.evaluate(() => {
+      const sec = document.querySelector('.reveal .slides section.present');
+      sec.setAttribute('data-autoflow-tier', '2');
+      return window.StellarDiagnostics.diagnoseSlide(sec, 1);
+    });
+    expect(result.find(x => x.type === 'statement-degraded')).toBeFalsy();
+  });
+});
+
 test.describe('Diagnostics: slide-too-dense', () => {
   test('does not fire on light slides', async ({ page }) => {
     await page.goto(FIXTURE);

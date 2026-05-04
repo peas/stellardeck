@@ -298,6 +298,86 @@ function showDeckContextMenu(x, y, tabIndex) {
   showContextMenu(x, y, items);
 }
 
+// Right-click menu on a slide thumbnail. First action: copy a screenshot
+// of that slide to the clipboard so the user can paste it into Slack /
+// Linear / a doc / etc. without leaving the app.
+function showThumbContextMenu(x, y, slideIndex) {
+  const items = [
+    {
+      label: 'Copy Screenshot to Clipboard',
+      onClick: async () => {
+        try {
+          await copySlideScreenshotToClipboard(slideIndex);
+          showToast('Slide copied to clipboard', 2000);
+        } catch (err) {
+          showToast(`Could not copy: ${err?.message || err}`, 4000);
+        }
+      },
+    },
+    {
+      label: 'Copy Slide Markdown',
+      onClick: async () => {
+        try {
+          const md = sliceSlideMarkdown(slideIndex);
+          if (!md) throw new Error('slide source not found');
+          await navigator.clipboard.writeText(md);
+          showToast('Slide markdown copied', 2000);
+        } catch (err) {
+          showToast(`Could not copy markdown: ${err?.message || err}`, 4000);
+        }
+      },
+    },
+  ];
+  showContextMenu(x, y, items);
+}
+
+// Capture the slide section at index `i` to a PNG blob and write it to
+// the clipboard. Uses html2canvas (already used by PDF export). For
+// off-screen slides, navigate first so the layout is stable, then
+// restore the previous slide. The visible flash is brief.
+async function copySlideScreenshotToClipboard(i) {
+  if (typeof Reveal === 'undefined') throw new Error('Reveal not ready');
+  const originalIdx = Reveal.getState().indexh || 0;
+  if (i !== originalIdx) {
+    Reveal.slide(i);
+    await new Promise(r => requestAnimationFrame(r));
+    await new Promise(r => setTimeout(r, 80)); // let fitText settle
+  }
+  if (typeof window.html2canvas === 'undefined') {
+    const url = window.StellarConstants?.CDN?.HTML2CANVAS;
+    if (!url) throw new Error('html2canvas CDN url missing');
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = url; s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  try {
+    const reveal = document.querySelector('.reveal');
+    const canvas = await window.html2canvas(reveal, {
+      backgroundColor: getComputedStyle(reveal).backgroundColor,
+      scale: 2,
+      logging: false,
+      useCORS: true,
+    });
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob returned null')), 'image/png');
+    });
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  } finally {
+    if (i !== originalIdx) Reveal.slide(originalIdx);
+  }
+}
+
+// Extract just slide N's markdown from the active tab's source. Slides
+// are separated by /^---$/ in the .md (Deckset). N is 0-indexed.
+function sliceSlideMarkdown(slideIndex) {
+  const tab = state.tabs[state.activeTabIndex];
+  if (!tab?.md) return null;
+  const slides = tab.md.split(/\n---[ \t]*\n/);
+  return slides[slideIndex] != null ? slides[slideIndex].trim() : null;
+}
+
 // Make `/Users/peas/foo/bar/assets` readable when fileDir is .../foo/bar/
 // → "./assets" if inside fileDir; "../shared" if one level up; absolute otherwise.
 function shortenPath(absDir, fileDir) {
@@ -367,6 +447,10 @@ export function rebuildThumbnails() {
     // Mirrors the deck-tab dblclick behavior so muscle memory transfers.
     card.addEventListener('dblclick', () => {
       import('./toolbar.js').then(m => m.openInExternalEditor());
+    });
+    card.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      showThumbContextMenu(e.clientX, e.clientY, i);
     });
 
     thumbs.appendChild(card);

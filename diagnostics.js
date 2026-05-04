@@ -137,6 +137,22 @@
       });
     }
 
+    // Statement degraded to tier 3: autoflow's statement rule wanted to
+    // apply #[fit] but the line crossed the 8-word limit, so it fell
+    // back to plain h1 + [.autoscale: true]. Visually fine, but a
+    // gentle nudge: this slide could have more impact if you split it.
+    const tier = section.getAttribute('data-autoflow-tier');
+    if (tier === '3') {
+      const detail = section.getAttribute('data-autoflow-detail') || '';
+      warnings.push({
+        type: 'statement-degraded',
+        severity: 'info',
+        slide: slideIndex,
+        detail,
+        message: `slide rendered as a dense statement (${detail}) — split for stronger impact`,
+      });
+    }
+
     // Slide too dense: total visible word count above DENSE_WORD_COUNT.
     // Speaker notes (<aside class="notes">) are excluded.
     const visibleText = Array.from(section.children)

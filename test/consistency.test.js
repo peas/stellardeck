@@ -196,6 +196,57 @@ test.describe('Theme change consistency', () => {
   });
 });
 
+// ─── Theme contrast invariants ───
+//
+// Lock the "heading and main never collapse to the same color" rule
+// for the schemes we explicitly fixed (the Alun-5 bug class). If a
+// future theme edit reverts a value here, this test fails.
+
+test.describe('Theme contrast: heading vs main (regression)', () => {
+  const FIXED = [
+    { theme: 'alun', scheme: '5',  why: 'pink bg — main was #f3f2f2 (≈white); now orange #FF9414' },
+    { theme: 'alun', scheme: '4',  why: 'orange bg — main was #3a2000 (dark brown); now #ffffff' },
+    { theme: 'hacker', scheme: '3', why: 'solarized dark bg — main was #839496; now #eee8d5' },
+    { theme: 'hacker', scheme: '4', why: 'tokyo night — main was #a9b1d6; now #c0caf5' },
+    { theme: 'serif', scheme: '3', why: 'light bg — main was #444 (close to heading); now #6b7280' },
+    { theme: 'borneli', scheme: '4', why: 'purple bg — main was #f0e0f0 (≈white); now #fbb6ce' },
+  ];
+
+  // WCAG-style ratio computed in browser (parses the CSS var values).
+  const RATIO_FN = `
+    function lum(hex) {
+      hex = hex.trim().replace(/^#/, '');
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      const r = parseInt(hex.slice(0,2),16)/255;
+      const g = parseInt(hex.slice(2,4),16)/255;
+      const b = parseInt(hex.slice(4,6),16)/255;
+      const f = c => c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+      return 0.2126*f(r) + 0.7152*f(g) + 0.0722*f(b);
+    }
+    function ratio(a, b) {
+      const la = lum(a), lb = lum(b);
+      const [hi, lo] = la > lb ? [la, lb] : [lb, la];
+      return (hi + 0.05) / (lo + 0.05);
+    }
+  `;
+
+  for (const { theme, scheme, why } of FIXED) {
+    test(`${theme}.scheme-${scheme} keeps heading vs main contrast (${why})`, async ({ page }) => {
+      await page.goto(`${SMOKE}&theme=${theme}&scheme=${scheme}`);
+      await waitForSlides(page);
+      const r = await page.evaluate((fn) => {
+        eval(fn);
+        const cs = getComputedStyle(document.querySelector('.reveal'));
+        const h = cs.getPropertyValue('--r-heading-color').trim();
+        const m = cs.getPropertyValue('--r-main-color').trim();
+        return { heading: h, main: m, ratio: ratio(h, m) };
+      }, RATIO_FN);
+      expect(r.heading).not.toBe(r.main);
+      expect(r.ratio).toBeGreaterThan(1.5);
+    });
+  }
+});
+
 // ─── Slide vs Sidebar Thumb: fit parity ───
 //
 // Regression for the 2026-05-04 bug where the sidebar `#sb-thumbs`
