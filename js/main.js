@@ -402,8 +402,18 @@ async function main() {
     // fit settles. Previously diagnostics raced fit and sometimes flagged
     // overflow on `<code>`/`<h1>` elements that fitText was about to shrink
     // into the frame on the next rAF — false positive.
+    let _initialFitDone = false;
     const runFit = () => requestAnimationFrame(() => {
       fitText();
+      // First fit: rebuild thumbnails AFTER fitText so the cloned
+      // `.deckset-fit` nodes carry the inline font-size + whiteSpace:nowrap
+      // that fitText sets. Without this, thumbs render text wrapping at
+      // the natural break point while the live slide stays nowrap (the
+      // C → Java vs "Servidor próprio → AWS / OCI / Azure / GCP" mismatch).
+      if (!_initialFitDone) {
+        _initialFitDone = true;
+        rebuildThumbnails();
+      }
       // One more frame so the layout reflects the fit before measuring.
       if (!IS_EMBED) requestAnimationFrame(() => updateDiagnosticsForCurrentSlide());
     });
