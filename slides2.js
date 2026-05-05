@@ -46,6 +46,13 @@
         indexh: 0,
         totalSlides: 0,
         ready: false,
+        // True only after the 'ready' event has been emitted (one tick after
+        // initialize() resolves). Drives the sticky-on-late-register path in
+        // on(): if a caller registers `on('ready', fn)` BEFORE the emit, the
+        // emit itself will run them; AFTER the emit, sticky takes over so
+        // they still run once. Without this flag we'd double-fire any
+        // handler registered between resolve() and the setTimeout(0) tick.
+        readyEmitted: false,
         fragmentIndex: -1,
         fragments: [],
       };
@@ -111,12 +118,18 @@
         });
         this._resizeObserver.observe(this._container);
 
-        // Mark ready and resolve — emit 'ready' after a microtask so listeners
-        // registered in the .then() chain are captured
+        // Mark ready and resolve — emit 'ready' after a macro-task so
+        // listeners registered in the synchronous code immediately after
+        // initialize() (and in the .then() chain of its promise) are
+        // captured by the emit.
         this._state.ready = true;
         resolve();
-        // setTimeout(0) ensures .then() callbacks run before 'ready' is emitted
-        setTimeout(() => this.emit('ready', {}), 0);
+        setTimeout(() => {
+          this.emit('ready', {});
+          // From this point on, late `on('ready', fn)` registrations rely
+          // on the sticky path in on() — see the readyEmitted check there.
+          this._state.readyEmitted = true;
+        }, 0);
       });
     }
 
@@ -421,6 +434,19 @@
     on(event, handler) {
       if (!this._handlers[event]) this._handlers[event] = new Set();
       this._handlers[event].add(handler);
+      // 'ready' is sticky AFTER it has been emitted: late-registering
+      // listeners must still run once. Without this, every
+      // Reveal.on('ready', fn) call that happens after the emit tick —
+      // including all six handlers in js/main.js (renderExtras,
+      // thumbnails, chrome counter, fitText, presenter sync, session save)
+      // — silently never fires. We gate on `readyEmitted` (not just
+      // `ready`) so handlers registered BEFORE the emit don't fire twice;
+      // those still run via emit's normal handler-set walk.
+      if (event === 'ready' && this._state.readyEmitted) {
+        setTimeout(() => {
+          try { handler({}); } catch (e) { console.error('StellarSlides event "ready" error:', e); }
+        }, 0);
+      }
     }
 
     off(event, handler) {

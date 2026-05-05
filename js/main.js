@@ -333,11 +333,15 @@ async function main() {
       });
     }
 
-    // Highlight code blocks — lazy-load hljs from CDN on first use
+    // Highlight code blocks — lazy-load hljs from CDN on first use.
+    // Re-queries the DOM AFTER awaiting the CDN: smartReload (1s polling
+    // in browser mode) can swap out the original code element while the
+    // CDN is in flight, so the pre-await NodeList holds stale references.
+    // Re-query also lets us safely call this from any sync caller (ready,
+    // smartReload) without worrying about race interleavings.
     let _hljsLoading = null;
     const highlightCode = async () => {
-      const blocks = document.querySelectorAll('pre code:not(.hljs)');
-      if (blocks.length === 0) return;
+      if (document.querySelectorAll('pre code:not(.hljs)').length === 0) return;
       if (typeof hljs === 'undefined') {
         if (!_hljsLoading) {
           _hljsLoading = new Promise((resolve, reject) => {
@@ -354,7 +358,9 @@ async function main() {
         }
         try { await _hljsLoading; } catch { return; }
       }
-      blocks.forEach(b => hljs.highlightElement(b));
+      document.querySelectorAll('pre code:not(.hljs)').forEach(b => {
+        try { hljs.highlightElement(b); } catch (e) { console.error('hljs highlight failed:', e); }
+      });
     };
 
     // Render QR codes, math, diagrams, and code highlighting
