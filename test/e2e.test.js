@@ -1360,18 +1360,19 @@ test.describe('Position grid layout', () => {
 
     if (roadmapSlideIdx >= 0) {
       await page.evaluate((idx) => Reveal.slide(idx), roadmapSlideIdx);
-      await page.waitForTimeout(200);
-
-      // The .deckset-pos-left element should span at least 50% of the slide width
-      const widthRatio = await page.evaluate(() => {
-        const posLeft = document.querySelector('.deckset-pos-left');
-        const slide = document.querySelector('.reveal .slides section');
-        if (!posLeft || !slide) return 0;
-        return posLeft.getBoundingClientRect().width / slide.getBoundingClientRect().width;
-      });
-
-      // Should span ~66% (2 of 3 columns), not ~33% (1 of 3)
-      expect(widthRatio).toBeGreaterThan(0.5);
+      // Wait for the present slide's .deckset-pos-left to mount AND have
+      // a non-zero width. A bare `waitForTimeout(200)` raced with the
+      // layout pass and produced 0 / 0 = NaN sporadically.
+      await page.locator('.reveal section.present .deckset-pos-left').waitFor({ state: 'visible' });
+      await expect.poll(async () => {
+        return await page.evaluate(() => {
+          const present = document.querySelector('.reveal section.present');
+          const posLeft = present?.querySelector('.deckset-pos-left');
+          if (!posLeft || !present) return 0;
+          const slideW = present.getBoundingClientRect().width;
+          return slideW > 0 ? posLeft.getBoundingClientRect().width / slideW : 0;
+        });
+      }, { timeout: 5000 }).toBeGreaterThan(0.5); // ~66% (2 of 3 cols), not ~33%
     }
   });
 });
