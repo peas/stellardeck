@@ -1,0 +1,64 @@
+{
+  "name": "stellardeck-vscode",
+  "displayName": "StellarDeck",
+  "description": "Live preview, diagnostics and theming for StellarDeck (.deck.md) presentations.",
+  "version": "0.0.1",
+  "private": true,
+  "publisher": "paulosilveira",
+  "license": "MIT",
+  "homepage": "https://stellardeck.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peas/stellardeck",
+    "directory": "packages/vscode-ext"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "activationEvents": [
+    "onCommand:stellardeck.openPreview",
+    "onLanguage:markdown",
+    "workspaceContains:**/*.deck.md"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "stellardeck.openPreview",
+        "title": "StellarDeck: Open Preview to the Side",
+        "category": "StellarDeck"
+      },
+      {
+        "command": "stellardeck.openPreviewActive",
+        "title": "StellarDeck: Open Preview",
+        "category": "StellarDeck"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "stellardeck.openPreview",
+        "key": "cmd+k v",
+        "mac": "cmd+k v",
+        "win": "ctrl+k v",
+        "linux": "ctrl+k v",
+        "when": "editorLangId == markdown"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "stellardeck.openPreview",
+          "when": "editorLangId == markdown && resourceExtname == .md",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@stellardeck/core": "*"
+  }
+}

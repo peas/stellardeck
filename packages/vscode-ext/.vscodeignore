@@ -1,0 +1,6 @@
+test/**
+**/*.test.js
+.gitignore
+.eslintrc*
+tsconfig.json
+**/.DS_Store
