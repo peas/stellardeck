@@ -225,9 +225,18 @@ test.describe('Background color directive', () => {
     await page.goto(SMOKE);
     await waitForSlides(page);
     await navigateToSlide(page, 15);
-    // Change theme
-    await page.selectOption('#theme-select', 'serif');
-    await page.waitForTimeout(500);
+    // Theme dropdown was removed in Phase 3 (2026-04-30); apply theme via
+    // the same DOM path the Cmd+K palette command uses (class swap +
+    // applySchemeColors). The contract under test — per-slide
+    // [.background-color: …] survives a global theme change — is unchanged.
+    await page.evaluate(() => {
+      const reveal = document.querySelector('.reveal');
+      reveal.className = reveal.className.replace(/\b(theme|scheme)-\S+/g, '').trim();
+      if (!reveal.classList.contains('reveal')) reveal.classList.add('reveal');
+      reveal.classList.add('theme-serif');
+      if (typeof window.applySchemeColors === 'function') window.applySchemeColors();
+    });
+    await page.waitForTimeout(200);
     const bgColor = await page.evaluate(() => {
       const revealBg = document.querySelectorAll('.reveal .slide-background')[15];
       const stellarBg = document.querySelectorAll('.sd-backgrounds .sd-bg')[15];

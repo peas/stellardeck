@@ -150,8 +150,19 @@ test.describe('Theme change consistency', () => {
     await page.goto(SMOKE);
     await waitForSlides(page);
 
-    await page.selectOption('#theme-select', 'serif');
-    await page.waitForTimeout(500);
+    // The legacy #theme-select dropdown was removed in Phase 3 (2026-04-30);
+    // theme switching now flows through the Cmd+K command palette. Replicate
+    // the same DOM mutation here — class swap on .reveal + applySchemeColors()
+    // (which calls propagateThemeVars internally). Keeps the test focused on
+    // its actual contract: "after theme switch, slide and grid stay in sync".
+    await page.evaluate(() => {
+      const reveal = document.querySelector('.reveal');
+      reveal.className = reveal.className.replace(/\b(theme|scheme)-\S+/g, '').trim();
+      if (!reveal.classList.contains('reveal')) reveal.classList.add('reveal');
+      reveal.classList.add('theme-serif');
+      if (typeof window.applySchemeColors === 'function') window.applySchemeColors();
+    });
+    await page.waitForTimeout(200);
 
     const slideFont = await page.evaluate(() => {
       const h = document.querySelector('.reveal .slides section h1');
