@@ -54,17 +54,25 @@ export async function smartReload() {
       return;
     }
 
-    // Smart diff: only update changed slides
+    // Smart diff: only update changed slides.
+    // Parse the FULL new deck — autoflow needs cross-slide context (anti-monotony,
+    // bare-image-side rotation, statement counters). Parsing a single slide in
+    // isolation drops that history and produces a different layout than a full
+    // render, which previously surfaced as "autoflow disappears, fixed by hard
+    // reload" (Paulo, 2026-05-06).
+    // Pass `tab.autoflow` directly (not `|| false`) so `undefined` falls through
+    // to the frontmatter setting — matching render.js behavior.
+    const tab = state.tabs[state.activeTabIndex];
+    const fullHtml = parseDecksetMarkdown(newMd, { autoflow: tab?.autoflow });
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = fullHtml;
+    const newSections = tempContainer.querySelectorAll('section');
+
     let changedCount = 0;
     const sections = document.querySelectorAll('.reveal .slides > section');
     for (let i = 0; i < newSlides.length; i++) {
       if (newSlides[i] !== oldSlides[i]) {
-        // Re-parse just this slide
-        const tab = state.tabs[state.activeTabIndex];
-        const tempHtml = parseDecksetMarkdown(newSlides[i], { autoflow: tab?.autoflow || false, slideIndexOffset: i });
-        const temp = document.createElement('div');
-        temp.innerHTML = tempHtml;
-        const newSection = temp.querySelector('section');
+        const newSection = newSections[i];
         if (newSection && sections[i]) {
           // Clear old data-background-* attributes (slide type may have changed)
           for (const attr of [...sections[i].attributes]) {
