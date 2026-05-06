@@ -167,9 +167,9 @@ The `core-extraction` branch shipped `@stellardeck/core@0.1.0` (steps 1-8 of `pr
 
 After 1-3 (all green now):
 
-4. **Merge `core-extraction` → `electron-migration`.** Confirm with Paulo first.
-5. **Begin VS Code extension scaffold** (steps 9-11 of `project_core_extraction_plan.md`). The `@stellardeck/core/dist/browser-globals.global.js` is the consumer artifact the webview will load.
-6. **Claim the `@stellardeck` npm scope + first public publish of `@stellardeck/core`.** Currently `private: true`. Plan recommends keeping private through the VS Code MVP so the first published version has a real consumer driving API stability — but the scope itself can be claimed any time (free, ~30s, prevents anyone else from grabbing the name).
+4. **DONE 2026-05-06.** core-extraction merged straight to main (skipped the electron-migration intermediate — Paulo confirmed). 511 tests green at merge time.
+5. **DONE 2026-05-06 (commit `529a925`).** VS Code extension MVP scaffolded at `packages/vscode-ext/`. Live preview side-by-side, diagnostics → Problems panel. Loads `@stellardeck/core/dist/browser-globals.global.js` + `slides2.js` + `css/themes.css` in a sandboxed webview. To test: `code packages/vscode-ext` then F5 → in the dev host, open any `.md`, run `StellarDeck: Open Preview to the Side` (`Cmd+K V`).
+6. **TODO — Claim the `@stellardeck` npm scope + first public publish of `@stellardeck/core`.** Currently `private: true`. The scope itself can be claimed any time (free, ~30s, prevents anyone else from grabbing the name). Public publish recommended after the VS Code ext stabilizes.
 
 ### Post-0.9
 - **VSCode + Obsidian extensions** (live preview, IntelliSense, diagnostics). Shared problem: how to tell a StellarDeck `.md` from any other markdown file. Can't activate on every `.md`. Options: (a) file extension convention `.deck.md`; (b) detect `.stellar.json` sidecar in same directory; (c) detect StellarDeck-specific frontmatter (`theme:`, `autoflow:`, `slidenumbers:`); (d) explicit activation via command palette / file-type override. Likely **(a) + (c)**: activate when file is `*.deck.md` OR contains Deckset/StellarDeck frontmatter. Both extensions share the same detection logic.
