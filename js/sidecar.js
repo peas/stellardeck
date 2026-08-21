@@ -30,7 +30,9 @@ function buildSidecarData(tab) {
   const data = {};
   if (tab.themeOverride != null) data.theme = tab.themeOverride;
   if (tab.schemeOverride != null) data.scheme = tab.schemeOverride;
-  if (tab.autoflow) data.autoflow = true;
+  // Persist explicit ON and explicit OFF — an OFF toggle used to be
+  // dropped here, so the deck flipped back to autoflow on next open.
+  if (tab.autoflow !== undefined) data.autoflow = tab.autoflow;
   data.lastSlide = (typeof Reveal !== 'undefined' ? Reveal.getState().indexh : 0) || 0;
   return data;
 }

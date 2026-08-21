@@ -154,7 +154,10 @@
     .theme-alun.scheme-2 { --r-background-color: #0d0c0c; --r-heading-color: #ED1460; --r-main-color: #f3f2f2; --accent: #FF9414; }
     .theme-alun.scheme-3 { --r-background-color: #f3f2f2; --r-heading-color: #0d0c0c; --r-main-color: #333333; --accent: #FF9414; }
     .theme-alun.scheme-4 { --r-background-color: #FF9414; --r-heading-color: #0d0c0c; --r-main-color: #ffffff; --accent: #f3f2f2; }
-    .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #ffffff; --r-main-color: #FF9414; --accent: #FF9414; }
+    /* scheme-5: orange (~1.9:1 on this pink) is illegible for body and
+       invisible as accent — brand black carries both (accent ~5.4:1),
+       mirroring scheme-4's inverted-accent approach. */
+    .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #ffffff; --r-main-color: #f3f2f2; --accent: #0d0c0c; }
 
     /* ===== Borneli — Inspired by Junior Borneli's "A Travessia Humana" ===== */
     /* Light corporate: warm gray bg, navy headings, magenta accents */

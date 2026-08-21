@@ -46,7 +46,12 @@ export function applyTheme(md) {
     if (themeMatch) {
       const parts = themeMatch[1].split(',').map(s => s.trim());
       reveal.classList.add('theme-' + parts[0].toLowerCase().replace(/\s+/g, '-'));
-      if (parts[1]) reveal.classList.add('scheme-' + parts[1]);
+      // Scheme: inline after the theme (`theme: Nordic, 3`) wins; otherwise
+      // honor the standalone `scheme: 3` line — it's a registered directive
+      // (and the skill's examples use it) but was silently ignored (issue #10).
+      const schemeMatch = md.match(/^scheme:\s*(\d+)\s*$/im);
+      const scheme = parts[1] || (schemeMatch && schemeMatch[1]);
+      if (scheme) reveal.classList.add('scheme-' + scheme);
     }
   }
   propagateThemeVars();

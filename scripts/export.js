@@ -78,7 +78,9 @@ const HELP = `
     --scale <n>        DPI scale factor (default: 2 = 144dpi, 1 = 72dpi, 3 = 216dpi)
     --theme <name>     Override deck theme
     --scheme <n>       Override color scheme number
-    --autoflow         Enable autoflow layout inference
+    --autoflow         Force autoflow ON (overrides frontmatter/sidecar)
+    --no-autoflow      Force autoflow OFF. Default: deck decides
+                       (frontmatter "autoflow: false" — otherwise ON)
 
   Output:
     --json             Machine-readable JSON output (implicit for --validate/--list-*)
@@ -108,8 +110,8 @@ function parseArgs(argv) {
     format: 'pdf',
     gridCols: 4,
     scale: 2, port: 3032,
-    theme: null, scheme: null, autoflow: false,
-    slides: null,
+    theme: null, scheme: null, autoflow: null,
+    slides: null, slidesRaw: null,
     json: false,
     inputDir: null,
     listSchemesTheme: null,
@@ -125,6 +127,7 @@ function parseArgs(argv) {
     else if (a === '--grid') opts.format = 'grid';
     else if (a === '--json') opts.json = true;
     else if (a === '--autoflow') opts.autoflow = true;
+    else if (a === '--no-autoflow') opts.autoflow = false;
     else if (a === '--validate') opts.mode = 'validate';
     else if (a === '--preview') opts.mode = 'preview';
     else if (a === '--serve') opts.mode = 'serve';
@@ -138,7 +141,7 @@ function parseArgs(argv) {
     else if (a === '--port') opts.port = requireInt(args[++i], '--port');
     else if (a === '--scheme') opts.scheme = requireInt(args[++i], '--scheme');
     else if (a === '--theme') opts.theme = requireValue(args[++i], '--theme');
-    else if (a === '--slides') opts.slides = parseSlideRange(requireValue(args[++i], '--slides'));
+    else if (a === '--slides') { opts.slidesRaw = requireValue(args[++i], '--slides'); opts.slides = parseSlideRange(opts.slidesRaw); }
     else if (a === '--input-dir') opts.inputDir = requireValue(args[++i], '--input-dir');
     else if (a === '--output') outputFlag = requireValue(args[++i], '--output');
     else if (a === '-') positional.push('-');
@@ -184,11 +187,18 @@ function parseArgs(argv) {
   if (positional.length === 0) throw new CLIError('missing input file (see --help)');
 
   opts.input = positional[0];
+  // Partial exports get a -s<range> suffix so `--grid --slides 9` (spot-
+  // checking one slide) can't silently overwrite the full grid (issue #11).
+  const slideSuffix = (opts.slidesRaw && opts.format !== 'png') ? `-s${opts.slidesRaw.replace(/[^0-9,-]/g, '')}` : '';
   const ext = opts.format === 'pdf' ? '.pdf' : opts.format === 'grid' ? '-grid.png' : '-slides';
   const baseName = opts.input === '-'
     ? 'stdin'
     : path.basename(opts.input).replace(/\.md$/, '');
-  opts.output = outputFlag || positional[1] || `${baseName}${ext}`;
+  // Default output lands next to the source deck, not in whatever cwd the
+  // command ran from (issue #11). Stdin has no source dir → cwd.
+  const outDir = opts.input === '-' ? '' : path.dirname(opts.input);
+  opts.output = outputFlag || positional[1]
+    || path.join(outDir, `${baseName}${slideSuffix}${ext}`);
 
   return opts;
 }
@@ -379,7 +389,7 @@ async function captureInSession(session, relativePath, options) {
   const params = new URLSearchParams({ file: relativePath });
   if (theme) params.set('theme', theme);
   if (scheme != null) params.set('scheme', String(scheme));
-  if (autoflow) params.set('autoflow', 'true');
+  if (autoflow != null) params.set('autoflow', String(autoflow));
   const url = `http://127.0.0.1:${port}/viewer.html?${params}`;
 
   try {
@@ -737,7 +747,7 @@ async function runPreview(opts) {
   const params = [`file=${encodeURIComponent(relative)}`];
   if (theme) params.push(`theme=${encodeURIComponent(theme)}`);
   if (scheme != null) params.push(`scheme=${scheme}`);
-  if (autoflow) params.push('autoflow=true');
+  if (autoflow != null) params.push('autoflow=' + autoflow);
   const url = `http://127.0.0.1:${port}/viewer.html?${params.join('&')}`;
 
   console.log(`Preview: ${url}`);

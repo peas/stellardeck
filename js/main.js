@@ -101,10 +101,17 @@ async function loadFile(file) {
   if (sidecar) {
     tab.themeOverride = sidecar.theme || null;
     tab.schemeOverride = sidecar.scheme || null;
-    tab.autoflow = sidecar.autoflow || false;
+    // Only an explicit sidecar value overrides; absent = frontmatter/parser
+    // default (ON). `|| false` here used to force autoflow OFF for every
+    // deck whose sidecar simply didn't mention it (issue #10).
+    if ('autoflow' in sidecar) tab.autoflow = sidecar.autoflow;
     if (sidecar.lastSlide != null) tab.slideIndex = sidecar.lastSlide;
     tab._sidecarLoaded = true;
   }
+  // CLI/embed override: ?autoflow=true|false beats sidecar and frontmatter.
+  // This is what makes the CLI's --autoflow / --no-autoflow flags real.
+  const autoflowParam = new URLSearchParams(window.location.search).get('autoflow');
+  if (autoflowParam != null) tab.autoflow = autoflowParam !== 'false';
   restoreTabTheme(tab);
   document.getElementById('slides').innerHTML = parseDecksetMarkdown(state.currentMd, { autoflow: tab.autoflow });
   resolveImageSrcs();

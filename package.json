@@ -35,6 +35,7 @@
     "test:electron": "node test/electron-smoke.test.js",
     "test:all": "npm test && npx playwright test --project=chromium",
     "export": "node scripts/export.js",
+    "preview": "node scripts/export.js --preview",
     "pdf": "node scripts/export.js --pdf",
     "electron": "electron .",
     "electron:dev": "ELECTRON_DEV=1 electron .",

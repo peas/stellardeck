@@ -72,13 +72,13 @@ test('last format flag wins', () => {
   assert.strictEqual(opts.format, 'grid');
 });
 
-test('defaults: scale=2, port=3032, gridCols=4, json=false, autoflow=false', () => {
+test('defaults: scale=2, port=3032, gridCols=4, json=false, autoflow=null (deck decides)', () => {
   const opts = parseArgs(argv('deck.md'));
   assert.strictEqual(opts.scale, 2);
   assert.strictEqual(opts.port, 3032);
   assert.strictEqual(opts.gridCols, 4);
   assert.strictEqual(opts.json, false);
-  assert.strictEqual(opts.autoflow, false);
+  assert.strictEqual(opts.autoflow, null);
   assert.strictEqual(opts.theme, null);
   assert.strictEqual(opts.scheme, null);
   assert.strictEqual(opts.slides, null);

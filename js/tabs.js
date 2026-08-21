@@ -541,7 +541,8 @@ export async function switchTab(index) {
     if (sidecar) {
       tab.themeOverride = sidecar.theme || null;
       tab.schemeOverride = sidecar.scheme || null;
-      tab.autoflow = sidecar.autoflow || false;
+      // Absent key = frontmatter/parser default; only explicit values override.
+      if ('autoflow' in sidecar) tab.autoflow = sidecar.autoflow;
       if (sidecar.lastSlide != null) tab.slideIndex = sidecar.lastSlide;
     }
   }
