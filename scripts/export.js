@@ -17,10 +17,16 @@ const path = require('path');
 // published npm package packages/core ships inside the tarball instead of
 // as a registry dependency (viewer.html loads packages/core/dist by path,
 // so the copy must be there anyway — one source, not two).
-let coreConstants;
-try { coreConstants = require('@stellardeck/core/constants'); }
-catch { coreConstants = require(path.join(__dirname, '..', 'packages', 'core', 'src', 'constants.js')); }
+let coreConstants, coreStyleLint;
+try {
+  coreConstants = require('@stellardeck/core/constants');
+  coreStyleLint = require('@stellardeck/core/style-lint');
+} catch {
+  coreConstants = require(path.join(__dirname, '..', 'packages', 'core', 'src', 'constants.js'));
+  coreStyleLint = require(path.join(__dirname, '..', 'packages', 'core', 'src', 'style-lint.js'));
+}
 const { CDN, SLIDE, THEMES } = coreConstants;
+const { computeStyle, classifySlide } = coreStyleLint;
 
 const PROJECT_DIR = path.resolve(__dirname, '..');
 const SLIDE_W = SLIDE.WIDTH;
@@ -60,7 +66,10 @@ const HELP = `
 
   Validation & introspection:
     --validate         Render deck and collect warnings without exporting.
-                       Returns {ok, slides, totalSlides, warnings} as JSON.
+                       Returns {ok, slides, totalSlides, warnings, style} as JSON.
+    --review           Agent-consumable review pack: <name>-review/ with
+                       report.json (per-slide diagnostics + layout metadata +
+                       style lint), grid.png, and slides/NNN.png.
     --list-themes      Print available themes (JSON array). No browser needed.
     --list-schemes <theme>  Print color schemes for a theme (JSON array).
 
@@ -94,6 +103,7 @@ const HELP = `
     node scripts/export.js --png talk.md                     # → talk-slides/001.png...
     node scripts/export.js --grid talk.md                    # → talk-grid.png
     node scripts/export.js --validate talk.md                # warnings only, no export
+    node scripts/export.js --review talk.md                  # → talk-review/ pack
     node scripts/export.js --list-themes                     # available themes as JSON
     node scripts/export.js --list-schemes nordic             # schemes for a theme
     node scripts/export.js --slides 1-3 talk.md intro.pdf    # first 3 slides
@@ -129,6 +139,7 @@ function parseArgs(argv) {
     else if (a === '--autoflow') opts.autoflow = true;
     else if (a === '--no-autoflow') opts.autoflow = false;
     else if (a === '--validate') opts.mode = 'validate';
+    else if (a === '--review') opts.mode = 'review';
     else if (a === '--preview') opts.mode = 'preview';
     else if (a === '--serve') opts.mode = 'serve';
     else if (a === '--list-themes') opts.mode = 'list-themes';
@@ -165,6 +176,16 @@ function parseArgs(argv) {
   if (opts.mode === 'preview') {
     if (positional.length === 0) throw new CLIError('--preview requires an input file');
     opts.input = positional[0];
+    return opts;
+  }
+
+  // Review mode — needs input; output dir defaults next to the deck
+  if (opts.mode === 'review') {
+    if (positional.length === 0) throw new CLIError('--review requires an input file');
+    opts.input = positional[0];
+    const revBase = path.basename(opts.input).replace(/\.md$/, '');
+    opts.output = outputFlag || positional[1]
+      || path.join(path.dirname(opts.input), revBase + '-review');
     return opts;
   }
 
@@ -446,6 +467,7 @@ async function captureInSession(session, relativePath, options) {
     await new Promise(r => setTimeout(r, 500));
 
     const images = [];
+    const meta = [];
     const diagnostics = [...window.StellarDiagnostics.diagnoseDeck({ theme })];
     const total = indices.length;
     for (let i = 0; i < total; i++) {
@@ -455,9 +477,44 @@ async function captureInSession(session, relativePath, options) {
       await new Promise(r => setTimeout(r, 400));
 
       // Structured per-slide diagnostics from the shared module
-      diagnostics.push(...window.StellarDiagnostics.diagnoseSlide(
-        window.StellarDiagnostics.currentSection(), slideNum
-      ));
+      const sec = window.StellarDiagnostics.currentSection();
+      diagnostics.push(...window.StellarDiagnostics.diagnoseSlide(sec, slideNum));
+
+      // Per-slide layout metadata for --review / style lint. Prose word
+      // count mirrors the diagnostics rule: no notes, no block code/diagrams.
+      {
+        const proseText = Array.from(sec.children)
+          .filter(c => c.tagName !== 'ASIDE')
+          .map(c => {
+            if (!c.querySelector('pre, svg, .deckset-diagram')) return c.textContent || '';
+            const clone = c.cloneNode(true);
+            clone.querySelectorAll('pre, svg, .deckset-diagram').forEach(n => n.remove());
+            return clone.textContent || '';
+          }).join(' ').trim();
+        const split = sec.querySelector('.deckset-split, .deckset-split-bg');
+        let splitSide = null;
+        if (split) {
+          const first = split.children[0];
+          const firstHasImg = !!(first && (first.querySelector('img') || first.classList.contains('img-half')));
+          splitSide = firstHasImg ? 'left' : 'right';
+        }
+        meta.push({
+          slide: slideNum,
+          wordCount: proseText ? proseText.split(/\s+/).length : 0,
+          autoflowRule: sec.getAttribute('data-autoflow') || null,
+          autoflowTier: sec.getAttribute('data-autoflow-tier') || null,
+          images: sec.querySelectorAll('img').length,
+          bgImage: sec.hasAttribute('data-background-image'),
+          split: !!split,
+          splitSide,
+          columns: !!sec.querySelector('.deckset-columns'),
+          bullets: sec.querySelectorAll('li').length,
+          fit: !!sec.querySelector('.deckset-fit'),
+          code: !!sec.querySelector('pre:not(.mermaid)'),
+          diagram: !!sec.querySelector('.deckset-diagram, svg'),
+          headingLevels: [...new Set([...sec.querySelectorAll('h1,h2,h3,h4,h5,h6')].map(h => +h.tagName[1]))],
+        });
+      }
 
       if (skipCapture) continue; // --validate mode: don't capture pixels
 
@@ -470,7 +527,7 @@ async function captureInSession(session, relativePath, options) {
       for (let j = 0; j < bytes.length; j++) binary += String.fromCharCode(bytes[j]);
       images.push(btoa(binary));
     }
-    return { images, diagnostics };
+    return { images, diagnostics, meta };
   }, { indices, scale, W: SLIDE_W, H: SLIDE_H, theme, skipCapture });
 
   // Merge DOM warnings with network-level background-image failures.
@@ -499,6 +556,7 @@ async function captureInSession(session, relativePath, options) {
       : indices.map((idx, i) => ({ index: idx, buffer: Buffer.from(captureResult.images[i], 'base64') })),
     totalSlides,
     warnings,
+    meta: captureResult.meta,
   };
   } finally {
     page.off('requestfailed', requestFailedListener);
@@ -605,7 +663,7 @@ async function run(opts, onProgress = null) {
 async function runValidate(opts, onProgress = null) {
   const inputInfo = await resolveInput(opts.input);
   try {
-    const { totalSlides, warnings } = await captureSlides(
+    const { totalSlides, warnings, meta } = await captureSlides(
       inputInfo.relative,
       { ...opts, skipCapture: true },
       onProgress
@@ -616,6 +674,56 @@ async function runValidate(opts, onProgress = null) {
       input: inputInfo.relative,
       totalSlides,
       warnings,
+      style: computeStyle(meta || []),
+    };
+  } finally {
+    inputInfo.cleanup();
+  }
+}
+
+/**
+ * Review pack: one directory an agent can consume in a single pass —
+ * report.json (per-slide diagnostics + layout metadata + style lint),
+ * grid.png (whole deck at a glance), slides/NNN.png (only open the ones
+ * the report flags). See issue #12.
+ */
+async function runReview(opts, onProgress = null) {
+  const inputInfo = await resolveInput(opts.input);
+  try {
+    const { slides, totalSlides, warnings, meta } = await captureSlides(inputInfo.relative, opts, onProgress);
+    const outDir = opts.output;
+    const slidesDir = path.join(outDir, 'slides');
+    const pngResult = await exportPNG(slides, slidesDir);
+    const gridPath = path.join(outDir, 'grid.png');
+    await exportGrid(slides, gridPath, opts.gridCols);
+
+    const bySlide = new Map();
+    for (const m of (meta || [])) bySlide.set(m.slide, m);
+    const slidesReport = slides.map((cap, i) => {
+      const m = bySlide.get(cap.index) || {};
+      return {
+        slide: cap.index,
+        png: path.join('slides', path.basename(pngResult.files[i])),
+        type: classifySlide(m),
+        ...m,
+        diagnostics: warnings.filter(w => w.slide === cap.index),
+      };
+    });
+
+    const report = {
+      mode: 'review',
+      input: inputInfo.relative,
+      totalSlides,
+      grid: 'grid.png',
+      deckWarnings: warnings.filter(w => w.slide == null),
+      style: computeStyle(meta || []),
+      slides: slidesReport,
+    };
+    fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify(report, null, 2));
+    return {
+      mode: 'review', output: path.resolve(outDir), totalSlides,
+      warnings: warnings.length, styleWarnings: report.style.warnings.length,
+      report,
     };
   } finally {
     inputInfo.cleanup();
@@ -830,6 +938,20 @@ async function main() {
       return;
     }
 
+    // Review mode — full capture + agent-consumable pack
+    if (opts.mode === 'review') {
+      const result = await runReview(opts, onProgress);
+      if (!opts.json) process.stdout.write('\r' + ' '.repeat(40) + '\r');
+      if (opts.json) {
+        console.log(JSON.stringify(result.report, null, 2));
+      } else {
+        console.log(`✓ Review pack: ${result.output}`);
+        console.log(`  ${result.totalSlides} slides, ${result.warnings} diagnostics, ${result.styleWarnings} style warnings`);
+        console.log(`  report.json + grid.png + slides/`);
+      }
+      return;
+    }
+
     if (opts.inputDir) {
       const results = await runBatch(opts, onProgress);
       if (!opts.json) process.stdout.write('\r' + ' '.repeat(80) + '\r');
@@ -906,6 +1028,7 @@ module.exports = {
   run,
   runBatch,
   runValidate,
+  runReview,
   listThemes,
   listSchemes,
   runPreview,

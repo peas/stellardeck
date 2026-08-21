@@ -14,6 +14,7 @@ const autoflow = require('./autoflow.js');
 const parser = require('./deckset-parser.js');
 const diagnostics = require('./diagnostics.js');
 const constants = require('./constants.js');
+const styleLint = require('./style-lint.js');
 
 module.exports = {
   // Autoflow
@@ -43,6 +44,11 @@ module.exports = {
   // Diagnostics (DOM-pure parts: merge, groupWarnings)
   mergeDiagnostics: diagnostics.merge,
   groupDiagnostics: diagnostics.groupWarnings,
+
+  // Style lint (pure — deck-level metrics vs the 331-deck corpus)
+  classifySlide: styleLint.classifySlide,
+  computeStyle: styleLint.computeStyle,
+  STYLE_BENCHMARKS: styleLint.STYLE_BENCHMARKS,
 
   // Constants
   CDN: constants.CDN,

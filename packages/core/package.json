@@ -17,7 +17,8 @@
     "./diagnose-rules": "./src/diagnose-rules.js",
     "./constants": "./src/constants.js",
     "./print-mode": "./src/print-mode.js",
-    "./browser-globals": "./dist/browser-globals.global.js"
+    "./browser-globals": "./dist/browser-globals.global.js",
+    "./style-lint": "./src/style-lint.js"
   },
   "files": [
     "src",

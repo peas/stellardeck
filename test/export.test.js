@@ -485,6 +485,29 @@ if (!SKIP_INTEGRATION) {
     fs.rmSync(extBase, { recursive: true, force: true });
   });
 
+  console.log('\n── Review pack (integration) ──');
+
+  test('--review produces report.json + grid + slides with style lint', async () => {
+    const { runReview } = require('../scripts/export.js');
+    const outDir = path.join(TMP, 'review-pack');
+    const result = await runReview({
+      input: SMOKE, output: outDir, format: 'png', gridCols: 4,
+      port: 3032, scale: 1, slides: parseSlideRange('1-4'),
+      theme: null, scheme: null, autoflow: null,
+    });
+    assert.ok(fs.existsSync(path.join(outDir, 'report.json')));
+    assert.ok(fs.existsSync(path.join(outDir, 'grid.png')));
+    assert.ok(fs.existsSync(path.join(outDir, 'slides', '001.png')));
+    const report = JSON.parse(fs.readFileSync(path.join(outDir, 'report.json')));
+    assert.strictEqual(report.slides.length, 4);
+    const s1 = report.slides[0];
+    assert.ok('type' in s1 && 'wordCount' in s1 && 'diagnostics' in s1, JSON.stringify(Object.keys(s1)));
+    assert.ok(s1.png.startsWith('slides/'), s1.png);
+    assert.ok('medianWords' in report.style && Array.isArray(report.style.warnings));
+    assert.ok(Array.isArray(report.style.typeSequence) && report.style.typeSequence.length === 4);
+    assert.ok(result.totalSlides >= 4);
+  });
+
   console.log('\n── Session reuse (integration) ──');
 
   test('single session captures multiple decks', async () => {

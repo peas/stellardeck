@@ -215,6 +215,57 @@ export function mergeDiagnostics(target: Diagnostic[], incoming: Diagnostic[]): 
 export function groupDiagnostics(warnings: Diagnostic[]): GroupedDiagnostics;
 
 // ──────────────────────────────────────────────────────────────────────
+// Style lint — pure deck-level metrics vs the 331-deck corpus
+// ──────────────────────────────────────────────────────────────────────
+
+export interface SlideMeta {
+  slide: number;
+  wordCount: number;
+  autoflowRule: string | null;
+  autoflowTier: string | null;
+  images: number;
+  bgImage: boolean;
+  split: boolean;
+  splitSide: 'left' | 'right' | null;
+  columns: boolean;
+  bullets: number;
+  fit: boolean;
+  code: boolean;
+  diagram: boolean;
+  headingLevels: number[];
+}
+
+export interface StyleBenchmarks {
+  medianWordsMax: number;
+  wordySlideWords: number;
+  imageDensityMin: number;
+  imageDensityMax: number;
+  fitRatioMin: number;
+  fitRatioMax: number;
+  maxConsecutiveSameType: number;
+  maxTypeShare: number;
+  minSplitsForSideCheck: number;
+}
+
+export interface StyleReport {
+  slides: number;
+  medianWords: number;
+  wordySlides: number[];
+  imageDensity: number;
+  fitRatio: number;
+  splitCount: number;
+  rightLeftRatio: number | null;
+  maxConsecutiveSameType: number;
+  typeDistribution: Record<string, number>;
+  typeSequence: string[];
+  warnings: string[];
+}
+
+export function classifySlide(meta: Partial<SlideMeta>): string;
+export function computeStyle(metas: SlideMeta[], benchmarks?: Partial<StyleBenchmarks>): StyleReport;
+export const STYLE_BENCHMARKS: StyleBenchmarks;
+
+// ──────────────────────────────────────────────────────────────────────
 // Diagnose rules — pure, snapshot-driven (no DOM)
 // ──────────────────────────────────────────────────────────────────────
 

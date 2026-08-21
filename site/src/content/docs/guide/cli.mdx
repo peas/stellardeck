@@ -113,6 +113,24 @@ Override deck settings without editing the markdown:
 stellardeck --theme ostrich --scheme 2 --autoflow --scale 3 talk.md
 ```
 
+## Review pack (for agents)
+
+`--review` produces one directory an agent can consume in a single pass — run one command, read one JSON, open only the PNGs the report flags:
+
+```bash
+stellardeck --review talk.md      # → talk-review/
+```
+
+```
+talk-review/
+  report.json    # per-slide: diagnostics, layout type, autoflow rule,
+                 # word count, images, png path — plus deck-level style lint
+  grid.png       # the whole deck at a glance
+  slides/001.png ...
+```
+
+The `style` section (also included in `--validate`) checks the deck against benchmarks from a 331-deck corpus of real presentations: median words per slide, image density, `#[fit]` ratio, split-side alternation, consecutive same-type slides, and layout-type distribution.
+
 ## Batch Mode
 
 Export an entire directory tree. Output mirrors the input structure:
