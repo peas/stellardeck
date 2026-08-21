@@ -154,10 +154,12 @@
     .theme-alun.scheme-2 { --r-background-color: #0d0c0c; --r-heading-color: #ED1460; --r-main-color: #f3f2f2; --accent: #FF9414; }
     .theme-alun.scheme-3 { --r-background-color: #f3f2f2; --r-heading-color: #0d0c0c; --r-main-color: #333333; --accent: #FF9414; }
     .theme-alun.scheme-4 { --r-background-color: #FF9414; --r-heading-color: #0d0c0c; --r-main-color: #ffffff; --accent: #f3f2f2; }
-    /* scheme-5: orange (~1.9:1 on this pink) is illegible for body and
-       invisible as accent — brand black carries both (accent ~5.4:1),
-       mirroring scheme-4's inverted-accent approach. */
-    .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #ffffff; --r-main-color: #f3f2f2; --accent: #0d0c0c; }
+    /* scheme-5 (pink): orange was ~1.9:1 here — illegible body, invisible
+       accent. White heading + off-white body collapse into one color
+       (the regression the consistency test locks). Mirror scheme-4's
+       structure instead: brand-black heading (5.4:1), white body (3.5:1),
+       black accent popping inside white text. */
+    .theme-alun.scheme-5 { --r-background-color: #ED1460; --r-heading-color: #0d0c0c; --r-main-color: #ffffff; --accent: #0d0c0c; }
 
     /* ===== Borneli — Inspired by Junior Borneli's "A Travessia Humana" ===== */
     /* Light corporate: warm gray bg, navy headings, magenta accents */

@@ -215,7 +215,7 @@ test.describe('Theme change consistency', () => {
 
 test.describe('Theme contrast: heading vs main (regression)', () => {
   const FIXED = [
-    { theme: 'alun', scheme: '5',  why: 'pink bg — main was #f3f2f2 (≈white); now orange #FF9414' },
+    { theme: 'alun', scheme: '5',  why: 'pink bg — heading black, main white (2026-08; orange main was 1.9:1, white+off-white collapsed)' },
     { theme: 'alun', scheme: '4',  why: 'orange bg — main was #3a2000 (dark brown); now #ffffff' },
     { theme: 'hacker', scheme: '3', why: 'solarized dark bg — main was #839496; now #eee8d5' },
     { theme: 'hacker', scheme: '4', why: 'tokyo night — main was #a9b1d6; now #c0caf5' },
