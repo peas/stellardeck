@@ -172,6 +172,14 @@ After 1-3 (all green now):
 6. **DONE 2026-08-21** — `@stellardeck/core@0.9.0` and `stellardeck@0.9.0` (CLI, unscoped) live on npm. Publish saga: required verified email + 2FA enrollment + a FRESH `npm login` session created after 2FA (pre-2FA sessions get masked E404 on PUT). Heads-up: token-based publish dies Jan 2027 — migrate to trusted publishing (OIDC via GitHub Actions) before then.
 7. **DONE 2026-07-16** — site regenerated with the 3 get-started tracks (app .dmg / CLI npm / source); npm snippets went live for real on 2026-08-21 with the publish.
 
+### Próximos (pós-0.9.0, priorizados 2026-08-21)
+
+1. **TODO — First-run npm: `stellardeck --demo` + quick start liderado por `npm i -g`.** The site's CLI track works but the fastest possible first success would be: `npm i -g stellardeck && stellardeck --demo` → browser opens presenting a bundled sample deck. Ship ONE small deck in the npm tarball (`demo/getting-started.md` is text-only and tiny — or a trimmed variant with 2-3 images worth <200KB), add `--demo` flag = `--preview` on that bundled deck. Then reorder the site's getting-started so the npm track comes FIRST (it's the one-command path; .dmg second, source third). Update README quick start to match. Asked by Paulo 2026-08-21.
+2. **TODO — #6 Autoflow declarative refactor** (github issue #6). `autoflow/` dir with engine.js + rules/<name>.js, each rule {name, priority, match, transform, skipIfDirective}, ctx with state+history. Migrate rule-by-rule, tests green throughout. BLOCKS #4 (bare-image rotation) and every new rule (lone-URL→QR, aspect-ratio, phrase-bullets rescue). Dedicated session.
+3. **TODO — hand-balancing.md storytelling rework.** Same treatment as bean-to-bar (3 acts, characters, invitation ending — commit 3ddeb66 as reference). Propose the arc first.
+4. **TODO — remaining issues:** #7 statement-degraded diagnostic (small), #3 accent highlighter, #5 ![bordered], #8 CLI native screenshots (1.0).
+5. **TODO — trusted publishing (OIDC) via GitHub Actions** before Jan 2027 (npm kills token publish). Workflow publishes both packages on tag; config on npmjs.com package settings.
+
 ### Post-0.9
 - **VSCode + Obsidian extensions** (live preview, IntelliSense, diagnostics). Shared problem: how to tell a StellarDeck `.md` from any other markdown file. Can't activate on every `.md`. Options: (a) file extension convention `.deck.md`; (b) detect `.stellar.json` sidecar in same directory; (c) detect StellarDeck-specific frontmatter (`theme:`, `autoflow:`, `slidenumbers:`); (d) explicit activation via command palette / file-type override. Likely **(a) + (c)**: activate when file is `*.deck.md` OR contains Deckset/StellarDeck frontmatter. Both extensions share the same detection logic.
 - Config file `.stellarrc` (workspace defaults)
