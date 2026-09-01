@@ -9,6 +9,34 @@
 let qrLib = null;
 
 /**
+ * Build the inline SVG markup for a generated QR code.
+ * Pure function (no DOM) so Node tests can verify the output.
+ *
+ * @param {{getModuleCount: () => number, isDark: (row: number, col: number) => boolean}} qr
+ * @param {number} [size] - max rendered size in px
+ * @returns {string} SVG markup
+ */
+export function buildQRSvg(qr, size = 256) {
+  // Use integer grid to avoid subpixel rendering artifacts during transitions.
+  // 4-module quiet zone per QR spec — also keeps the CSS border-radius off the
+  // finder patterns (rounded corners on a zero-margin QR break camera scanning).
+  const quietZone = 4;
+  const modules = qr.getModuleCount();
+  const svgSize = modules + quietZone * 2;
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgSize} ${svgSize}" style="width:100%;height:100%;max-width:${size}px;max-height:${size}px" shape-rendering="crispEdges">`;
+  svg += `<rect width="${svgSize}" height="${svgSize}" fill="white"/>`;
+  for (let row = 0; row < modules; row++) {
+    for (let col = 0; col < modules; col++) {
+      if (qr.isDark(row, col)) {
+        svg += `<rect x="${col + quietZone}" y="${row + quietZone}" width="1" height="1" fill="#1a1a2e"/>`;
+      }
+    }
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+/**
  * Render all .deckset-qr elements that haven't been rendered yet.
  * Lazy-loads qrcode-generator on first call.
  */
@@ -35,24 +63,7 @@ export async function renderQRCodes() {
     qr.addData(url);
     qr.make();
 
-    const size = 256;
-    const modules = qr.getModuleCount();
-    const cellSize = size / modules;
-
-    // Use integer grid to avoid subpixel rendering artifacts during transitions
-    const svgSize = modules;
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgSize} ${svgSize}" style="width:100%;height:100%;max-width:${size}px;max-height:${size}px" shape-rendering="crispEdges">`;
-    svg += `<rect width="${svgSize}" height="${svgSize}" fill="white"/>`;
-    for (let row = 0; row < modules; row++) {
-      for (let col = 0; col < modules; col++) {
-        if (qr.isDark(row, col)) {
-          svg += `<rect x="${col}" y="${row}" width="1" height="1" fill="#1a1a2e"/>`;
-        }
-      }
-    }
-    svg += '</svg>';
-
-    el.innerHTML = svg;
+    el.innerHTML = buildQRSvg(qr);
     el.dataset.qrRendered = 'true';
   });
 }
