@@ -63,14 +63,14 @@ Autoflow picks layouts from content shape:
 
 **Rule**: do NOT emit `[.alternating-colors]`, `[.autoscale]`, `[.heading-align]`, `[.background-color]`, `#[top-left]`, `#[bottom-right]`, etc. unless the content genuinely cannot trigger the right autoflow rule from its shape alone. Trust autoflow. Make the content shape right (short paragraphs, question marks, single-word slides, image-next-to-text) and let autoflow do its job.
 
-Frontmatter is also optional and unusual in real decks — Paulo's actual presentations have NO frontmatter at all. Only add `theme:` / `footer:` / `slidenumbers:` if the user explicitly asks. Autoflow is on by default in StellarDeck; you do not need `autoflow: true`.
+Frontmatter is optional. Paulo's recent decks (2026) do use a small block: `footer: @paulosilveira`, `slidenumbers: true`, `autoflow: true`, `theme: Alun, 1`. Copy that block from a recent deck in the same repo; do not invent other keys. Autoflow is on by default in StellarDeck, so `autoflow: true` is only explicit documentation.
 
 ### 4. Balance visuals with text
 Aim for **~50% image density** across the deck (Paulo's benchmark from real decks). If the source mentions a person, product, tool, or concept with an obvious image, suggest `![right](path/to/image.jpg)` or `![inline](path/to/image.jpg)`. Don't invent stock photos — only reference images that make sense for the content.
 
 ## Deckset markdown reference
 
-Frontmatter is OPTIONAL and uncommon in real decks. The example below shows what's available, but Paulo's actual presentations skip frontmatter entirely and let StellarDeck pick defaults. Only add frontmatter when the user asks for a specific theme or footer.
+Frontmatter is OPTIONAL. The example below shows what's available. In a repo where recent decks carry a frontmatter block (footer, slidenumbers, autoflow, theme), reuse that exact block; in a repo whose decks have none, add nothing unless asked.
 
 ```markdown
 footer: Conference 2026
@@ -614,7 +614,7 @@ Walk through this list. Each "no" is a signal to edit before finishing.
 - [ ] **No explicit autoflow-disabling directives** — search the deck for `[.alternating-colors`, `[.autoscale`, `[.heading-align`, `#[top-left]`, `#[bottom-right]`. If you find any, ask: can the content shape alone trigger the same layout? Almost always yes — delete the directive.
 - [ ] **Split sides cluster, don't ping-pong** — neighboring `![right]` slides stay on the right; switch sides only at section breaks.
 - [ ] **Closing slide** matches Paulo's pattern — image + `#[fit] Obrigado` (or equivalent) + `####` contact lines.
-- [ ] **No frontmatter unless explicitly asked** — let StellarDeck pick defaults. Real decks don't have it.
+- [ ] **Frontmatter matches the repo's recent decks** — copy their block, or none if they have none.
 - [ ] **One idea per slide** — no slide has more than ~30 words. If a slide is dense, split it. The remaining slides will feel lighter and the reading flow improves.
 
 ## Scoring
