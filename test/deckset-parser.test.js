@@ -295,6 +295,23 @@ test('ordered list', () => {
   assert.ok(html.includes('<li>First</li>'));
 });
 
+test('nested list: indented items nest inside the open <li>', () => {
+  const html = processContentLines(['- A', '- B', '  - B1', '  - B2', '- C']);
+  assert.equal(html, '<ul><li>A</li><li>B<ul><li>B1</li><li>B2</li></ul></li><li>C</li></ul>');
+});
+
+test('nested list: mixed types, 3 levels, tabs', () => {
+  assert.equal(processContentLines(['- a', '    1. x', '    2. y', '- b']),
+    '<ul><li>a<ol><li>x</li><li>y</li></ol></li><li>b</li></ul>');
+  assert.equal(processContentLines(['- a', '  - b', '    - c', '- d']),
+    '<ul><li>a<ul><li>b<ul><li>c</li></ul></li></ul></li><li>d</li></ul>');
+  assert.equal(processContentLines(['- a', '\t- b']), '<ul><li>a<ul><li>b</li></ul></li></ul>');
+});
+
+test('list type switch at the same level closes the previous list', () => {
+  assert.equal(processContentLines(['1. one', '- two']), '<ol><li>one</li></ol><ul><li>two</li></ul>');
+});
+
 test('blockquote', () => {
   const html = processContentLines(['> To be or not to be']);
   assert.ok(html.includes('<blockquote>'));

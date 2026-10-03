@@ -451,7 +451,7 @@
   status: implemented
   target: n/a
   deckset: true
-  syntax: "- item or * item"
+  syntax: "- item, * item or + item"
   example: |
     # Tools
 
@@ -460,7 +460,7 @@
     - Claude Code
     - Replit
   description: >
-    Bullet list using - or * prefix.
+    Bullet list using -, * or + prefix.
 
 - id: list-ordered
   category: lists
@@ -477,6 +477,24 @@
     3. Run tests
   description: >
     Numbered list using N. prefix.
+
+- id: list-nested
+  category: lists
+  name: Nested list
+  status: implemented
+  target: n/a
+  deckset: true
+  syntax: "indent the item (2+ spaces or a tab)"
+  example: |
+    - Frontend
+      - React
+      - Svelte
+    - Backend
+      1. Node
+      2. Go
+  description: >
+    An item indented deeper than the previous one opens a sub-list inside it.
+    Bullet and numbered levels can be mixed.
 
 - id: list-build
   category: lists

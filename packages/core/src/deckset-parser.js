@@ -41,8 +41,8 @@
 
 /**
  * @typedef {Object} ListState
- * @property {boolean} inList - Whether we are inside a list
- * @property {string} listType - 'ul' or 'ol'
+ * @property {{type: string, indent: number}[]} stack - Open lists, outermost
+ *   first. Each level keeps its last <li> open so a deeper item can nest in it.
  */
 
 /**
@@ -528,13 +528,9 @@ function notesHtml(notes) {
  * @returns {string} Closing tag HTML (e.g. '</ul>') or empty string
  */
 function closeList(state) {
-  if (state.inList) {
-    const tag = `</${state.listType}>`;
-    state.inList = false;
-    state.listType = '';
-    return tag;
-  }
-  return '';
+  let html = '';
+  while (state.stack.length) html += `</li></${state.stack.pop().type}>`;
+  return html;
 }
 
 /**
@@ -735,42 +731,40 @@ function processBlockquote(lines, startIndex) {
 }
 
 /**
- * Process a list item line (ordered or unordered).
- * Opens or switches list type as needed.
+ * Process a list item line (ordered or unordered), nesting by indentation.
+ * An item indented deeper than the current level opens a sub-list inside the
+ * open <li>; a shallower one closes levels until it finds its own.
  * @param {string} line
  * @param {ListState} state - Mutated in place
- * @returns {string} HTML string (may include list open/close tags + li)
+ * @returns {string|null} HTML (list open/close tags + li), or null if not a list item
  */
 function processListItem(line, state) {
+  const m = line.match(/^(\s*)(?:([*+-])|\d+\.)\s+(.*)/);
+  if (!m) return null;
+  const indent = m[1].replace(/\t/g, '    ').length;
+  const type = m[2] ? 'ul' : 'ol';
+  const { stack } = state;
   let html = '';
 
-  // Unordered list
-  const ulMatch = line.match(/^[\*\-]\s+(.*)/);
-  if (ulMatch) {
-    if (!state.inList || state.listType !== 'ul') {
-      html += closeList(state);
-      html += '<ul>';
-      state.inList = true;
-      state.listType = 'ul';
-    }
-    html += `<li>${markdownToHtml(ulMatch[1])}</li>`;
-    return html;
+  // Leave deeper levels this item doesn't belong to
+  while (stack.length && indent < stack[stack.length - 1].indent) {
+    html += `</li></${stack.pop().type}>`;
   }
 
-  // Ordered list
-  const olMatch = line.match(/^\d+\.\s+(.*)/);
-  if (olMatch) {
-    if (!state.inList || state.listType !== 'ol') {
-      html += closeList(state);
-      html += '<ol>';
-      state.inList = true;
-      state.listType = 'ol';
-    }
-    html += `<li>${markdownToHtml(olMatch[1])}</li>`;
-    return html;
+  const top = stack[stack.length - 1];
+  if (top && indent > top.indent) {
+    // Deeper than the open item → sub-list inside it
+    html += `<${type}>`;
+    stack.push({ type, indent });
+  } else if (top && top.type === type) {
+    html += '</li>';
+  } else {
+    // First item, or the list type switched at this level
+    if (top) html += `</li></${stack.pop().type}>`;
+    html += `<${type}>`;
+    stack.push({ type, indent });
   }
-
-  return null;
+  return html + `<li>${markdownToHtml(m[3])}`;
 }
 
 /**
@@ -1004,7 +998,7 @@ function processContentLines(lines) {
 
   let html = '';
   /** @type {ListState} */
-  const listState = { inList: false, listType: '' };
+  const listState = { stack: [] };
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
