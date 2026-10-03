@@ -1,0 +1,2603 @@
+{
+ "demo/autoflow.md": [
+  {
+   "slide": 1,
+   "rule": "title",
+   "detail": "title slide, 3 sections",
+   "lines": [
+    "[.heading-align: center]",
+    "#[fit] Punch **Slides**",
+    "",
+    "Bold text-only slides for **storytelling** and **impact**.",
+    "",
+    "No images needed — just **words** and **positioning**.",
+    ""
+   ]
+  },
+  {
+   "slide": 2,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern",
+   "lines": [
+    "",
+    "#[top-left] What is **distraction** and what is **disruption**?",
+    "",
+    "#[bottom-right] **Arrogance** or **procrastination**?",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern, varied → mirrored",
+   "lines": [
+    "",
+    "#[top-right] Where is the **bottleneck**?",
+    "",
+    "#[bottom-left] **C-level** biases or **middle** management?",
+    ""
+   ]
+  },
+  {
+   "slide": 4,
+   "rule": "z-pattern",
+   "detail": "4 paragraphs, Z-pattern",
+   "lines": [
+    "",
+    "##[top-left] Are companies more **welcoming** or more fragile?",
+    "",
+    "##[top-right] Does fear of **discomfort** weaken culture?",
+    "",
+    "##[bottom-left] Does our culture protect **adults** from reality?",
+    "",
+    "##[bottom-right] Are we running an adult **daycare**?",
+    ""
+   ]
+  },
+  {
+   "slide": 5,
+   "rule": "statement",
+   "detail": "4 lines, max 11 words, dense (autoscale)",
+   "tier": 3,
+   "lines": [
+    "[.autoscale: true]",
+    "",
+    "# We recognize **effort** more than results?",
+    "",
+    "# **Freedom** without consequence empowers or disorients?",
+    "",
+    "# We traded **firmness** for sympathy?",
+    "",
+    "# Too much space to be **heard**, too little will to **execute**?",
+    ""
+   ]
+  },
+  {
+   "slide": 6,
+   "rule": "alternating",
+   "detail": "3 paragraphs, alternating accent",
+   "lines": [
+    "[.alternating-colors: true]",
+    "",
+    "**Knowing** things.",
+    "",
+    "Making **decisions**.",
+    "",
+    "Making it **happen**.",
+    ""
+   ]
+  },
+  {
+   "slide": 7,
+   "rule": "statement",
+   "detail": "2 lines, max 4 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] The **three** skills",
+    "",
+    "#[fit] of the **new** dev.",
+    ""
+   ]
+  },
+  {
+   "slide": 8,
+   "rule": "statement",
+   "detail": "1 lines, max 13 words, dense (autoscale), varied → center-aligned",
+   "tier": 3,
+   "lines": [
+    "[.heading-align: center]",
+    "[.autoscale: true]",
+    "",
+    "# You are **not** paid to write **code**. You are paid to **solve problems**.",
+    ""
+   ]
+  },
+  {
+   "slide": 9,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern",
+   "lines": [
+    "",
+    "#[top-left] One **question**.",
+    "",
+    "#[bottom-right] What would you do if you **couldn't fail**?",
+    ""
+   ]
+  },
+  {
+   "slide": 10,
+   "rule": "statement",
+   "detail": "1 lines, max 5 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] StellarDeck: Out of this **World**! 🌎",
+    ""
+   ]
+  },
+  {
+   "slide": 11,
+   "rule": "divider",
+   "detail": "2 words",
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] **Learn** fast.",
+    ""
+   ]
+  },
+  {
+   "slide": 12,
+   "rule": "divider",
+   "detail": "2 words, varied → left-aligned",
+   "lines": [
+    "[.heading-align: left]",
+    "",
+    "#[fit] **Build** faster.",
+    ""
+   ]
+  },
+  {
+   "slide": 13,
+   "rule": "divider",
+   "detail": "2 words, varied → right-aligned",
+   "lines": [
+    "[.heading-align: right]",
+    "",
+    "#[fit] **Ship** today.",
+    ""
+   ]
+  },
+  {
+   "slide": 14,
+   "rule": "statement",
+   "detail": "2 lines, max 2 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] Think **big**.",
+    "",
+    "#[fit] Act **small**.",
+    ""
+   ]
+  },
+  {
+   "slide": 15,
+   "rule": "statement",
+   "detail": "2 lines, max 2 words, centered, varied → left-aligned",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: left]",
+    "[.heading-align: center]",
+    "",
+    "#[fit] Move **fast**.",
+    "",
+    "#[fit] Break **nothing**.",
+    ""
+   ]
+  },
+  {
+   "slide": 16,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern",
+   "lines": [
+    "",
+    "#[top-left] Why do we **build**?",
+    "",
+    "#[bottom-right] To make things **better**.",
+    ""
+   ]
+  },
+  {
+   "slide": 17,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern, varied → mirrored",
+   "lines": [
+    "",
+    "#[top-right] How do we **learn**?",
+    "",
+    "#[bottom-left] By making **mistakes**.",
+    ""
+   ]
+  },
+  {
+   "slide": 18,
+   "rule": "statement",
+   "detail": "4 lines, max 6 words",
+   "tier": 2,
+   "lines": [
+    "",
+    "#[fit] The poet is a faker",
+    "#[fit] Who's so good at his act",
+    "#[fit] He even fakes the pain",
+    "#[fit] Of pain he feels in fact.",
+    ""
+   ]
+  },
+  {
+   "slide": 19,
+   "rule": "default",
+   "detail": "8 lines, 45 words"
+  },
+  {
+   "slide": 20,
+   "rule": "autoscale",
+   "detail": "13 lines, 68 words",
+   "lines": [
+    "[.autoscale-lines: 13]",
+    "[.autoscale: true]",
+    "",
+    "The poet is a faker",
+    "Who's so good at his act",
+    "He even fakes the pain",
+    "Of pain he feels in fact.",
+    "",
+    "And those who read his words",
+    "Will feel in what he wrote",
+    "Neither of the two pains,",
+    "But only the one they don't.",
+    "",
+    "And so around its track",
+    "This thing called the heart winds,",
+    "A little clockwork train",
+    "To entertain our minds.",
+    "",
+    "Fernando Pessoa, Autopsicografia (1932)",
+    ""
+   ]
+  },
+  {
+   "slide": 21,
+   "rule": "autoscale",
+   "detail": "4 lines, 134 words",
+   "lines": [
+    "[.autoscale-lines: 4]",
+    "[.autoscale: true]",
+    "",
+    "In the beginning was the **command line**. We typed. The machine answered. There was no ambiguity. No autocomplete. No suggestion. You either knew the command or you didn't. Mastery meant memorization. Expertise meant speed.",
+    "",
+    "Then came the GUI. Then the web. Then mobile. Then the cloud. Each layer added abstraction. Each abstraction removed a requirement. Each removal lowered the barrier. More people in. More people building. More people breaking things and fixing them. That is progress.",
+    "",
+    "Now we have AI writing code. The barrier isn't just lower — it's dissolving. The question isn't whether you can code. The question is whether you can think. Whether you can frame a problem. Whether you can evaluate the output. Whether you can say \"this is wrong\" when the machine says it's right.",
+    "",
+    "The tools change. The thinking doesn't.",
+    ""
+   ]
+  }
+ ],
+ "demo/bean-to-bar-chocolate.md": [
+  {
+   "slide": 1,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 2,
+   "rule": "statement",
+   "detail": "3 lines, max 4 words",
+   "tier": 2,
+   "lines": [
+    "",
+    "#[fit] Grab the chocolate bar",
+    "#[fit] nearest to you.",
+    "",
+    "#[fit] Read the **label**.",
+    "",
+    "^Really — a KitKat, whatever's in the drawer. This talk starts there.",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "statement",
+   "detail": "2 lines, max 5 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] Chocolate that tastes of everything",
+    "#[fit] **except cacao.**",
+    "",
+    "^How did we get here? To answer that, rewind three thousand years.",
+    ""
+   ]
+  },
+  {
+   "slide": 5,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 6,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 7,
+   "rule": "statement",
+   "detail": "4 lines, max 6 words",
+   "tier": 2,
+   "lines": [
+    "",
+    "#[fit] For the Maya and the Aztec,",
+    "#[fit] cacao was **currency**.",
+    "",
+    "#[fit] A turkey: 100 beans.",
+    "#[fit] An avocado: 3.",
+    "",
+    "^You could literally spend chocolate. Counterfeiters made fake beans out of clay.",
+    ""
+   ]
+  },
+  {
+   "slide": 8,
+   "rule": "alternating",
+   "detail": "3 paragraphs, alternating accent",
+   "lines": [
+    "[.alternating-colors: true]",
+    "",
+    "Then the 20th century happened.",
+    "",
+    "**Cheap. Sweet. Identical.**",
+    "",
+    "Millions of bars, one flavor.",
+    "",
+    "^Industrial chocolate is an engineering marvel — and a flavor funeral. Heavy roasting hides bean defects; additives standardize everything.",
+    ""
+   ]
+  },
+  {
+   "slide": 9,
+   "rule": "statement",
+   "detail": "2 lines, max 3 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] We traded **flavor**",
+    "#[fit] for uniformity.",
+    ""
+   ]
+  },
+  {
+   "slide": 10,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 11,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 12,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 13,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 14,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 15,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 16,
+   "rule": "default",
+   "detail": "4 lines, 25 words",
+   "lines": [
+    "",
+    "![filtered](images/chocolate/mission-chocolate.webp)",
+    "",
+    "# Mission Chocolate",
+    "",
+    "São Paulo — Arcelia Gallardo trained at Dandelion,",
+    "came to Brazil, and pays farmers **4× market price**.",
+    "",
+    "Most awarded chocolate brand in the country.",
+    "",
+    "^ 50+ awards in 5 years. She's the proof that making chocolate AT the origin beats shipping beans north.",
+    ""
+   ]
+  },
+  {
+   "slide": 17,
+   "rule": "default",
+   "detail": "4 lines, 22 words",
+   "lines": [
+    "",
+    "![filtered](images/chocolate/luisa-abram.webp)",
+    "",
+    "# Luisa Abram",
+    "",
+    "**Wild cacao** from the Amazon, foraged",
+    "along the Purus River by ribeirinho families.",
+    "",
+    "Two ingredients. Flavors no plantation can copy.",
+    "",
+    "^ Her family bet everything on wild cacao when nobody believed it could work.",
+    ""
+   ]
+  },
+  {
+   "slide": 18,
+   "rule": "alternating",
+   "detail": "3 paragraphs, alternating accent",
+   "lines": [
+    "[.alternating-colors: true]",
+    "",
+    "Over **150 makers** in Brazil today.",
+    "",
+    "Lasevicius. Raros. Caza. Odle. Mestiço.",
+    "Nugali. Baiani. Dengo...",
+    "",
+    "Full list: **beantobarbrasil.com.br**",
+    "",
+    "^ From two pioneers to a movement in one decade. Brazilian makers win gold at the Academy of Chocolate regularly now.",
+    ""
+   ]
+  },
+  {
+   "slide": 19,
+   "rule": "default",
+   "detail": "2 lines, 4 words"
+  },
+  {
+   "slide": 20,
+   "rule": "default",
+   "detail": "4 lines, 18 words"
+  }
+ ],
+ "demo/getting-started.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "2 lines, 4 words"
+  },
+  {
+   "slide": 2,
+   "rule": "default",
+   "detail": "3 lines, 10 words"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 5,
+   "rule": "default",
+   "detail": "7 lines, 21 words"
+  },
+  {
+   "slide": 6,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 7,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 8,
+   "rule": "default",
+   "detail": "5 lines, 13 words"
+  },
+  {
+   "slide": 9,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 10,
+   "rule": "default",
+   "detail": "3 lines, 13 words"
+  },
+  {
+   "slide": 11,
+   "rule": "default",
+   "detail": "4 lines, 16 words"
+  },
+  {
+   "slide": 12,
+   "rule": "default",
+   "detail": "2 lines, 6 words"
+  }
+ ],
+ "demo/hand-balancing.md": [
+  {
+   "slide": 1,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "statement",
+   "detail": "1 lines, max 3 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] Then something changed.",
+    "",
+    "^Around 2010, hand balancing broke free from the circus tent.",
+    ""
+   ]
+  },
+  {
+   "slide": 5,
+   "rule": "alternating",
+   "detail": "3 paragraphs, alternating accent",
+   "lines": [
+    "[.alternating-colors: true]",
+    "",
+    "**Calisthenics** discovered inversions.",
+    "",
+    "**CrossFit** added handstand walks.",
+    "",
+    "**Yoga** deepened its arm balances.",
+    "",
+    "^Three communities, converging on the same skill from different angles.",
+    ""
+   ]
+  },
+  {
+   "slide": 6,
+   "rule": "statement",
+   "detail": "2 lines, max 5 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] Today, hand balancing is",
+    "#[fit] a **discipline** of its own.",
+    "",
+    "^Not gymnastics, not circus, not calisthenics. A practice of control, stillness, and patience.",
+    ""
+   ]
+  },
+  {
+   "slide": 7,
+   "rule": "statement",
+   "detail": "1 lines, max 3 words, centered, varied → left-aligned",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: left]",
+    "[.heading-align: center]",
+    "",
+    "#[fit] **Strength.** **Flexibility.** **Balance.**",
+    "",
+    "^Press to handstand, shoulder mobility, micro-adjustments. A training session is 1.5 to 3 hours of falling and trying again.",
+    ""
+   ]
+  },
+  {
+   "slide": 8,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 9,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 10,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 11,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 12,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 13,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 14,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 15,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 16,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 17,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 18,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 19,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 20,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 21,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 22,
+   "rule": "default",
+   "detail": "5 lines, 26 words"
+  },
+  {
+   "slide": 23,
+   "rule": "default",
+   "detail": "2 lines, 10 words",
+   "lines": [
+    "",
+    "![filtered](../assets/paulo-handstand.webp)",
+    "",
+    "# Thank You",
+    "",
+    "**Keep practicing. Keep falling. Keep getting back up.**",
+    ""
+   ]
+  },
+  {
+   "slide": 24,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  }
+ ],
+ "demo/kitchen-sink.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "3 lines, 5 words"
+  },
+  {
+   "slide": 2,
+   "rule": "default",
+   "detail": "5 lines, 36 words"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → cards",
+   "lines": [
+    "[.bullets-layout: cards]",
+    "",
+    "[.build-lists: true]",
+    "",
+    "# `[.build-lists: true]` — Build Lists",
+    "",
+    "- First item appears",
+    "- Second item appears",
+    "- Third item appears",
+    "",
+    "^ Build lists reveal items one by one using fragments. Add the directive at the top of any slide. Great for progressive disclosure.",
+    ""
+   ]
+  },
+  {
+   "slide": 5,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 6,
+   "rule": "default",
+   "detail": "8 lines, 21 words"
+  },
+  {
+   "slide": 7,
+   "rule": "default",
+   "detail": "2 lines, 10 words"
+  },
+  {
+   "slide": 8,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 9,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 10,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 11,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 12,
+   "rule": "default",
+   "detail": "3 lines, 14 words"
+  },
+  {
+   "slide": 13,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 14,
+   "rule": "default",
+   "detail": "3 lines, 10 words"
+  },
+  {
+   "slide": 15,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 16,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 17,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 18,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 19,
+   "rule": "default",
+   "detail": "2 lines, 13 words"
+  },
+  {
+   "slide": 20,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 21,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 22,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 23,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 24,
+   "rule": "default",
+   "detail": "2 lines, 5 words"
+  },
+  {
+   "slide": 25,
+   "rule": "default",
+   "detail": "2 lines, 13 words"
+  },
+  {
+   "slide": 26,
+   "rule": "default",
+   "detail": "1 lines, 4 words",
+   "lines": [
+    "",
+    "![filtered](images/stellardeck-first-talk-startse.jpg)",
+    "",
+    "# First Talk with StellarDeck",
+    "",
+    "^ StartSe RH Leadership Festival 2026, Sao Paulo. ~2,000 people. PDF export via decktape.",
+    "",
+    ""
+   ]
+  }
+ ],
+ "demo/vibe-coding.md": [
+  {
+   "slide": 1,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 5,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 6,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 7,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 8,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 9,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 10,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 11,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 12,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 13,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 14,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 15,
+   "rule": "default",
+   "detail": "3 lines, 12 words"
+  },
+  {
+   "slide": 16,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 17,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 18,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 19,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 20,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 21,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 22,
+   "rule": "default",
+   "detail": "3 lines, 5 words"
+  }
+ ],
+ "test/autoflow-fixtures/00-skip-checks.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "2 lines, 11 words"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 4,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  }
+ ],
+ "test/autoflow-fixtures/01-title.deck.md": [
+  {
+   "slide": 1,
+   "rule": "title",
+   "detail": "title slide, 3 sections",
+   "lines": [
+    "[.heading-align: center]",
+    "<!--",
+    "RULE: title (priority 10)",
+    "TRIGGERS WHEN:",
+    "  - First slide of the deck (guard: index === 0)",
+    "  - First paragraph is a single line, ≤6 words, plain text",
+    "  - There's at least one more paragraph below it",
+    "  - The total subtitle words are GREATER than the title words",
+    "EFFECT:",
+    "  - Wraps the title line in #[fit]",
+    "  - Adds [.heading-align: center]",
+    "  - The result is a centered, fit-sized title with a subtitle below",
+    "-->",
+    "",
+    "#[fit] The Middle Path",
+    "",
+    "Between speed and craft.",
+    "",
+    "A talk about how to know when to ship and when to refactor.",
+    ""
+   ]
+  },
+  {
+   "slide": 2,
+   "rule": "default",
+   "detail": "2 lines, 16 words"
+  }
+ ],
+ "test/autoflow-fixtures/02-divider.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "2 lines, 11 words"
+  },
+  {
+   "slide": 2,
+   "rule": "divider",
+   "detail": "1 word",
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "<!--",
+    "RULE: divider (priority 20)",
+    "TRIGGERS WHEN:",
+    "  - The slide has exactly 1 non-empty content line",
+    "  - That line is plain text (no heading, no image, no list)",
+    "  - That line is ≤2 words (config.dividerMaxWords)",
+    "EFFECT:",
+    "  - Wraps the line in #[fit]",
+    "  - Adds [.heading-align: center]",
+    "  - The whole slide becomes a giant section break",
+    "",
+    "Anti-monotony: when several dividers fire in a row, the alignment",
+    "cycles through center → left → right (see vary).",
+    "-->",
+    "",
+    "#[fit] Speed",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "divider",
+   "detail": "1 word, varied → left-aligned",
+   "lines": [
+    "[.heading-align: left]",
+    "",
+    "#[fit] Craft",
+    ""
+   ]
+  },
+  {
+   "slide": 4,
+   "rule": "divider",
+   "detail": "1 word, varied → right-aligned",
+   "lines": [
+    "[.heading-align: right]",
+    "",
+    "#[fit] Both",
+    ""
+   ]
+  }
+ ],
+ "test/autoflow-fixtures/03-diagonal.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "2 lines, 12 words"
+  },
+  {
+   "slide": 2,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern",
+   "lines": [
+    "",
+    "<!--",
+    "RULE: diagonal (priority 30)",
+    "TRIGGERS WHEN:",
+    "  - The slide has exactly 2 paragraphs",
+    "  - Each paragraph is short (≤10 words, ≤3 lines)",
+    "  - At least one paragraph ends with a question mark",
+    "EFFECT:",
+    "  - First paragraph gets #[top-left]",
+    "  - Second paragraph gets #[bottom-right]",
+    "  - Reads as a question and an answer pulling diagonally across the slide",
+    "",
+    "Anti-monotony: every other diagonal slide mirrors the corners",
+    "(top-right + bottom-left).",
+    "-->",
+    "",
+    "#[top-left] How do you know when a startup works?",
+    "",
+    "#[bottom-right] Usually by how fast the team ships.",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern, varied → mirrored",
+   "lines": [
+    "",
+    "#[top-right] What separates a good engineer from a great one?",
+    "",
+    "#[bottom-left] Knowing when to throw code away.",
+    ""
+   ]
+  }
+ ],
+ "test/autoflow-fixtures/04-z-pattern.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 2,
+   "rule": "z-pattern",
+   "detail": "4 paragraphs, Z-pattern",
+   "lines": [
+    "",
+    "<!--",
+    "RULE: z-pattern (priority 40)",
+    "TRIGGERS WHEN:",
+    "  - The slide has exactly 4 paragraphs",
+    "  - Each paragraph is short (≤8 words, ≤2 lines)",
+    "EFFECT:",
+    "  - 4 paragraphs are placed at top-left, top-right, bottom-left, bottom-right",
+    "  - Reads as a Z scan pattern across the slide",
+    "  - Used for \"four pillars\" / \"four steps\" content",
+    "",
+    "NOTE: single-word paragraphs like \"Speed\" / \"Taste\" render very small",
+    "and look cramped at the corners. Use 3-6 word phrases per corner so",
+    "the slide actually breathes.",
+    "-->",
+    "",
+    "#[top-left] Pull on threads",
+    "",
+    "#[top-right] Reject mediocre output",
+    "",
+    "##[bottom-left] Ship the small thing",
+    "",
+    "##[bottom-right] Throw away when wrong",
+    ""
+   ]
+  }
+ ],
+ "test/autoflow-fixtures/05-alternating.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 2,
+   "rule": "alternating",
+   "detail": "3 paragraphs, alternating accent",
+   "lines": [
+    "[.alternating-colors: true]",
+    "",
+    "<!--",
+    "RULE: alternating (priority 50)",
+    "TRIGGERS WHEN:",
+    "  - The slide has 3 or more paragraphs",
+    "  - Each paragraph is short (≤10 words, ≤2 lines)",
+    "  - The diagonal and z-pattern rules already passed (more paragraphs)",
+    "EFFECT:",
+    "  - Adds [.alternating-colors: true]",
+    "  - Each paragraph alternates color (heading vs accent)",
+    "  - Used for \"three points\" / \"five forces\" content",
+    "-->",
+    "",
+    "AI agents that write code",
+    "",
+    "Vibe coders without CS degrees",
+    "",
+    "Companies hiring for problem-solving",
+    ""
+   ]
+  }
+ ],
+ "test/autoflow-fixtures/06-statement.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 2,
+   "rule": "statement",
+   "detail": "1 lines, max 5 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "<!--",
+    "RULE: statement (priority 60)",
+    "TRIGGERS WHEN:",
+    "  - The slide has 1-4 content lines",
+    "  - Each line is plain text (no heading, no image, no list)",
+    "  - Each line is ≤8 words (config.statementMaxWords)",
+    "EFFECT:",
+    "  - Each line gets wrapped in #[fit]",
+    "  - For very short slides (≤2 lines, max 5 words each):",
+    "    also adds [.heading-align: center]",
+    "",
+    "Anti-monotony: when statement fires multiple times in a row,",
+    "the alignment cycles. Short slides cycle left/right; longer",
+    "ones cycle center/right.",
+    "-->",
+    "",
+    "#[fit] Culture eats strategy for breakfast",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "statement",
+   "detail": "1 lines, max 5 words, centered, varied → left-aligned",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: left]",
+    "[.heading-align: center]",
+    "",
+    "#[fit] Execution eats culture for lunch",
+    ""
+   ]
+  },
+  {
+   "slide": 4,
+   "rule": "statement",
+   "detail": "1 lines, max 5 words, centered, varied → right-aligned",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: right]",
+    "[.heading-align: center]",
+    "",
+    "#[fit] Compounding eats execution for dinner",
+    ""
+   ]
+  }
+ ],
+ "test/autoflow-fixtures/07-bare-image-position-variation.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "2 lines, 11 words"
+  },
+  {
+   "slide": 2,
+   "rule": "default",
+   "detail": "2 lines, 14 words",
+   "lines": [
+    "",
+    "<!--",
+    "RULE: bare-image-position-variation (priority 70)",
+    "TRIGGERS WHEN:",
+    "  - The slide has exactly 1 image with NO layout modifier",
+    "    (no right/left/inline/qr/fit/filtered/bg)",
+    "  - The slide also has at least 1 non-image content line",
+    "EFFECT (the only history-based rule):",
+    "  - Picks position by varying across deck: inline → left → right → ...",
+    "  - The position is based on ctx.state.lastBareImagePosition, NOT slide index",
+    "  - All three rewrite the bare ![](src) into a parser primitive:",
+    "      ![inline](src), ![left](src), ![right](src)",
+    "  - State is also updated when an EXPLICIT ![left]/![right]/![inline]",
+    "    image appears on a skipped slide, so the variation never repeats the",
+    "    same position as the previous slide.",
+    "",
+    "The name says \"position variation\" because it varies the IMAGE POSITION",
+    "across slides — it doesn't rotate the image itself.",
+    "",
+    "The 4 slides below show one full cycle + wrap:",
+    "  slide 1: 1st bare image → inline  (variation starts)",
+    "  slide 2: 2nd bare image → left",
+    "  slide 3: 3rd bare image → right",
+    "  slide 4: 4th bare image → inline  (cycle wraps)",
+    "-->",
+    "",
+    "![filtered](/demo/images/vibe-coding/karpathy-vibe.webp)",
+    "",
+    "# First image of the deck",
+    "",
+    "This one becomes inline (image in flow, text above).",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "default",
+   "detail": "2 lines, 8 words",
+   "lines": [
+    "",
+    "![filtered](/demo/images/vibe-coding/seven-languages-book.webp)",
+    "",
+    "# Second image",
+    "",
+    "This one varies to left split.",
+    ""
+   ]
+  },
+  {
+   "slide": 4,
+   "rule": "default",
+   "detail": "2 lines, 9 words",
+   "lines": [
+    "",
+    "![filtered](/demo/images/vibe-coding/pragmatic-programmer-tweet.webp)",
+    "",
+    "# Third image",
+    "",
+    "And this one varies to right split.",
+    ""
+   ]
+  },
+  {
+   "slide": 5,
+   "rule": "default",
+   "detail": "2 lines, 7 words",
+   "lines": [
+    "",
+    "![filtered](/demo/images/vibe-coding/bravenewgeek-you-are-not-paid.webp)",
+    "",
+    "# Fourth image",
+    "",
+    "Cycle wraps: back to inline.",
+    ""
+   ]
+  }
+ ],
+ "test/autoflow-fixtures/08-autoscale.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 2,
+   "rule": "autoscale",
+   "detail": "11 lines, 131 words",
+   "lines": [
+    "[.autoscale-lines: 11]",
+    "[.autoscale: true]",
+    "",
+    "<!--",
+    "RULE: autoscale (priority 80, last in the chain)",
+    "TRIGGERS WHEN:",
+    "  - The slide has 9+ content lines OR 80+ total words",
+    "  - No earlier rule matched (this is the safety net)",
+    "EFFECT:",
+    "  - Adds [.autoscale: true] and [.autoscale-lines: N]",
+    "  - The CSS reduces font size based on the line count tier:",
+    "      light: 9-12 lines",
+    "      moderate: 13-18 lines",
+    "      dense: 19+ lines",
+    "-->",
+    "",
+    "# A long talk on engineering judgment",
+    "",
+    "Engineers learn that there are tradeoffs. They learn that no choice is free,",
+    "and that every decision they ship has a cost the team or the user will pay",
+    "later, in time, in money, in confusion, or in trust.",
+    "",
+    "Some lessons can be told. Most have to be felt. The hard part of getting",
+    "better is not absorbing more facts but learning what to ignore, what to",
+    "pursue, and what to put down before it becomes a sunk cost.",
+    "",
+    "Hold opinions loosely. Trust your gut after the third or fourth time you",
+    "were right about something nobody else saw. Refactor the code that's making",
+    "your week heavier; ignore the code that's not.",
+    "",
+    "Ship the small thing. Tell the team. Listen to the room. Adjust. Repeat.",
+    ""
+   ]
+  }
+ ],
+ "test/autoflow-fixtures/09-phrase-bullets.deck.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "2 lines, 12 words"
+  },
+  {
+   "slide": 2,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → cards",
+   "lines": [
+    "[.bullets-layout: cards]",
+    "",
+    "<!--",
+    "RULE: phrase-bullets (priority 75)",
+    "TRIGGERS WHEN:",
+    "  - The slide has exactly 1 heading line (h1/h2/h3)",
+    "  - 2-3 bullet items, each ≤6 words",
+    "  - The headline ≤8 words",
+    "  - No images, no extra paragraphs",
+    "EFFECT:",
+    "  - Picks layout from a 4-variant palette via ctx.state.lastPhraseBulletsLayout",
+    "  - cycles: cards → pills → alternating → staggered → cards → ...",
+    "  - Injects [.bullets-layout: <variant>] which the parser turns into",
+    "    data-bullets-layout=\"...\" on the section, and CSS renders the variant.",
+    "",
+    "The 4 slides below show one full cycle of the palette.",
+    "-->",
+    "",
+    "# Three forces reshaping work",
+    "",
+    "- AI agents that write code",
+    "- Vibe coders without CS",
+    "- Hiring for problems",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → pills",
+   "lines": [
+    "[.bullets-layout: pills]",
+    "",
+    "#[fit] Three skills the new dev needs",
+    "",
+    "- Curiosity",
+    "- Taste and judgment",
+    "- Speed and rhythm",
+    ""
+   ]
+  },
+  {
+   "slide": 4,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → alternating",
+   "lines": [
+    "[.bullets-layout: alternating]",
+    "",
+    "# What good engineers do",
+    "",
+    "- Read docs and source",
+    "- Reject mediocre output",
+    "- Throw away failed work",
+    ""
+   ]
+  },
+  {
+   "slide": 5,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → staggered",
+   "lines": [
+    "[.bullets-layout: staggered]",
+    "",
+    "# How to ship faster",
+    "",
+    "- Smaller commits",
+    "- Earlier reviews",
+    "- Tests as you go",
+    ""
+   ]
+  }
+ ],
+ "test/autoflow-fixtures/cumulative-overflow.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "2 lines, 6 words"
+  },
+  {
+   "slide": 2,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern",
+   "lines": [
+    "",
+    "#[top-left] Profissão Novo Dev?",
+    "",
+    "#[bottom-right] Builder. Arquiteto.",
+    "#[bottom-right] Analista. Engenheira.",
+    "#[bottom-right] PROGRAMADOR",
+    "",
+    "^Mirrors the PROGRAMADOR overflow case from vibecoders deck.",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "statement",
+   "detail": "2 lines, max 4 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] Just one short line",
+    "",
+    "#[fit] A second line.",
+    ""
+   ]
+  }
+ ],
+ "test/batch-fixture/cat-a/accent-mini.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "3 lines, 16 words"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  }
+ ],
+ "test/batch-fixture/overflow-test.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "2 lines, 5 words"
+  },
+  {
+   "slide": 2,
+   "rule": "autoscale",
+   "detail": "14 lines, 185 words",
+   "lines": [
+    "[.autoscale-lines: 14]",
+    "[.autoscale: true]",
+    "",
+    "# Overflowing slide",
+    "",
+    "- Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+    "- Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat",
+    "- Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur",
+    "- Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum",
+    "- Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam",
+    "- Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo",
+    "- Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit",
+    "- Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt",
+    "- Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur adipisci velit",
+    "- Sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem",
+    "- Ut enim ad minima veniam quis nostrum exercitationem ullam corporis suscipit laboriosam",
+    "- Nisi ut aliquid ex ea commodi consequatur quis autem vel eum iure reprehenderit qui in ea voluptate",
+    "- `unbreakable_inline_code_token_that_cannot_wrap_and_must_overflow_the_slide_frame_horizontally_no_matter_what_size`",
+    ""
+   ]
+  }
+ ],
+ "test/batch-fixture/smoke.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "4 lines, 14 words"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 5,
+   "rule": "default",
+   "detail": "5 lines, 9 words"
+  },
+  {
+   "slide": 6,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → cards",
+   "lines": [
+    "[.bullets-layout: cards]",
+    "",
+    "# Slide 6: Lista ordenada",
+    "",
+    "1. Primeiro item",
+    "2. Segundo item",
+    "3. Terceiro item",
+    ""
+   ]
+  },
+  {
+   "slide": 7,
+   "rule": "default",
+   "detail": "2 lines, 16 words"
+  },
+  {
+   "slide": 8,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 9,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 10,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 11,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 12,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 13,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 14,
+   "rule": "default",
+   "detail": "4 lines, 12 words"
+  },
+  {
+   "slide": 15,
+   "rule": "default",
+   "detail": "2 lines, 9 words"
+  },
+  {
+   "slide": 16,
+   "rule": "default",
+   "detail": "2 lines, 10 words"
+  },
+  {
+   "slide": 17,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 18,
+   "rule": "default",
+   "detail": "3 lines, 9 words"
+  },
+  {
+   "slide": 19,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 20,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 21,
+   "rule": "default",
+   "detail": "4 lines, 45 words"
+  },
+  {
+   "slide": 22,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 23,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  }
+ ],
+ "test/accent-demo.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "3 lines, 16 words"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 5,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 6,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 7,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 8,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 9,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 10,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 11,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  }
+ ],
+ "test/autoflow-demo.md": [
+  {
+   "slide": 1,
+   "rule": "title",
+   "detail": "title slide, 3 sections",
+   "lines": [
+    "[.heading-align: center]",
+    "#[fit] Punch **Slides**",
+    "",
+    "Bold text-only slides for **storytelling** and **impact**.",
+    "",
+    "No images needed — just **words** and **positioning**.",
+    ""
+   ]
+  },
+  {
+   "slide": 2,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern",
+   "lines": [
+    "",
+    "#[top-left] What is **distraction** and what is **disruption**?",
+    "",
+    "#[bottom-right] **Arrogance** or **procrastination**?",
+    ""
+   ]
+  },
+  {
+   "slide": 3,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern, varied → mirrored",
+   "lines": [
+    "",
+    "#[top-right] Where is the **bottleneck**?",
+    "",
+    "#[bottom-left] **C-level** biases or **middle** management?",
+    ""
+   ]
+  },
+  {
+   "slide": 4,
+   "rule": "z-pattern",
+   "detail": "4 paragraphs, Z-pattern",
+   "lines": [
+    "",
+    "##[top-left] Are companies more **welcoming** or more fragile?",
+    "",
+    "##[top-right] Does fear of **discomfort** weaken culture?",
+    "",
+    "##[bottom-left] Does our culture protect **adults** from reality?",
+    "",
+    "##[bottom-right] Are we running an adult **daycare**?",
+    ""
+   ]
+  },
+  {
+   "slide": 5,
+   "rule": "statement",
+   "detail": "4 lines, max 11 words, dense (autoscale)",
+   "tier": 3,
+   "lines": [
+    "[.autoscale: true]",
+    "",
+    "# We recognize **effort** more than results?",
+    "",
+    "# **Freedom** without consequence empowers or disorients?",
+    "",
+    "# We traded **firmness** for sympathy?",
+    "",
+    "# Too much space to be **heard**, too little will to **execute**?",
+    ""
+   ]
+  },
+  {
+   "slide": 6,
+   "rule": "alternating",
+   "detail": "3 paragraphs, alternating accent",
+   "lines": [
+    "[.alternating-colors: true]",
+    "",
+    "**Knowing** things.",
+    "",
+    "Making **decisions**.",
+    "",
+    "Making it **happen**.",
+    ""
+   ]
+  },
+  {
+   "slide": 7,
+   "rule": "statement",
+   "detail": "2 lines, max 4 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] The **three** skills",
+    "",
+    "#[fit] of the **new** dev.",
+    ""
+   ]
+  },
+  {
+   "slide": 8,
+   "rule": "statement",
+   "detail": "1 lines, max 13 words, dense (autoscale), varied → center-aligned",
+   "tier": 3,
+   "lines": [
+    "[.heading-align: center]",
+    "[.autoscale: true]",
+    "",
+    "# You are **not** paid to write **code**. You are paid to **solve problems**.",
+    ""
+   ]
+  },
+  {
+   "slide": 9,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern",
+   "lines": [
+    "",
+    "#[top-left] One **question**.",
+    "",
+    "#[bottom-right] What would you do if you **couldn't fail**?",
+    ""
+   ]
+  },
+  {
+   "slide": 10,
+   "rule": "statement",
+   "detail": "1 lines, max 5 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] StellarDeck: Out of this **World**! 🌎",
+    ""
+   ]
+  },
+  {
+   "slide": 11,
+   "rule": "divider",
+   "detail": "2 words",
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] **Learn** fast.",
+    ""
+   ]
+  },
+  {
+   "slide": 12,
+   "rule": "divider",
+   "detail": "2 words, varied → left-aligned",
+   "lines": [
+    "[.heading-align: left]",
+    "",
+    "#[fit] **Build** faster.",
+    ""
+   ]
+  },
+  {
+   "slide": 13,
+   "rule": "divider",
+   "detail": "2 words, varied → right-aligned",
+   "lines": [
+    "[.heading-align: right]",
+    "",
+    "#[fit] **Ship** today.",
+    ""
+   ]
+  },
+  {
+   "slide": 14,
+   "rule": "statement",
+   "detail": "2 lines, max 2 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "#[fit] Think **big**.",
+    "",
+    "#[fit] Act **small**.",
+    ""
+   ]
+  },
+  {
+   "slide": 15,
+   "rule": "statement",
+   "detail": "2 lines, max 2 words, centered, varied → left-aligned",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: left]",
+    "[.heading-align: center]",
+    "",
+    "#[fit] Move **fast**.",
+    "",
+    "#[fit] Break **nothing**.",
+    ""
+   ]
+  },
+  {
+   "slide": 16,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern",
+   "lines": [
+    "",
+    "#[top-left] Why do we **build**?",
+    "",
+    "#[bottom-right] To make things **better**.",
+    ""
+   ]
+  },
+  {
+   "slide": 17,
+   "rule": "diagonal",
+   "detail": "2 paragraphs, question pattern, varied → mirrored",
+   "lines": [
+    "",
+    "#[top-right] How do we **learn**?",
+    "",
+    "#[bottom-left] By making **mistakes**.",
+    ""
+   ]
+  },
+  {
+   "slide": 18,
+   "rule": "statement",
+   "detail": "4 lines, max 6 words",
+   "tier": 2,
+   "lines": [
+    "",
+    "#[fit] The poet is a faker",
+    "#[fit] Who's so good at his act",
+    "#[fit] He even fakes the pain",
+    "#[fit] Of pain he feels in fact.",
+    ""
+   ]
+  },
+  {
+   "slide": 19,
+   "rule": "default",
+   "detail": "8 lines, 45 words"
+  },
+  {
+   "slide": 20,
+   "rule": "autoscale",
+   "detail": "13 lines, 68 words",
+   "lines": [
+    "[.autoscale-lines: 13]",
+    "[.autoscale: true]",
+    "",
+    "The poet is a faker",
+    "Who's so good at his act",
+    "He even fakes the pain",
+    "Of pain he feels in fact.",
+    "",
+    "And those who read his words",
+    "Will feel in what he wrote",
+    "Neither of the two pains,",
+    "But only the one they don't.",
+    "",
+    "And so around its track",
+    "This thing called the heart winds,",
+    "A little clockwork train",
+    "To entertain our minds.",
+    "",
+    "Fernando Pessoa, Autopsicografia (1932)",
+    ""
+   ]
+  },
+  {
+   "slide": 21,
+   "rule": "autoscale",
+   "detail": "4 lines, 134 words",
+   "lines": [
+    "[.autoscale-lines: 4]",
+    "[.autoscale: true]",
+    "",
+    "In the beginning was the **command line**. We typed. The machine answered. There was no ambiguity. No autocomplete. No suggestion. You either knew the command or you didn't. Mastery meant memorization. Expertise meant speed.",
+    "",
+    "Then came the GUI. Then the web. Then mobile. Then the cloud. Each layer added abstraction. Each abstraction removed a requirement. Each removal lowered the barrier. More people in. More people building. More people breaking things and fixing them. That is progress.",
+    "",
+    "Now we have AI writing code. The barrier isn't just lower — it's dissolving. The question isn't whether you can code. The question is whether you can think. Whether you can frame a problem. Whether you can evaluate the output. Whether you can say \"this is wrong\" when the machine says it's right.",
+    "",
+    "The tools change. The thinking doesn't.",
+    ""
+   ]
+  }
+ ],
+ "test/broken-images-test.md": [
+  {
+   "slide": 1,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 4,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  }
+ ],
+ "test/feature-showcase.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "3 lines, 5 words"
+  },
+  {
+   "slide": 2,
+   "rule": "default",
+   "detail": "5 lines, 36 words"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → cards",
+   "lines": [
+    "[.bullets-layout: cards]",
+    "",
+    "[.build-lists: true]",
+    "",
+    "# `[.build-lists: true]` — Build Lists",
+    "",
+    "- First item appears",
+    "- Second item appears",
+    "- Third item appears",
+    "",
+    "^ Build lists reveal items one by one using fragments. Add the directive at the top of any slide. Great for progressive disclosure.",
+    ""
+   ]
+  },
+  {
+   "slide": 5,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 6,
+   "rule": "default",
+   "detail": "8 lines, 21 words"
+  },
+  {
+   "slide": 7,
+   "rule": "default",
+   "detail": "2 lines, 10 words"
+  },
+  {
+   "slide": 8,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 9,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 10,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 11,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 12,
+   "rule": "default",
+   "detail": "3 lines, 14 words"
+  },
+  {
+   "slide": 13,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 14,
+   "rule": "default",
+   "detail": "3 lines, 10 words"
+  },
+  {
+   "slide": 15,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 16,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 17,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 18,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 19,
+   "rule": "default",
+   "detail": "2 lines, 13 words"
+  },
+  {
+   "slide": 20,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 21,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 22,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 23,
+   "rule": "default",
+   "detail": "2 lines, 5 words"
+  },
+  {
+   "slide": 24,
+   "rule": "default",
+   "detail": "2 lines, 13 words"
+  },
+  {
+   "slide": 25,
+   "rule": "default",
+   "detail": "1 lines, 4 words",
+   "lines": [
+    "",
+    "![filtered](../demo/images/stellardeck-first-talk-startse.jpg)",
+    "",
+    "# First Talk with StellarDeck",
+    "",
+    "^ StartSe RH Leadership Festival 2026, Sao Paulo. ~2,000 people. PDF export via decktape.",
+    "",
+    ""
+   ]
+  }
+ ],
+ "test/marp-example.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "4 lines, 8 words",
+   "lines": [
+    "",
+    "Marp",
+    "===",
+    "",
+    "![filtered](https://picsum.photos/seed/marp/400/250)",
+    "",
+    "##### Markdown presentation ecosystem",
+    "",
+    "###### by Marp Team ([@marp-team][marp-team])",
+    "",
+    ""
+   ]
+  },
+  {
+   "slide": 2,
+   "rule": "default",
+   "detail": "7 lines, 60 words"
+  },
+  {
+   "slide": 3,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 4,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 5,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 6,
+   "rule": "default",
+   "detail": "8 lines, 43 words"
+  },
+  {
+   "slide": 7,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 8,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 9,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 10,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 11,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 12,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 13,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 14,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 15,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 16,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 17,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 18,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 19,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 20,
+   "rule": "default",
+   "detail": "2 lines, 9 words",
+   "lines": [
+    "",
+    "# Enjoy writing slides! :v: <!--fit-->",
+    "",
+    "##### ![filtered](https://picsum.photos/seed/marp/400/250)  Marp: Markdown presentation ecosystem — https://marp.app/",
+    "",
+    "###### by Marp Team ([@marp-team][marp-team])"
+   ]
+  }
+ ],
+ "test/smoke-test-sweden.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "4 lines, 14 words"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 5,
+   "rule": "default",
+   "detail": "5 lines, 9 words"
+  },
+  {
+   "slide": 6,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → cards",
+   "lines": [
+    "[.bullets-layout: cards]",
+    "",
+    "# Slide 6: Lista ordenada",
+    "",
+    "1. Primeiro item",
+    "2. Segundo item",
+    "3. Terceiro item",
+    ""
+   ]
+  },
+  {
+   "slide": 7,
+   "rule": "default",
+   "detail": "2 lines, 16 words"
+  },
+  {
+   "slide": 8,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 9,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 10,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 11,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 12,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 13,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 14,
+   "rule": "default",
+   "detail": "4 lines, 12 words"
+  },
+  {
+   "slide": 15,
+   "rule": "default",
+   "detail": "2 lines, 9 words"
+  },
+  {
+   "slide": 16,
+   "rule": "default",
+   "detail": "2 lines, 10 words"
+  },
+  {
+   "slide": 17,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 18,
+   "rule": "default",
+   "detail": "3 lines, 9 words"
+  },
+  {
+   "slide": 19,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 20,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 21,
+   "rule": "default",
+   "detail": "4 lines, 45 words"
+  }
+ ],
+ "test/smoke-test.md": [
+  {
+   "slide": 1,
+   "rule": "default",
+   "detail": "4 lines, 14 words"
+  },
+  {
+   "slide": 2,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 3,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 4,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 5,
+   "rule": "default",
+   "detail": "5 lines, 9 words"
+  },
+  {
+   "slide": 6,
+   "rule": "phrase-bullets",
+   "detail": "headline + 3 bullets → cards",
+   "lines": [
+    "[.bullets-layout: cards]",
+    "",
+    "# Slide 6: Lista ordenada",
+    "",
+    "1. Primeiro item",
+    "2. Segundo item",
+    "3. Terceiro item",
+    ""
+   ]
+  },
+  {
+   "slide": 7,
+   "rule": "default",
+   "detail": "2 lines, 16 words"
+  },
+  {
+   "slide": 8,
+   "rule": "code",
+   "detail": "has code block"
+  },
+  {
+   "slide": 9,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 10,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 11,
+   "rule": "default",
+   "detail": "1 lines, 1 words"
+  },
+  {
+   "slide": 12,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 13,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 14,
+   "rule": "default",
+   "detail": "4 lines, 12 words"
+  },
+  {
+   "slide": 15,
+   "rule": "default",
+   "detail": "2 lines, 9 words"
+  },
+  {
+   "slide": 16,
+   "rule": "default",
+   "detail": "2 lines, 10 words"
+  },
+  {
+   "slide": 17,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 18,
+   "rule": "default",
+   "detail": "3 lines, 9 words"
+  },
+  {
+   "slide": 19,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 20,
+   "rule": "explicit",
+   "detail": "has explicit directives"
+  },
+  {
+   "slide": 21,
+   "rule": "default",
+   "detail": "4 lines, 45 words"
+  },
+  {
+   "slide": 22,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  },
+  {
+   "slide": 23,
+   "rule": "custom-block",
+   "detail": "has :::block layout"
+  }
+ ]
+}
