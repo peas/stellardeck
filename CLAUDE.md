@@ -63,7 +63,7 @@ npm run electron -- deck.md     # fast desktop dev (menu says "Electron")
 npm run electron:dev -- deck.md # same + ELECTRON_DEV=1 (hot reload, devtools)
 npm run app -- deck.md          # packaged StellarDeck.app (menu says "StellarDeck")
 npm run package                 # build .app without launching
-npm run make                    # produce .dmg + .zip via electron-forge
+npm run make                    # produce .dmg + .zip via electron-forge (out/make/dmg/<arch>/, out/make/zip/<platform>/<arch>/)
 ```
 
 ## Project structure
@@ -216,7 +216,8 @@ After 1-3 (all green now):
 - `npm run electron -- <deck.md> [<deck.md> …]` opens 1+ decks in a session — **fast**, but macOS menu bar says "Electron" because it reads the name from the unmodified Electron framework binary's Info.plist (`app.setName()` cannot rewrite it at runtime)
 - `npm run app -- <deck.md> [<deck.md> …]` packages once (cached via mtime check) + opens `out/StellarDeck-<platform>-<arch>/StellarDeck.app`, so the menu bar correctly says "StellarDeck". Pass `--rebuild` after `--` to force a re-package
 - `npm run package` builds the .app without launching it; `npm run make` builds distributable artifacts under `out/make/` (zip + .dmg on macOS) via `forge.config.js`
-- **Node 26 + zip extraction (fixed 2026-09-09, keep an eye on it).** `extract-zip@2` + `yauzl@2` silently stop mid-extraction on Node ≥ 26 (exit 0, no error). Electron ≥ 42 dropped `extract-zip` for its own `@electron-internal/extract-zip`, but `@electron-forge` 7.11 still pins `@electron/packager@18`, which pulls the old pair — so `electron-forge package` prints "Finalizing package" and exits without creating `out/`. Fix in `package.json`: `"overrides": { "yauzl": "^3.2.0" }` (verified: full extraction on Node 26.8). **Remove the override once Forge moves to `@electron/packager` ≥ 20** (`npm view @electron-forge/core dependencies`). CI runs Node 22/24/26 so a regression shows up there.
+- **Node 26 + zip extraction (resolved 2026-10-03).** `extract-zip@2` + `yauzl@2` silently stop mid-extraction on Node ≥ 26 (exit 0, no error). Forge 7 pulled them via `@electron/packager@18`; we carried `overrides.yauzl ^3.2` until Forge 8 (`@electron/packager` 20, no yauzl at all). Override removed. If `electron-forge package` ever prints "Finalizing package" and leaves no `out/`, suspect this class of bug first. Forge 8 also writes the DMG to `out/make/dmg/<arch>/` (was `out/make/`).
+- **tsup needs `typescript` installed** even with `dts: false` (it `require`s it eagerly). It's an explicit devDependency of `packages/core` — Forge 7 used to bring it transitively.
 - **Playwright + Node 26:** `playwright-core` ≤ 1.59 bundles the same broken zip lib — `npx playwright install chromium` downloads in seconds and then hangs at "extracting archive" forever (`DEBUG=pw:install` shows it). `@playwright/test` ≥ 1.63 is fine; keep it current.
 - **Electron ≥ 42 has no postinstall.** The binary downloads lazily on the first `electron .` / `npm run electron` / `npm run app` (see `node_modules/electron/index.js`), so a fresh `npm ci` leaves `node_modules/electron/dist/` empty — that's expected. If the download gets interrupted: `rm -rf node_modules/electron/dist node_modules/electron/path.txt` and run again. Cached zips live in `~/Library/Caches/electron/<sha>/`.
 - **npm ≥ 11 `install-scripts` gate.** npm skips install scripts of packages not listed in `package.json` → `allowScripts` (it only warns). The repo lists `esbuild`, `sharp`, `fs-xattr`, `macos-alias`. When a new dep with an install script shows up, `npm install-scripts approve --no-allow-scripts-pin <pkg>` (unpinned, so version bumps don't need re-approval); `npm install-scripts prune` drops stale entries.

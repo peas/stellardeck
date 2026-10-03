@@ -67,7 +67,7 @@ For a packaged build (correct app name in the macOS menu bar, distributable via 
 
 ```bash
 npm run app -- demo/getting-started.md   # packages on first run, caches after
-npm run make                              # produces out/make/*.dmg + .zip
+npm run make                              # produces out/make/dmg/… + out/make/zip/…
 ```
 
 Built with [Electron](https://www.electronjs.org/) + [electron-forge](https://www.electronforge.io/). No Rust toolchain required.
