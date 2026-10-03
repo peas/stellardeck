@@ -14,7 +14,7 @@ Four ideas shape the project:
 
 **Agent-native.** Markdown is what LLMs produce. The [CLI](docs/comparison.md) takes stdin, exports PDF/PNG/grid, previews in the browser, validates diagnostics, and emits structured JSON. The [stellardeck skill](docs/skill-stellardeck-spec.md) converts source text (blog posts, transcripts, meeting notes) into scored slide decks.
 
-**Simple.** `npm run preview -- deck.md` and you're presenting. No build step, no bundler. The `.md` file is the artifact, PDFs are regenerable.
+**Simple.** `stellardeck --preview deck.md` and you're presenting. No build step, no bundler. The `.md` file is the artifact, PDFs are regenerable.
 
 9 themes, up to 7 color schemes each, dark and light.
 
@@ -34,16 +34,22 @@ Six example decks you can navigate and edit live — right in your browser:
 
 ## Quick start
 
-**Desktop app (macOS, Apple Silicon):** download the `.dmg` from the [latest release](https://github.com/peas/stellardeck/releases/latest), drag to Applications, drop a `.md` into the window. First launch: right-click → Open (not code-signed yet).
-
-**CLI:**
+**CLI** — one command to a running deck:
 
 ```bash
 npm install -g stellardeck
-npx playwright install chromium   # one-time: the headless renderer
-stellardeck deck.md               # → deck.pdf
-stellardeck --preview deck.md     # live preview in the browser
+stellardeck --demo                # presents a sample deck in your browser
+stellardeck --preview deck.md     # your own deck, live
 ```
+
+Exports need a headless browser, installed once:
+
+```bash
+npx playwright install chromium
+stellardeck deck.md               # → deck.pdf (also --png, --grid, --validate)
+```
+
+**Desktop app (macOS, Apple Silicon):** download the `.dmg` from the [latest release](https://github.com/peas/stellardeck/releases/latest), drag to Applications, drop a `.md` into the window. First launch: right-click → Open (not code-signed yet).
 
 Sample decks (images included): [`stellardeck-demo-decks.zip`](https://github.com/peas/stellardeck/releases/latest/download/stellardeck-demo-decks.zip)
 

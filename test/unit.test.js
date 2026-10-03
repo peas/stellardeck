@@ -129,6 +129,24 @@ test('combining many flags', () => {
 
 console.log('\n── parseArgs: introspection modes ──');
 
+test('--demo → preview of the bundled getting-started deck', () => {
+  const opts = parseArgs(argv('--demo'));
+  assert.strictEqual(opts.mode, 'preview');
+  assert.ok(opts.input.endsWith(path.join('demo', 'getting-started.md')));
+  assert.ok(fs.existsSync(opts.input), 'demo deck must exist');
+});
+
+test('--demo deck and its images ship in the npm tarball (package.json files)', () => {
+  const root = path.join(__dirname, '..');
+  const { files } = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const md = fs.readFileSync(path.join(root, 'demo', 'getting-started.md'), 'utf8');
+  const refs = [...md.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map(m => m[1]).filter(r => !/^https?:/.test(r));
+  for (const f of ['demo/getting-started.md', ...refs.map(r => path.posix.join('demo', r))]) {
+    assert.ok(files.includes(f), `${f} missing from package.json "files"`);
+    assert.ok(fs.existsSync(path.join(root, f)), `${f} missing on disk`);
+  }
+});
+
 test('--list-themes sets mode and implies json', () => {
   const opts = parseArgs(argv('--list-themes'));
   assert.strictEqual(opts.mode, 'list-themes');

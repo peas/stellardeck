@@ -13,33 +13,39 @@ import { LinkCard, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components
 Pick the track that matches how you work. Each one gets you from zero to a rendered deck in under a minute.
 
 <Tabs>
+  <TabItem label="CLI (npm)">
+    ```bash
+    npm install -g stellardeck
+    stellardeck --demo                # a sample deck opens in your browser
+    ```
+
+    That's the whole setup for presenting. For your own deck:
+
+    ```bash
+    stellardeck --preview deck.md     # live preview in your browser
+    ```
+
+    Exports (PDF, PNG, grid, validation) render in a headless browser, installed once:
+
+    ```bash
+    npx playwright install chromium
+    stellardeck deck.md               # → deck.pdf
+    stellardeck --help                # PNG, grid, batch, validate, themes
+    ```
+  </TabItem>
   <TabItem label="Desktop app (macOS)">
-    1. Download [`StellarDeck-0.9.0-arm64.dmg`](https://github.com/peas/stellardeck/releases/latest) (Apple Silicon)
+    1. Download the `.dmg` from the [latest release](https://github.com/peas/stellardeck/releases/latest) (Apple Silicon)
     2. Drag **StellarDeck** to Applications
     3. First launch: right-click → **Open** (the app isn't code-signed yet, so macOS asks once)
     4. Drop any `.md` file into the window — you're presenting
 
     Arrow keys navigate, `G` opens the grid view, `P` opens presenter mode.
   </TabItem>
-  <TabItem label="CLI">
-    ```bash
-    npm install -g stellardeck
-    npx playwright install chromium   # one-time: the headless renderer
-    ```
-
-    Then, from any directory:
-
-    ```bash
-    stellardeck deck.md               # → deck.pdf
-    stellardeck --preview deck.md     # live preview in your browser
-    stellardeck --help                # PNG, grid, batch, validate, themes
-    ```
-  </TabItem>
   <TabItem label="From source">
     For contributors, or if you want the browser viewer without installing anything globally:
 
     ```bash
-    git clone --branch v0.9.0 https://github.com/peas/stellardeck.git
+    git clone https://github.com/peas/stellardeck.git
     cd stellardeck
     npm install
     npm run preview -- demo/bean-to-bar-chocolate.md
@@ -49,7 +55,7 @@ Pick the track that matches how you work. Each one gets you from zero to a rende
 
 ## Run a sample
 
-Grab the sample decks (three complete presentations, images included) from the release:
+`stellardeck --demo` presents the getting-started deck bundled with the CLI. For the full sample decks (three complete presentations, images included), grab them from the release:
 
 ```bash
 curl -L -o demo.zip https://github.com/peas/stellardeck/releases/latest/download/stellardeck-demo-decks.zip

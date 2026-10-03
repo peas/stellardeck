@@ -29,6 +29,9 @@ const { CDN, SLIDE, THEMES } = coreConstants;
 const { computeStyle, classifySlide } = coreStyleLint;
 
 const PROJECT_DIR = path.resolve(__dirname, '..');
+// Shipped in the npm tarball (package.json "files") so `stellardeck --demo`
+// works right after `npm i -g stellardeck`.
+const DEMO_DECK = path.join(PROJECT_DIR, 'demo', 'getting-started.md');
 const SLIDE_W = SLIDE.WIDTH;
 const SLIDE_H = SLIDE.HEIGHT;
 
@@ -38,21 +41,26 @@ const HELP = `
   stellardeck — Markdown presentation CLI (export, preview, serve)
 
   Usage:
-    node scripts/export.js [options] <input.md> [output]
-    node scripts/export.js --preview <input.md>
-    node scripts/export.js --serve [--port <n>]
-    node scripts/export.js --validate <input.md>
-    node scripts/export.js --list-themes
-    node scripts/export.js --list-schemes <theme>
-    node scripts/export.js --input-dir <dir> --output <dir> [options]
-    cat deck.md | node scripts/export.js [options] - [output]
-    npm run export -- [options] <input.md> [output]
+    stellardeck --demo                       # first run: present the bundled sample deck
+    stellardeck [options] <input.md> [output]
+    stellardeck --preview <input.md>
+    stellardeck --serve [--port <n>]
+    stellardeck --validate <input.md>
+    stellardeck --list-themes
+    stellardeck --list-schemes <theme>
+    stellardeck --input-dir <dir> --output <dir> [options]
+    cat deck.md | stellardeck [options] - [output]
+
+    From a repo checkout: npm run export -- <same options>
 
   Arguments:
     input.md      Path to Deckset markdown file (or "-" to read stdin)
-    output        Output path (default: <input-basename>.<ext> in current dir)
+    output        Output path (default: <input-basename>.<ext> next to the input;
+                  current dir for stdin)
 
   Live modes:
+    --demo             Present the bundled getting-started deck in the browser
+                       (no Playwright install needed). Ctrl+C stops.
     --preview          Open deck in browser for live viewing. Starts a temp
                        server, opens the default browser, and waits. Ctrl+C stops.
     --serve            Start dev server and open viewer in browser.
@@ -97,18 +105,19 @@ const HELP = `
     -h, --help         Show this help
 
   Examples:
-    node scripts/export.js --preview talk.md                 # live preview in browser
-    node scripts/export.js --serve                           # start dev server
-    node scripts/export.js talk.md                           # → talk.pdf
-    node scripts/export.js --png talk.md                     # → talk-slides/001.png...
-    node scripts/export.js --grid talk.md                    # → talk-grid.png
-    node scripts/export.js --validate talk.md                # warnings only, no export
-    node scripts/export.js --review talk.md                  # → talk-review/ pack
-    node scripts/export.js --list-themes                     # available themes as JSON
-    node scripts/export.js --list-schemes nordic             # schemes for a theme
-    node scripts/export.js --slides 1-3 talk.md intro.pdf    # first 3 slides
-    node scripts/export.js --input-dir decks --output dist   # batch
-    cat deck.md | node scripts/export.js --pdf - deck.pdf    # stdin
+    stellardeck --demo                              # sample deck in the browser
+    stellardeck --preview talk.md                   # live preview in browser
+    stellardeck --serve                             # start dev server
+    stellardeck talk.md                             # → talk.pdf
+    stellardeck --png talk.md                       # → talk-slides/001.png...
+    stellardeck --grid talk.md                      # → talk-grid.png
+    stellardeck --validate talk.md                  # warnings only, no export
+    stellardeck --review talk.md                    # → talk-review/ pack
+    stellardeck --list-themes                       # available themes as JSON
+    stellardeck --list-schemes nordic               # schemes for a theme
+    stellardeck --slides 1-3 talk.md intro.pdf      # first 3 slides
+    stellardeck --input-dir decks --output dist     # batch
+    cat deck.md | stellardeck --pdf - deck.pdf      # stdin
 `.trimStart();
 
 // ── Arg parser ───────────────────────────────────────────────
@@ -141,6 +150,7 @@ function parseArgs(argv) {
     else if (a === '--validate') opts.mode = 'validate';
     else if (a === '--review') opts.mode = 'review';
     else if (a === '--preview') opts.mode = 'preview';
+    else if (a === '--demo') { opts.mode = 'preview'; opts.demo = true; }
     else if (a === '--serve') opts.mode = 'serve';
     else if (a === '--list-themes') opts.mode = 'list-themes';
     else if (a === '--list-schemes') {
@@ -174,6 +184,7 @@ function parseArgs(argv) {
 
   // Preview mode — needs input but no output
   if (opts.mode === 'preview') {
+    if (opts.demo) { opts.input = DEMO_DECK; return opts; }
     if (positional.length === 0) throw new CLIError('--preview requires an input file');
     opts.input = positional[0];
     return opts;

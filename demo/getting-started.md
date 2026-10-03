@@ -93,6 +93,18 @@ Items appear one by one:
 
 ---
 
+# Your turn
+
+Write `my-deck.md`, separate slides with `---`, then:
+
+`stellardeck --preview my-deck.md`
+
+`stellardeck my-deck.md` exports a PDF
+
+^ Exports (PDF, PNG, grid) need a one-time `npx playwright install chromium`. Preview doesn't.
+
+---
+
 # Thank You
 
 Learn more at **stellardeck.dev**

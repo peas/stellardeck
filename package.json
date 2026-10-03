@@ -78,7 +78,9 @@
     "assets/brand/",
     "packages/core/src/",
     "packages/core/dist/",
-    "packages/core/package.json"
+    "packages/core/package.json",
+    "demo/getting-started.md",
+    "demo/images/coaches/yuval-ayalon.webp"
   ],
   "allowScripts": {
     "esbuild": true,
