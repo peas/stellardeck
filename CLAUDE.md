@@ -46,15 +46,15 @@ When editing engine/CLI/autoflow → edit here in `~/stellardeck`.
 ## Commands
 
 ```bash
-npm install                # install deps (sharp, pdf-lib)
+npm install                # install deps + build packages/core/dist (workspace prepare → tsup)
 npm run serve              # python3 dev-server.py 3031 (no-cache headers)
-npm test                   # 318 unit tests (~3s): parser, helpers, autoflow, structure, CLI, diagnostics
-npm run test:e2e           # 70 Playwright E2E tests (chromium)
-npm run test:layout        # 32 layout + consistency tests
-npm run test:export        # 40 CLI integration tests (PDF, PNG, grid, batch, warnings)
+npm test                   # ~600 unit tests (~3s): parser, autoflow (+ golden snapshot), structure, CLI, diagnostics
+npm run test:e2e           # 51 Playwright E2E tests (chromium)
+npm run test:layout        # 40 layout + consistency tests
+npm run test:export        # 48 CLI integration tests (PDF, PNG, grid, batch, warnings)
 npm run test:export:unit   # export unit tests only (no browser)
 npm run test:visual        # 18 visual regression tests
-npm run test:all           # all of the above
+npm run test:all           # all of the above (+ diagnostics); test:electron = 41 Electron smoke tests
 npm run preview -- deck.md # open in browser (starts server, Ctrl+C stops)
 npm run export -- deck.md  # export (--pdf default, --png, --grid, --json, --help)
 npm run export -- --serve  # start dev server + open viewer
@@ -107,24 +107,27 @@ Plain scripts (`deckset-parser.js`, `slides2.js`, `diagnostics.js`, `print-mode.
 
 ## Format
 
-Deckset markdown: `---` = separator, `![right]()` / `![left]()` = split, `![filtered]()` = dark overlay background, `![inline]()` = inline image, `![fit]()` = contain background, `#[fit]` = auto-fit heading, `#[top-left]` = positioned, `^` = speaker note, `[.background-color: #hex]` = per-slide. Full spec: `docs/format-spec.yaml` (66 features).
+Deckset markdown: `---` = separator, `![right]()` / `![left]()` = split, `![filtered]()` = dark overlay background, `![inline]()` = inline image, `![fit]()` = contain background, `![bordered]()` = framed image (inline unless left/right), `#[fit]` = auto-fit heading, `#[top-left]` = positioned, `^` = speaker note, `[.background-color: #hex]` = per-slide. Full spec: `docs/format-spec.yaml` (66 features).
 
 ## Autoflow
 
-Convention-over-configuration layout inference. Adding a rule = 1 function + 1 entry in the `RULES` array.
+Convention-over-configuration layout inference, declarative: `packages/core/src/autoflow/` (see the header of `packages/core/src/autoflow.js`). Adding a rule = one file in `rules/` + one line in `rules/index.js`. Pipeline per slide: observers → skip checks → empty → preprocessors → rules by priority (`skipIfDirective` → `guard` → `match` → `transform` → `vary`) → default.
 
 | Rule | Detection | Transform |
 |------|-----------|-----------|
 | title | First slide, 2+ paragraphs, short title | `#[fit]` centered + subtitle |
 | divider | 1-2 word slide | `#[fit]` heading |
-| diagonal | 2 paragraphs, ≥1 ends "?" | `#[top-left]` + `#[bottom-right]` |
-| z-pattern | 4 short paragraphs | 4-corner grid |
-| alternating | 3+ short paragraphs | `[.alternating-colors: true]` |
-| statement | 1-4 short lines (≤8 words) | `#[fit]`, varied alignment |
-| split | 1 bare image + text | `![right]`/`![left]` alternating |
+| diagonal | 2 paragraphs, ≥1 ends "?" | `#[top-left]` + `#[bottom-right]` (not on splits) |
+| z-pattern | 4 short paragraphs | 4-corner grid (not on splits) |
+| alternating | 3+ short paragraphs | `[.alternating-colors: true]` (not on splits) |
+| statement | 1-4 short lines (≤8 words; ≤15 = tier 3) | `#[fit]`, varied alignment; tier 3 = autoscaled block |
+| bare-image-position-variation | 1 bare image + >8 words | `![inline]` → `![left]` → `![right]` across the deck (inline only with ≤2 text lines) |
+| phrase-bullets | heading + 2-3 short bullets | `[.bullets-layout: cards/pills/alternating/staggered]`, cycling |
 | autoscale | >8 lines OR >80 words | `[.autoscale: true]` |
 
-Anti-monotony: statements vary alignment, diagonals mirror corners. Skip checks: explicit directives, code fences, custom blocks.
+Preprocessors: `explicit-image` (explicit split/background image + text → image untouched, text still autoflowed) and `bare-image-background` (bare image + ≤8 words → `![filtered]` hero). Skip checks: text you laid out (`#[fit]`, positions, `[.autoscale]`, `[.alternating-colors]`), code fences, `:::` blocks, explicit images with no text or that the parser renders in flow.
+
+**Changing autoflow behavior:** `test/autoflow-golden.json` pins the output for every repo deck. Regenerate with `UPDATE_GOLDEN=1 node test/autoflow-golden.test.js` and review the JSON diff in the commit. To measure impact on real decks, snapshot before/after with `node scripts/autoflow-snapshot.js <dir> --out x.json` and `--diff a.json b.json` (Paulo's corpus path is in CLAUDE.local.md). Refactors must diff to zero.
 
 ## CLI (`scripts/export.js`)
 
@@ -158,57 +161,31 @@ Types: `overflow`, `missing-image`, `empty-slide`, `code-no-lang`, `theme-mismat
 
 ## Roadmap
 
-### Immediate (0.9)
-- GitHub Actions CI: green
-- Tag v0.9.0 + release
-- Skill `stellardeck`: source text → slides with scoring (in `.claude/skills/stellardeck/`)
-- **Pre-release audit: hunt for any leftover reference to `presentations-paulo`** in code, docs, comments, tests, fixtures, or scripts. If unit/e2e tests pass on a fresh CI clone there shouldn't be any (verified 2026-04-09 with run `24203683873`), but do a final `grep -r presentations-paulo` and `grep -r /Users/peas` over the repo before tagging the first public release. Only `CLAUDE.md` (intentional historical note) and `CLAUDE.local.md` (gitignored) are allowed to mention it.
+### Done
+- **0.9.0 (2026-07/08):** GitHub release (.dmg/.zip/demo decks), site with install tracks, `stellardeck` + `@stellardeck/core` on npm (2026-08-21), VS Code extension MVP (`packages/vscode-ext/`), core extracted to `packages/core/`. Pre-release audit for `presentations-paulo` / `/Users/peas` references: clean.
+- **0.10.0 session (2026-10-03):** `stellardeck --demo`; npm-first quick start (README/site); autoflow declarative refactor (#6) with golden snapshot + corpus diff tooling; explicit images no longer skip autoflow for the text; bare-image rotation + hero threshold (#4); `![bordered]` (#5); nested lists; `#Title` (no space) is a heading in autoflow; Default theme schemes 2/3 CSS; Electron Forge 8 (yauzl override gone); trusted-publishing workflow; site fixes (404 example pages, light-mode gray page from engine CSS, engine loaded once per page). `statement-degraded` (#7) had shipped earlier (`aaf88d9`).
 
-### Cleanup before VS Code + npm (sequenced — do in this order, 2026-05-04)
-
-The `core-extraction` branch shipped `@stellardeck/core@0.1.0` (steps 1-8 of `project_core_extraction_plan.md`, tag `@stellardeck/core@0.1.0`). Cleanup-before-VS-Code-and-npm:
-
-1. **DONE 2026-05-05 (commit `55de14e`)** — Sticky `Reveal.on('ready')` in `slides2.js`. Late-registered handlers now fire async (setTimeout 0) but only AFTER the initial emit, gated on a separate `readyEmitted` flag so handlers registered between resolve() and the emit tick don't double-fire. Also patched `js/main.js::highlightCode()` to re-query `pre code:not(.hljs)` AFTER awaiting the hljs CDN — the original NodeList went stale when smartReload's 1s polling swapped the code element out mid-flight. The e2e syntax-highlight test now passes; in the wild, hljs/QR/MathJax/Mermaid/sidebar/counter all initialise correctly on first load.
-
-2. **DONE 2026-05-05 (commit `29d9da8`)** — Position-grid e2e timing. Replaced the fixed `waitForTimeout(200)` with a `locator.waitFor` + `expect.poll` so the assertion re-checks the ratio for up to 5s. No more NaN from a 0-width rect.
-
-3. **DONE 2026-05-05 (commit `1fe9abd`)** — 18 visual baselines refreshed. All were stale since `b4e3bdc` (2026-04-15): chrome layout had shrunk (slide-area 650→694px) and the `:is(h1..h6) strong { color: var(--r-main-color); }` rule was suppressing cyan strong-tags. Spot-checked default-dark-01, grid-smoke, accent-nordic-02 before regenerating; the new default-dark-08 baseline correctly captures the python syntax highlighting unblocked by step 1.
-
-After 1-3 (all green now):
-
-4. **DONE 2026-05-06.** core-extraction merged straight to main (skipped the electron-migration intermediate — Paulo confirmed). 511 tests green at merge time.
-5. **DONE 2026-05-06 (commit `529a925`).** VS Code extension MVP scaffolded at `packages/vscode-ext/`. Live preview side-by-side, diagnostics → Problems panel. Loads `@stellardeck/core/dist/browser-globals.global.js` + `slides2.js` + `css/themes.css` in a sandboxed webview. To test: `code packages/vscode-ext` then F5 → in the dev host, open any `.md`, run `StellarDeck: Open Preview to the Side` (`Cmd+K V`).
-6. **DONE 2026-08-21** — `@stellardeck/core@0.9.0` and `stellardeck@0.9.0` (CLI, unscoped) live on npm. Publish saga: required verified email + 2FA enrollment + a FRESH `npm login` session created after 2FA (pre-2FA sessions get masked E404 on PUT). Heads-up: token-based publish dies Jan 2027 — migrate to trusted publishing (OIDC via GitHub Actions) before then.
-7. **DONE 2026-07-16** — site regenerated with the 3 get-started tracks (app .dmg / CLI npm / source); npm snippets went live for real on 2026-08-21 with the publish.
-
-### Próximos (pós-0.9.0, priorizados 2026-08-21)
-
-1. **TODO — First-run npm: `stellardeck --demo` + quick start liderado por `npm i -g`.** The site's CLI track works but the fastest possible first success would be: `npm i -g stellardeck && stellardeck --demo` → browser opens presenting a bundled sample deck. Ship ONE small deck in the npm tarball (`demo/getting-started.md` is text-only and tiny — or a trimmed variant with 2-3 images worth <200KB), add `--demo` flag = `--preview` on that bundled deck. Then reorder the site's getting-started so the npm track comes FIRST (it's the one-command path; .dmg second, source third). Update README quick start to match. Asked by Paulo 2026-08-21.
-2. **TODO — #6 Autoflow declarative refactor** (github issue #6). `autoflow/` dir with engine.js + rules/<name>.js, each rule {name, priority, match, transform, skipIfDirective}, ctx with state+history. Migrate rule-by-rule, tests green throughout. BLOCKS #4 (bare-image rotation) and every new rule (lone-URL→QR, aspect-ratio, phrase-bullets rescue). Dedicated session.
-3. **TODO — hand-balancing.md storytelling rework.** Same treatment as bean-to-bar (3 acts, characters, invitation ending — commit 3ddeb66 as reference). Propose the arc first.
-4. **TODO — remaining issues:** #7 statement-degraded diagnostic (small), #3 accent highlighter, #5 ![bordered], #8 CLI native screenshots (1.0).
-5. **TODO — trusted publishing (OIDC) via GitHub Actions** before Jan 2027 (npm kills token publish). Workflow publishes both packages on tag; config on npmjs.com package settings.
+### Next
+1. **Trusted publishing:** `.github/workflows/publish.yml` is in place; each package needs a Trusted Publisher on npmjs.com (owner `peas`, repo `stellardeck`, workflow `publish.yml`). After that, releases = bump both versions + push a `v*` tag. Must be live before Jan 2027 (token publish ends).
+2. **hand-balancing.md storytelling rework.** Same treatment as bean-to-bar (3 acts, characters, invitation ending — commit 3ddeb66 as reference). Propose the arc first.
+3. **Remaining issues:** #3 accent highlighter (needs visual dialing), #8 CLI native screenshots (1.0 — also unblocks `color-mix()` in engine CSS, which html2canvas can't parse).
+4. **Open design questions surfaced 2026-10-03:** (a) `[.background-color]` on a light scheme leaves dark text on a dark custom background — auto-contrast? (b) statements beside a split image use per-line `#[fit]`, which gets ragged at 4 lines in a half-width column — cap or switch to the block tier on splits? (c) `**bold**` inside `#[fit]` loses the accent color (theme rule `:is(h1..h6) strong`) — so statement-ized text loses its highlights.
 
 ### Post-0.9
 - **VSCode + Obsidian extensions** (live preview, IntelliSense, diagnostics). Shared problem: how to tell a StellarDeck `.md` from any other markdown file. Can't activate on every `.md`. Options: (a) file extension convention `.deck.md`; (b) detect `.stellar.json` sidecar in same directory; (c) detect StellarDeck-specific frontmatter (`theme:`, `autoflow:`, `slidenumbers:`); (d) explicit activation via command palette / file-type override. Likely **(a) + (c)**: activate when file is `*.deck.md` OR contains Deckset/StellarDeck frontmatter. Both extensions share the same detection logic.
 - Config file `.stellarrc` (workspace defaults)
 - Server mode `stellardeck serve` (`?pdf`, `?pptx` endpoints)
-- `@stellardeck/core` npm package
 - `headingDivider` directive (auto-split at H1/H2)
 - Custom slide sizes (4:3, 16:10)
 - `--html` self-contained export
 - `--parallel N` for batch
 - Runtime theme registration
-- **PPTX export from screenshots (`--pptx` flag on the main CLI).** Today there's `scripts/export-pptx.js` (native PowerPoint elements — editable text, images) and the main `scripts/export.js` does PDF/PNG/grid via Playwright. Add `--pptx` to the main pipeline so screenshots-PPTX shares the captureSlides() infra (just wraps each PNG in a fullbleed `slide.addImage` via `pptxgenjs`, layout `LAYOUT_WIDE` 13.333×7.5in 16:9). Use case: handing the deck to a non-technical client / event organizer who only opens PowerPoint. Verified manually 2026-05-06: works perfectly (Paulo's vibecoders-builders-hipsters deck → 26-slide pptx, 23MB). One-shot script lives in shell history; needs to become first-class. Open question: name `--pptx` (parity with `--pdf`/`--png`) vs `--pptx-screenshots` to leave room for a future `--pptx-native` mode that calls into the existing native exporter — recommend `--pptx` (default = screenshots, the safer/uglier-but-pixel-perfect choice) and `--pptx-native` for the native variant.
-- **Right-click context menu on a deck → Export submenu.** In the Electron app sidebar (and later VS Code ext tree view), right-click on a deck card should expose Export → PDF / PNGs / PPTX (screenshots) / PPTX (native). Today exports require typing the CLI or hitting the toolbar PDF button — no per-deck path. Wire to existing `scripts/export.js` via `desktopInvoke('export-deck', { path, format })`.
-- **Accent as highlighter (marker stroke), not just colored text.** Today the accent on `**bold**` is `color: var(--accent)`. Sometimes the better treatment is a *highlighter* — a translucent accent fill behind the text, like a yellow marker on a book. Per-theme (or per-scheme) opt-in: a theme metadata flag `accentStyle: "highlight"` swaps the CSS rule from text-color to background. **For serif themes specifically, the highlight should have rounded corners** (subtle border-radius on the background span, ~0.15em) — straight-edge marker on serif looks cheap; rounded reads as deliberate. Sans-serif can stay rectangular if it fits the brand. Implementation: add a `.theme-X { --accent-mode: highlight; }` switch + a CSS rule like `:is(strong, b) { background: linear-gradient(transparent 60%, var(--accent) 60%); padding: 0 .1em; border-radius: var(--accent-radius, 0); }`, with `--accent-radius: .15em` set on serif themes only. Test on Letters from Brazil (serif), Borneli (display), and a sans theme to dial the proportions. Asked by Paulo 2026-05-06 while editing t-shaped-dev.md.
-- **Autoflow rule: lone-URL → QR + clickable link below.** If a slide has only one URL line (optionally with a short label), autoflow renders the URL as a large centered QR code AND keeps the clickable link rendered below it in small text. Solves both use cases at once: the audience scans, the presenter clicks during demo. Heuristic: trigger when URL is the only meaningful content. No new directive needed — pure autoflow inference. Prototype behind a flag first.
-- **REFACTOR (do this first): autoflow → declarative data-as-code.** Today `autoflow.js` is one ~600-line imperative file with rules embedded as functions. The new shape: an `autoflow/` directory with `engine.js` + `analyze.js` + `rules/<name>.js`, each rule a plain JS object with `name`, `priority`, `match(info, ctx)`, `transform(info, ctx)`, `skipIfDirective`. The `ctx` carries `state` (mutable across slides — `lastBareImageSide`, `lastSplitSide`, etc) and `history` (which rule fired on each previous slide), so rules can express "after 3 bullet slides in a row, switch to alternating-colors" naturally. Migration: add new dir alongside old file, migrate rule-by-rule keeping tests green, delete old file last. **Don't add new autoflow rules until this is done** — they'd just need rewriting. Sketch in `/tmp/autoflow-declarative-sketch.md` (2026-04-09).
-- **Autoflow rule (post-refactor): bare images rotate position across deck.** When a slide has a bare `![](src)` (no `right/left/inline/qr/fit/filtered/bg` modifier), the autoflow assigns a position based on the LAST bare-image position used in the deck: rotate `center → left → right → center → ...`. The `center` variant leaves room for a 1-2 line title above the image (large hero treatment). NO aspect-ratio measurement in v1 — just rotate. This gives natural rhythm without the user thinking about it. Skip if a rule earlier in priority order already handled the slide.
-- **Autoflow rule (post-refactor + later): bare image aspect-ratio aware layout.** Enhancement on top of bare-image-rotate. Measure the image at render time (in `js/render.js`, NOT in autoflow which is sync markdown→markdown), set a class on the parent slide (`is-portrait` / `is-landscape` / `is-square`), and let CSS pick the visual treatment: portrait → split (left or right), landscape → centered hero with text below. Needs a small JS helper (~10 lines) using `img.naturalWidth/Height`. Parser also needs to mark bare images with a class so the JS can find them.
-- **Autoflow rule (post-refactor): rescue "1 phrase + 2-3 short bullets" slides.** Open question for the design: a slide with one headline and 2-3 short bullets renders as title + bulleted list, which feels flat in the middle of a deck. Pick from a small palette of layouts (`cards`, `pills`, `split-large-headline`, `alternating-bullets`) biased away from whatever was used last (anti-monotony). Each layout needs CSS + maybe a `[.layout: name]` directive in the parser. Sketch 2-3 layouts on a real deck before committing. Same approach for "4 short standalone phrases".
-- **Diagnostic: distinguish "expected fit" from "real overflow".** The current `diagnostics.js` overflow check fires when any descendant goes past the slide frame. It does NOT misfire for `![fit]` images that letterbox (those stay inside the frame). But it's missing a positive signal: "image is fit-with-letterbox here, autoflow could choose a better layout". Useful for the bare-image-aspect rule above. Add a new diagnostic type `expected-fit` (or similar) — same severity as `info`, not `warn`.
-- **Diagnostic: `statement-degraded` (info severity).** Emit when the statement rule used tier 3 (9-15 words/line, autoscale fallback). Tells the user the slide *did* render but lost the #[fit] impact treatment because the line is denser than ideal. Click navigates to the slide. Message: "tier-3 statement: line N has X words — consider splitting for stronger impact". Pairs with the existing graceful tier degradation in `autoflow.js::statementRule` so users get visual + textual feedback about why their slide looks smaller than other statement slides. (Step C of the 2026-05-02 design discussion; A shipped, C deferred.)
+- **PPTX export from screenshots (`--pptx` flag on the main CLI).** Today there's `scripts/export-pptx.js` (native PowerPoint elements — editable text, images) and the main `scripts/export.js` does PDF/PNG/grid via Playwright. Add `--pptx` to the main pipeline so screenshots-PPTX shares the captureSlides() infra (just wraps each PNG in a fullbleed `slide.addImage` via `pptxgenjs`, layout `LAYOUT_WIDE` 13.333×7.5in 16:9). Use case: handing the deck to a non-technical client / event organizer who only opens PowerPoint. Verified manually 2026-05-06: works perfectly (Paulo's vibecoders-builders-hipsters deck → 26-slide pptx, 23MB). Open question: name `--pptx` (parity with `--pdf`/`--png`) vs `--pptx-screenshots` to leave room for a future `--pptx-native` mode — recommend `--pptx` (default = screenshots) and `--pptx-native` for the native variant.
+- **Right-click context menu on a deck → Export submenu.** In the Electron app sidebar (and later VS Code ext tree view), right-click on a deck card should expose Export → PDF / PNGs / PPTX (screenshots) / PPTX (native). Wire to existing `scripts/export.js` via `desktopInvoke('export-deck', { path, format })`.
+- **Accent as highlighter (marker stroke), not just colored text** (issue #3). Per-theme opt-in `--accent-mode: highlight`; serif themes get rounded corners (~0.15em). Test on Letters from Brazil (serif), Borneli (display), and a sans theme to dial the proportions. Asked by Paulo 2026-05-06.
+- **Autoflow rule: lone-URL → QR + clickable link below.** If a slide has only one URL line (optionally with a short label), render it as a large centered QR code AND keep the clickable link below in small text. Today a lone URL hits the divider rule and becomes a giant `#[fit]` line. Now just one file in `packages/core/src/autoflow/rules/`.
+- **Autoflow (later): bare image aspect-ratio aware layout.** On top of the rotation: measure the image at render time (in `js/render.js`, NOT in autoflow which is sync markdown→markdown), set `is-portrait` / `is-landscape` on the slide, and let CSS pick: portrait → split, landscape → centered hero with text below.
+- **Diagnostic: distinguish "expected fit" from "real overflow".** New info-level `expected-fit` type: "image is fit-with-letterbox here, autoflow could choose a better layout". Useful for the aspect-ratio rule above.
 
 ### 1.0
 - Windows build + CI

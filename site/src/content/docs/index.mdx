@@ -33,7 +33,7 @@ A sample deck opens in your browser. Then `stellardeck --preview your-deck.md`. 
 
 **Storytelling.** A deck is a sequence of moments. Markdown's constraints (one file, short slides, linear order) keep focus on what you're saying. Reading through the deck feels like reading a script.
 
-**Autoflow.** Reads each slide's content and picks a layout. A slide with four short lines gets a Z-pattern. An image next to text becomes a split. Two paragraphs ending in questions become a diagonal. Consecutive slides don't get the same treatment (anti-monotony).
+**Autoflow.** Reads each slide's content and picks a layout. A slide with four short lines gets a Z-pattern. An image with a few words becomes a hero; with more text, a split. Two paragraphs ending in questions become a diagonal. Consecutive slides don't get the same treatment (anti-monotony).
 
 **Agent-native.** The CLI takes stdin, exports PDF/PNG/grid, runs batch with `--input-dir`, and emits typed JSON diagnostics (content overflow, missing images, theme mismatches) that callers can act on without parsing text. The embed API exposes the same via `onDiagnostics`.
 

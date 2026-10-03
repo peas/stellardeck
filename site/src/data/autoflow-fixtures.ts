@@ -27,7 +27,7 @@ export const autoflowFixtures: Record<string, AutoflowFixture> = {
     rule: 'skip-checks',
     title: 'Skip checks',
     priority: 0,
-    description: 'When autoflow does NOTHING — explicit directives, code, custom blocks.',
+    description: 'When autoflow does NOTHING — text you laid out yourself, code, custom blocks. An explicit image with text is NOT a skip.',
     md: skipChecks,
   },
   title: {
@@ -69,14 +69,14 @@ export const autoflowFixtures: Record<string, AutoflowFixture> = {
     rule: 'statement',
     title: 'Statement',
     priority: 60,
-    description: '1-4 short lines (≤8 words each) get the #[fit] treatment.',
+    description: '1-4 short lines (≤8 words each) get the #[fit] treatment; up to 15 words they scale as one dense block.',
     md: statement,
   },
   'bare-image-position-variation': {
     rule: 'bare-image-position-variation',
     title: 'Bare image position variation (history-based)',
     priority: 70,
-    description: 'A bare ![](src) varies position across the deck: inline → left → right → ...',
+    description: 'A bare ![](src) with more than 8 words varies position across the deck: inline → left → right. With fewer words it becomes a filtered hero background.',
     md: bareImagePositionVariation,
   },
   'phrase-bullets': {

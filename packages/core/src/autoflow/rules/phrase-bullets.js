@@ -27,8 +27,8 @@ const { isHeading, isListItem, wordCount } = require('../lines.js');
 const PHRASE_BULLETS_PALETTE = ['cards', 'pills', 'alternating', 'staggered'];
 
 module.exports = {
-  description: 'Bullet list where items are short phrases (≤12 words, 3-8 items). Applies a visual bullet style (pills, staggered, or alternating) that varies across the deck.',
-  example: '- Teamwork\n- Orchestrating the build\n- Understanding the full scope',
+  description: 'One short headline (≤8 words) plus 2-3 short bullets (≤6 words each) and nothing else. Picks a layout from a palette — cards → pills → alternating → staggered — cycling across the deck so neighbors differ.',
+  example: '# What changes\n\n- Teamwork\n- Orchestrating the build\n- Understanding the full scope',
   name: 'phrase-bullets',
   priority: 75,  // after bare-image-position-variation (70), before autoscale (80)
   match(info, ctx) {

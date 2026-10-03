@@ -25,38 +25,38 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
   process.exit(0);
 }
 
-const { RULES, SKIP_CHECKS, AUTOFLOW_DEFAULTS } = require('@stellardeck/core/autoflow');
+const { RULES, SKIP_CHECKS, PREPROCESSORS, AUTOFLOW_DEFAULTS } = require('@stellardeck/core/autoflow');
 
 const sorted = [...RULES].sort((a, b) => a.priority - b.priority);
 
 const lines = [];
 lines.push('# Autoflow Rules Reference');
 lines.push('');
-lines.push('> Auto-generated from `autoflow.js` rule metadata.');
-lines.push('> Run `node scripts/autoflow-docs.js` to regenerate.');
+lines.push('> Auto-generated from rule metadata in `packages/core/src/autoflow/`.');
+lines.push('> Run `node scripts/autoflow-docs.js > docs/autoflow-rules.md` to regenerate.');
 lines.push('');
 lines.push('Autoflow is convention-over-configuration layout inference. Write plain');
 lines.push('markdown, and autoflow infers the best layout based on content structure.');
 lines.push('Rules are evaluated in priority order — first match wins.');
 lines.push('');
-lines.push('## How to enable');
+lines.push('## On by default');
 lines.push('');
-lines.push('Add `autoflow: true` to the frontmatter:');
+lines.push('Autoflow runs unless the deck opts out with `autoflow: false` in the');
+lines.push('frontmatter. The toolbar toggle (desktop app) and the CLI flags');
+lines.push('`--autoflow` / `--no-autoflow` override the deck.');
 lines.push('');
-lines.push('```markdown');
-lines.push('autoflow: true');
-lines.push('theme: Alun, 1');
-lines.push('```');
+lines.push('## Pipeline');
 lines.push('');
-lines.push('Or toggle in the toolbar (desktop app), or pass `--autoflow` to the CLI.');
+lines.push('observers → skip checks → empty → preprocessors → rules (priority order) → default');
 lines.push('');
 lines.push('## Pre-processing');
 lines.push('');
-lines.push('Before rules run, autoflow applies one pre-processing step:');
+lines.push('After the skip checks and before the rules, preprocessors rewrite the slide');
+lines.push('and let the pipeline continue:');
 lines.push('');
-lines.push('- **Bare image + text → filtered background**: When a slide has one bare');
-lines.push('  image (`![](src)`) alongside text, the image becomes `![filtered](src)`');
-lines.push('  (dark overlay background). Text rules then apply normally on top.');
+for (const pre of PREPROCESSORS) {
+  lines.push(`- **${pre.name}**: ${pre.description}`);
+}
 lines.push('');
 lines.push('## When autoflow does NOT touch a slide');
 lines.push('');
@@ -86,6 +86,8 @@ for (const rule of sorted) {
   lines.push('');
   lines.push(`**Priority:** ${rule.priority}${rule.guard ? ' (guarded)' : ''}`);
   if (rule.vary) lines.push('  \n**Anti-monotony:** yes (varies across consecutive uses)');
+  if (rule.observe) lines.push('  \n**Cross-slide:** observes every slide (state carries across the deck)');
+  if (rule.skipIfDirective) lines.push(`  \n**Sits out on:** ${rule.skipIfDirective.map(d => `\`${d}\``).join(', ')} slides`);
   lines.push('');
   lines.push(rule.description || '*No description.*');
   lines.push('');

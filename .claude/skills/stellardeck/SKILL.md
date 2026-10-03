@@ -53,7 +53,8 @@ From 331 real decks we analyzed: **median 9 words per slide**, 50% of slides hav
 ### 3. Autoflow handles layout — by default
 Autoflow picks layouts from content shape:
 - Four short lines → Z-pattern
-- Single image next to text → split layout
+- Bare image `![](src)` with a few words (≤8) → filtered hero background; with more text → split, sides alternating across the deck
+- Explicit `![right]`/`![left]` keeps your side and the text beside it still gets autoflow (a short line becomes a `#[fit]` statement)
 - Two paragraphs ending in questions → diagonal
 - 1-2 word slide → giant divider
 - First slide with short title + subtitle → centered title

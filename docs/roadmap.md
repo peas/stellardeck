@@ -1,5 +1,11 @@
 # StellarDeck Roadmap
 
+> **Historical snapshot (2026-03-29), kept for context.** The live roadmap is
+> the Roadmap section of [CLAUDE.md](../CLAUDE.md) plus the
+> [GitHub issues](https://github.com/peas/stellardeck/issues). Since this was
+> written: Tauri → Electron, Reveal.js removed, engine extracted to
+> `@stellardeck/core`, npm release, declarative autoflow (9 rules).
+
 Last updated: 2026-03-29
 
 ## Current state

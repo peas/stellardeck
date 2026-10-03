@@ -17,15 +17,16 @@ Navigate the deck above to see autoflow in action. Every slide was written as pl
 
 Each slide passes through a pipeline before the parser runs:
 
-1. **Skip checks** — slides with explicit directives (`#[fit]`, `![right]`, position modifiers), code fences, or custom blocks (`:::columns`) are left alone.
-2. **Rule matching** — the slide is tested against each rule in order. First match wins.
-3. **Directive injection** — the matched rule injects directives into the raw markdown. The parser handles them normally.
+1. **Skip checks** — slides whose text you already laid out (`#[fit]`, position modifiers, `[.autoscale]`), code fences, or custom blocks (`:::columns`) are left alone.
+2. **Preprocessing** — images are set aside so the rules see only the words. An explicit `![right]`/`![left]`/`![fit]`/`![filtered]` stays exactly as written; a bare `![](src)` with a few words becomes a dark-filtered hero background.
+3. **Rule matching** — the slide is tested against each rule in priority order. First match wins. Rules that need the whole slide (diagonal, Z-pattern, alternating) sit out on split slides.
+4. **Directive injection** — the matched rule injects directives into the raw markdown. The parser handles them normally.
 
 Autoflow never invents content. It only adds the same directives you would write by hand.
 
 ## Rules
 
-Eight rules, evaluated in this order:
+Nine rules, evaluated in this order:
 
 | Rule | When it matches | What it does |
 |:-----|:----------------|:-------------|
@@ -34,8 +35,9 @@ Eight rules, evaluated in this order:
 | **Diagonal** | 2 paragraphs, at least one ends with `?` | Top-left + bottom-right positioning |
 | **Z-Pattern** | Exactly 4 short paragraphs | Four corners: TL, TR, BL, BR |
 | **Alternating** | 3+ short paragraphs | Accent color rotation |
-| **Statement** | 1-4 short lines (max 8 words each) | `#[fit]` headings, alignment varies |
-| **Split** | One bare image + text | `![right]` or `![left]`, alternating sides |
+| **Statement** | 1-4 short lines (up to 8 words; 15 as a dense block) | `#[fit]` headings, alignment varies |
+| **Image + text** | One bare image + more than 8 words | `![inline]` → `![left]` → `![right]` across the deck (a few words: filtered hero background) |
+| **Phrase + bullets** | One short heading + 2-3 short bullets | Cards, pills, alternating, or staggered — rotates across the deck |
 | **Autoscale** | More than 8 lines or 80+ words | `[.autoscale: true]` |
 
 ### Title
@@ -122,10 +124,10 @@ The sidecar approach means autoflow never modifies your markdown. Layout inferen
 
 ## Mixing Autoflow with Explicit Directives
 
-Autoflow respects your choices. If you write `![right]` or `#[fit]` explicitly, autoflow won't override the image position — but it will still apply text-level improvements to the rest of the slide. You only fully opt out with `autoflow: false` in frontmatter.
+Autoflow respects your choices. If you place an image explicitly (`![right]`, `![left]`, `![fit]`, `![filtered]`), autoflow leaves the image exactly where you put it — and still lays out the words beside it, so a short line next to `![right]` becomes a statement. If you lay out the text yourself (`#[fit]`, `#[top-left]`, `[.autoscale]`), autoflow leaves that slide alone. You fully opt out with `autoflow: false` in frontmatter.
 
 ## Rules Are Evolving
 
-Autoflow rules are actively improving. New rules (image position rotation, aspect-ratio aware layouts, phrase-bullet palettes) will be added in future releases, and existing rules may be refined. In a future version, rules will be individually configurable via presets (Storyteller, Presenter, Dense) or per-rule overrides.
+Autoflow rules are actively improving. Each rule is a small declarative object in its own file (`packages/core/src/autoflow/rules/`), so new ones — a lone URL becoming a QR code, aspect-ratio aware image layouts — can be added without touching the others, and existing rules may be refined. In a future version, rules will be individually configurable via presets (Storyteller, Presenter, Dense) or per-rule overrides.
 
 The current rule set is stable for production use — changes are additive and backward-compatible.
