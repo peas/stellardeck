@@ -261,6 +261,12 @@
     .deckset-inline-single img {
       max-height: 500px; object-fit: contain; border-radius: 12px;
     }
+    /* ![bordered] — hairline frame in the body text color so dark/transparent
+       images don't vanish into the slide, on dark and light schemes alike.
+       (No color-mix(): the CLI's html2canvas rasterizer can't parse it.) */
+    .sd-slide img.deckset-bordered {
+      border: 1px solid var(--r-main-color, currentColor);
+    }
 
     /* ===== :::columns directive ===== */
     .deckset-columns {

@@ -656,6 +656,23 @@
     Background image with dark semi-transparent overlay (50% black).
     Makes text readable over busy images.
 
+- id: image-bordered
+  category: images
+  name: Bordered image
+  status: implemented
+  target: n/a
+  deckset: false
+  syntax: "![bordered](image.png)"
+  example: |
+    ![bordered right](logo.png)
+
+    # Built with StellarDeck
+  description: >
+    Hairline frame in the body text color, for dark or transparent images
+    (a black-background logo) that would vanish into a dark slide. Always
+    renders as an image, never as a background: alone or with text it is
+    inline; composes with left/right for split layouts.
+
 - id: image-right
   category: images
   name: "Split layout (image right)"

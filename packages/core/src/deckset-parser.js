@@ -156,7 +156,7 @@ let _refLinks = {};
  * Parse all Deckset image/media references in a line.
  *
  * Modifiers can include: left, right, inline, fit, fill, original,
- * filtered, autoplay, loop, mute, hide, and percentages like "50%"
+ * filtered, bordered, autoplay, loop, mute, hide, and percentages like "50%"
  *
  * @param {string} line - A markdown line
  * @returns {MediaRef[]} Array of parsed media references
@@ -188,6 +188,11 @@ function findMedia(line) {
       if (hm) { height = addUnit(hm[1]); return false; }
       return true;
     });
+    // `bordered` is about showing the image as an image (a dark logo on a
+    // dark slide), never as a background: without left/right it renders inline.
+    if (mods.includes('bordered') && !mods.some(m => m === 'left' || m === 'right' || m === 'inline')) {
+      mods.push('inline');
+    }
     results.push({ modifiers: mods, src, full: match[0], rawMods, width, height });
   }
   return results;
@@ -365,7 +370,8 @@ function renderMedia(media) {
   }
 
   // Regular image
-  return `<img src="${src}" style="${pctStyle}${sizeStyle}" />`;
+  const cls = mods.includes('bordered') ? ' class="deckset-bordered"' : '';
+  return `<img src="${src}"${cls} style="${pctStyle}${sizeStyle}" />`;
 }
 
 // ============================================================

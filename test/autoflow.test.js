@@ -419,6 +419,12 @@ test('image with modifiers is NOT bare-image-rotate (explicit)', () => {
   assert.equal(result.rule, 'explicit');
 });
 
+test('![bordered] is not bare: never turned into a filtered background', () => {
+  const result = applyAutoflow(lines('![bordered](logo.png)\n\nBuilt with StellarDeck'), 0);
+  assert.ok(result.lines.some(l => l.includes('![bordered](logo.png)')));
+  assert.ok(!result.lines.some(l => l.includes('![filtered]')));
+});
+
 test('image-only slide is NOT bare-image-rotate (no text)', () => {
   const input = lines('![](photo.jpg)');
   const result = applyAutoflow(input, 0);

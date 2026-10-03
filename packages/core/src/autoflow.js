@@ -134,7 +134,7 @@ function consecutiveCount(rule, prevRules) {
 // 3. Image extraction — used by analyzeSlide and bare-image-position-variation
 // ============================================================
 
-const LAYOUT_MODIFIERS = ['right', 'left', 'inline', 'fit', 'filtered', 'bg', 'qr'];
+const LAYOUT_MODIFIERS = ['right', 'left', 'inline', 'fit', 'filtered', 'bg', 'qr', 'bordered'];
 
 function findSlideImages(rawLines) {
   const images = [];

@@ -362,6 +362,25 @@ test('![filtered](img) → dark overlay (black bg + opacity)', () => {
   assert.ok(html.includes('data-background-color="#000"'));
 });
 
+test('![bordered](img) alone → inline image with the bordered class, not a background', () => {
+  const html = parseDecksetMarkdown('![bordered](logo.png)');
+  assert.ok(html.includes('class="deckset-bordered"'));
+  assert.ok(html.includes('deckset-inline-single'));
+  assert.ok(!html.includes('data-background-image'));
+});
+
+test('![bordered] + text on the first line stays inline (not a background)', () => {
+  const html = parseDecksetMarkdown('![bordered](logo.png)\n\n# Built with StellarDeck');
+  assert.ok(!html.includes('data-background-image'));
+  assert.ok(html.includes('<img src="logo.png" class="deckset-bordered"'));
+});
+
+test('![bordered right] composes with split layout', () => {
+  const html = parseDecksetMarkdown('![bordered right](logo.png)\n\n# Hi');
+  assert.ok(html.includes('deckset-split'));
+  assert.ok(html.includes('class="deckset-bordered"'));
+});
+
 test('![right](img) with text → split layout', () => {
   const html = parseDecksetMarkdown('![right](photo.jpg)\n\n# Title\n\nSome text');
   assert.ok(html.includes('deckset-split'));

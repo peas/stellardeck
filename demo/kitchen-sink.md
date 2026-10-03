@@ -263,6 +263,14 @@ Image on the right, text on the left.
 
 ---
 
+![bordered right](../assets/brand/stellardeck-simplified-min-512.png)
+
+# `![bordered]` — Framed Image
+
+A hairline frame in the text color, so dark or transparent images don't vanish into the slide.
+
+---
+
 #[fit] Big Bold
 #[fit] Statement
 
