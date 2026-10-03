@@ -324,6 +324,20 @@ test('listSchemes("nordic") returns schemes with bg/fg', () => {
   assert.ok('fg' in result.schemes[0]);
 });
 
+test('every scheme in constants.js has a CSS rule in themes.css', () => {
+  // Default theme's schemes 2/3 were listed (picker, --list-schemes) but had
+  // no CSS, so choosing them silently did nothing.
+  const css = fs.readFileSync(path.join(__dirname, '..', 'css', 'themes.css'), 'utf8');
+  const missing = [];
+  for (const { name, schemeCount } of listThemes()) {
+    for (const s of listSchemes(name).schemes) {
+      if (!css.includes(`.theme-${name}.scheme-${s.id}`)) missing.push(`${name}.${s.id}`);
+    }
+    assert.ok(schemeCount > 0);
+  }
+  assert.deepStrictEqual(missing, []);
+});
+
 test('listSchemes("default") works with renamed default theme', () => {
   const result = listSchemes('default');
   assert.strictEqual(result.theme, 'default');

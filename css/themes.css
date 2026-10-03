@@ -41,6 +41,13 @@
       --sd-code-radius: 8px;
     }
 
+    /* Default theme schemes. In the app, Default means "no theme-* class" on
+       .reveal; the CLI/URL (`--theme default`) adds .theme-default. Scheme 1
+       repeats the :root values so switching back from 2/3 works. */
+    .reveal:not([class*="theme-"]).scheme-1, .theme-default.scheme-1 { --r-background-color: #0a0a0a; --r-heading-color: #f8fafc; --r-main-color: #e2e8f0; --accent: #0ea5e9; }
+    .reveal:not([class*="theme-"]).scheme-2, .theme-default.scheme-2 { --r-background-color: #ffffff; --r-heading-color: #111111; --r-main-color: #374151; --accent: #0369a1; }
+    .reveal:not([class*="theme-"]).scheme-3, .theme-default.scheme-3 { --r-background-color: #1e293b; --r-heading-color: #e2e8f0; --r-main-color: #94a3b8; --accent: #38bdf8; }
+
     /* ===== Letters from Brazil — Bold condensed uppercase ===== */
     .theme-letters-from-brazil {
       --r-heading-font: 'TrimPoster-SemiCondensed', 'Trim Poster SemiCondensed', 'Saira Extra Condensed', 'Barlow Condensed', sans-serif;
