@@ -1,5 +1,8 @@
 /* chrome.css — Grid overlay, toast, tabs, toolbar, popover, about, welcome */
 
+    /* Deckset-style gray canvas — slide floats on neutral background (viewer only) */
+    html, body { background: #2d2d32 !important; margin: 0; }
+
     /* ===== Grid overview (custom, smooth) ===== */
     #grid-overlay {
       position: fixed; top: 36px; left: 0; right: 0; bottom: 0;

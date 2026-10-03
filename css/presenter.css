@@ -6,7 +6,7 @@ body {
   display: grid;
   grid-template-rows: 44px 1fr minmax(120px, 35vh);
   height: 100vh;
-  background: #141414;
+  background: #2d2d32; /* same canvas gray as the viewer */
   color: #e2e8f0;
   font-family: 'Inter', system-ui, sans-serif;
   overflow: hidden;

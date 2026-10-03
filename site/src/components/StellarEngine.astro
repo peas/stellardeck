@@ -1,16 +1,26 @@
 ---
 /**
  * StellarEngine — loads engine scripts + init logic.
- * Include once per page. StellarSlide and StellarDeck include it automatically.
- * Safe to include multiple times — scripts are deduped by Astro's is:inline.
+ * StellarSlide and StellarDeck include it, so a guide page renders it once
+ * per embed. is:inline scripts are NOT deduped by Astro, and re-running the
+ * engine's classic scripts throws "Identifier … has already been declared" —
+ * so the scripts are injected once per page behind a window flag (async=false
+ * keeps execution in insertion order).
  */
 ---
 
-<script is:inline src="/engine/stellar-slides.js"></script>
-<script is:inline src="/engine/highlight.min.js"></script>
-<script is:inline src="/engine/stellar-autoflow.js"></script>
-<script is:inline src="/engine/stellar-parser.js"></script>
-<script is:inline src="/engine/stellar-embed.js"></script>
+<script is:inline>
+  if (!window.__stellarEngineRequested) {
+    window.__stellarEngineRequested = true;
+    ['/engine/stellar-slides.js', '/engine/highlight.min.js', '/engine/stellar-autoflow.js',
+     '/engine/stellar-parser.js', '/engine/stellar-embed.js'].forEach(function (src) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.async = false;
+      document.head.appendChild(s);
+    });
+  }
+</script>
 <link rel="stylesheet" href="/engine/stellar-slides.css" />
 <link rel="stylesheet" href="/engine/stellar-themes.css" />
 <link rel="stylesheet" href="/engine/stellar-layout.css" />

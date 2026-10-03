@@ -44,6 +44,9 @@ import { readdirSync, existsSync, statSync } from 'fs';
 
 const demoImages = join(root, 'demo', 'images');
 const examplePaths = [
+  'examples/getting-started',
+  'examples/kitchen-sink',
+  'examples/autoflow',
   'examples/bean-to-bar',
   'examples/hand-balancing',
   'examples/vibe-coding',
@@ -67,8 +70,11 @@ if (existsSync(demoImages)) {
 // Copy brand assets (used by kitchen-sink demo)
 const brandSrc = join(root, 'assets', 'brand');
 if (existsSync(brandSrc)) {
-  const brandDest = join(__dirname, '..', 'public', 'assets', 'brand');
-  cpSync(brandSrc, brandDest, { recursive: true });
+  cpSync(brandSrc, join(__dirname, '..', 'public', 'assets', 'brand'), { recursive: true });
+  // Decks reference it as ../assets/brand/… relative to their page
+  for (const top of ['examples', 'guide']) {
+    cpSync(brandSrc, join(__dirname, '..', 'public', top, 'assets', 'brand'), { recursive: true });
+  }
   console.log('Copied brand assets');
 }
 

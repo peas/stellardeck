@@ -342,8 +342,8 @@
       background-size: cover; background-position: center;
     }
 
-    /* Deckset-style gray canvas — slide floats on neutral background */
-    html, body { background: #2d2d32 !important; margin: 0; }
+    /* The gray page canvas (html/body) lives in chrome.css: this file is also
+       loaded by embeds and the docs site, where it must not repaint the host page. */
     /* In print mode, canvas matches slide bg (for clean PDF export) */
     html.print-mode, html.print-mode body { background: var(--r-background-color, #0a0a0a) !important; }
 

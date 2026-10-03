@@ -1,0 +1,12 @@
+---
+title: Autoflow
+description: "Plain markdown in, designed slides out."
+tableOfContents: false
+---
+
+import StellarDeck from '../../../components/StellarDeck.astro';
+import { decks } from '../../../data/decks';
+
+No layout directives in the source: every slide here gets its layout from [autoflow](/guide/autoflow/). Navigate with the arrows or arrow keys; edit the markdown to see it re-render.
+
+<StellarDeck source={decks['autoflow'].md} autoflow={true} editable />

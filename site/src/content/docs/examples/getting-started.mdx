@@ -1,0 +1,12 @@
+---
+title: Getting Started
+description: "The basics: headings, auto-fit, lists, splits, code, build lists, colors, quotes."
+tableOfContents: false
+---
+
+import StellarDeck from '../../../components/StellarDeck.astro';
+import { decks } from '../../../data/decks';
+
+The same deck `stellardeck --demo` opens after `npm install -g stellardeck`. Navigate with the arrows or arrow keys; edit the markdown to see it re-render.
+
+<StellarDeck source={decks['getting-started'].md} autoflow={true} editable />

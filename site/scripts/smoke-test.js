@@ -39,6 +39,9 @@ const pages = [
   '/guide/autoflow/',
   '/guide/themes-colors/',
   // Example pages (have DeckViewer + SlideBreakdown)
+  '/examples/getting-started/',
+  '/examples/kitchen-sink/',
+  '/examples/autoflow/',
   '/examples/bean-to-bar/',
   '/examples/hand-balancing/',
   '/examples/vibe-coding/',

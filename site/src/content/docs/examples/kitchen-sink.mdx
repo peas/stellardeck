@@ -1,0 +1,12 @@
+---
+title: Kitchen Sink
+description: "Every supported feature in one deck."
+tableOfContents: false
+---
+
+import StellarDeck from '../../../components/StellarDeck.astro';
+import { decks } from '../../../data/decks';
+
+Each slide names the syntax it shows — columns, diagrams, math, QR codes, bordered images, transitions. Navigate with the arrows or arrow keys; edit the markdown to see it re-render.
+
+<StellarDeck source={decks['kitchen-sink'].md} autoflow={true} editable />

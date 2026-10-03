@@ -263,11 +263,11 @@ Image on the right, text on the left.
 
 ---
 
-![bordered right](../assets/brand/stellardeck-simplified-min-512.png)
+![bordered right](images/chocolate/cocoa-nibs.webp)
 
 # `![bordered]` — Framed Image
 
-A hairline frame in the text color, so dark or transparent images don't vanish into the slide.
+A hairline frame in the text color, so a dark image keeps its edges on a dark slide.
 
 ---
 

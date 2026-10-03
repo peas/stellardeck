@@ -55,6 +55,9 @@ export default defineConfig({
         {
           label: 'Examples',
           items: [
+            { label: 'Getting Started', slug: 'examples/getting-started' },
+            { label: 'Kitchen Sink', slug: 'examples/kitchen-sink' },
+            { label: 'Autoflow', slug: 'examples/autoflow' },
             { label: 'Bean to Bar Chocolate', slug: 'examples/bean-to-bar' },
             { label: 'Hand Balancing', slug: 'examples/hand-balancing' },
             { label: 'Vibe Coding', slug: 'examples/vibe-coding' },
