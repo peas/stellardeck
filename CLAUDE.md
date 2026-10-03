@@ -70,31 +70,40 @@ npm run make                    # produce .dmg + .zip via electron-forge (out/ma
 
 ```
 .
-├── viewer.html               # App shell
-├── autoflow.js               # Autoflow layout inference (browser global + CommonJS)
+├── viewer.html               # App shell (loads packages/core/dist/browser-globals.global.js)
 ├── slides2.js / slides2.css  # StellarSlides engine (sole engine)
-├── deckset-parser.js         # Markdown → slide HTML
-├── diagnostics.js            # Deck health checks: overflow, missing-image, empty-slide, code-no-lang
-├── print-mode.js             # Shared enter/exit print mode (used by CLI + in-browser export)
-├── constants.js              # CDN URLs + slide dimensions
-├── css/                      # themes.css, layout.css, chrome.css, presenter.css
+├── packages/core/            # @stellardeck/core (npm) — the pure engine
+│   └── src/
+│       ├── autoflow.js       # Autoflow entry point (facade; browser global + CommonJS)
+│       ├── autoflow/         # engine.js, analyze.js, lines.js, skip-checks.js,
+│       │                     # preprocessors.js, rules/<name>.js + rules/index.js
+│       ├── deckset-parser.js # Markdown → slide HTML
+│       ├── diagnostics.js    # Deck health checks (DOM) + diagnose-rules.js (pure)
+│       ├── style-lint.js     # Deck-level metrics vs the 331-deck corpus
+│       ├── print-mode.js     # Shared enter/exit print mode (CLI + in-browser export)
+│       └── constants.js      # CDN URLs, slide dimensions, THEMES (schemes)
+├── packages/vscode-ext/      # VS Code extension MVP (live preview, diagnostics)
+├── css/                      # themes.css, layout.css (engine), chrome.css (viewer only), presenter.css
 ├── js/                       # Main app modules (ES modules)
 ├── embed/                    # Embeddable API (stellar-embed.js, playground)
-├── scripts/                  # CLI export, dev-server, helpers
-├── test/                     # Unit + integration tests
-├── docs/                     # format-spec.yaml, autoflow plan, roadmap
+├── scripts/                  # CLI (export.js), dev servers, autoflow-docs/-snapshot, helpers
+├── test/                     # Unit + integration tests (autoflow-golden.json pins autoflow output)
+├── docs/                     # format-spec.yaml, autoflow-rules.md (generated), roadmap
 ├── electron/                 # Electron 44 desktop shell (main + preload + icons)
-├── demo/                     # Demo decks (bean-to-bar, hand-balancing, vibe-coding)
+├── demo/                     # Demo decks (getting-started ships in the npm tarball for --demo)
+├── site/                     # Starlight docs site (stellardeck.dev)
 └── .claude/skills/stellardeck/ # Claude Code skill: source text → slides
 ```
 
 ## Architecture (1-paragraph version)
 
-A `.md` file is parsed by `deckset-parser.js` into a list of `<section>` HTML, optionally pre-processed by `autoflow.js` (which infers layouts from content shape), then rendered by `slides2.js` (the StellarSlides engine — vanilla JS, ~380 lines). The same pipeline runs in 4 environments: Electron (Chromium + Node), browser (`viewer.html`), embed (`stellar-embed.js`), and CLI (`scripts/export.js` via Playwright). `stellar-embed.js` is the shared rendering layer for embed; the other three reuse the engine modules directly. **Render parity is a hard rule** — never add a feature in one environment without the others.
+A `.md` file is parsed by `deckset-parser.js` into a list of `<section>` HTML, optionally pre-processed by autoflow (`packages/core/src/autoflow/`, which infers layouts from content shape), then rendered by `slides2.js` (the StellarSlides engine — vanilla JS, ~380 lines). The same pipeline runs in 4 environments: Electron (Chromium + Node), browser (`viewer.html`), embed (`stellar-embed.js`), and CLI (`scripts/export.js` via Playwright). `stellar-embed.js` is the shared rendering layer for embed; the other three reuse the engine modules directly. **Render parity is a hard rule** — never add a feature in one environment without the others.
 
 ## Module system gotcha
 
-Plain scripts (`autoflow.js`, `deckset-parser.js`, `slides2.js`, `diagnostics.js`, `print-mode.js`, `constants.js`) expose **both** browser globals AND `module.exports` for Node tests. ES modules (`js/*.js`) import from each other and access globals via `window`. Why: WKWebView + ES modules fail silently on 404. Don't convert these to ES modules.
+Plain scripts (`deckset-parser.js`, `slides2.js`, `diagnostics.js`, `print-mode.js`, `constants.js`, and the `autoflow.js` facade) expose **both** browser globals AND `module.exports` for Node tests. ES modules (`js/*.js`) import from each other and access globals via `window`. Why: WKWebView + ES modules fail silently on 404. Don't convert these to ES modules.
+
+`packages/core/src/autoflow/` is plain CommonJS (`require` between files) — it only reaches the browser through the tsup IIFE bundles (`dist/browser-globals.global.js`, `dist/autoflow.global.js`). After editing core, run `npm run build -w @stellardeck/core` before e2e/visual tests or the viewer serves the stale bundle. `npm install` builds it too (workspace `prepare`).
 
 ## Format
 

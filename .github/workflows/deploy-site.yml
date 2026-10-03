@@ -32,7 +32,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
+      # Root install builds @stellardeck/core's browser bundles (workspace
+      # `prepare` → tsup); copy-engine ships dist/autoflow.global.js.
+      - name: Install engine dependencies
+        run: npm ci
       - name: Install site dependencies
         run: cd site && npm ci
       - name: Build site
