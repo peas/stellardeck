@@ -33,6 +33,25 @@ function lines(str) {
 }
 
 // ============================================================
+// Deckset headings without a space (`#Title`)
+// ============================================================
+console.log('\n── headings without a space ──');
+
+test('`#Title` (no space) is a heading, not statement text', () => {
+  // Was treated as plain text → `#[fit] #Financeiro` with a literal '#'.
+  const r = applyAutoflow(lines('#Financeiro'), 1);
+  assert.notEqual(r.rule, 'statement');
+  assert.notEqual(r.rule, 'divider');
+  assert.ok(!r.lines.some(l => /^#\[fit\] #/.test(l)));
+});
+
+test('`#Question?` + answer is not laid out as a diagonal', () => {
+  const r = applyAutoflow(lines('#Por que agora?\n\nPorque mudou.'), 1);
+  assert.notEqual(r.rule, 'diagonal');
+  assert.ok(!r.lines.some(l => /\] #/.test(l)));
+});
+
+// ============================================================
 // Unit tests: wordCount
 // ============================================================
 console.log('\n── wordCount ──');

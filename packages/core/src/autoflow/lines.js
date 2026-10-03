@@ -5,7 +5,8 @@
 
 function isNote(line) { return /^\^/.test(line.trim()); }
 function isDirectiveLine(line) { return /^\[\.([a-z-]+)(?::\s*([^\]]*))?\]$/i.test(line.trim()); }
-function isHeading(line) { return /^#{1,6}[\s\[]/.test(line.trim()); }
+// Deckset (and the parser) don't require a space: `#Title` is a heading.
+function isHeading(line) { return /^#{1,6}\s*\S/.test(line.trim()); }
 function hasImage(line) { return /!\[[^\]]*\]\([^)]+\)/.test(line); }
 function isListItem(line) { return /^\s*[-*+]\s/.test(line) || /^\s*\d+\.\s/.test(line); }
 function isBlockquote(line) { return /^>/.test(line.trim()); }
