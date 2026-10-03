@@ -14,32 +14,34 @@ scheme: 1
 RULE: bare-image-position-variation (priority 70)
 TRIGGERS WHEN:
   - The slide has exactly 1 image with NO layout modifier
-    (no right/left/inline/qr/fit/filtered/bg)
-  - The slide also has at least 1 non-image content line
-EFFECT (the only history-based rule):
+    (no right/left/inline/qr/fit/filtered/bg/bordered)
+  - The slide has MORE text than a hero slide holds (> 8 words).
+    With 8 words or fewer, the image becomes a ![filtered] background
+    instead (the bare-image-background preprocessor) — see the last slide.
+EFFECT (history-based):
   - Picks position by varying across deck: inline → left → right → ...
+  - inline only when the text is at most 2 lines (title + one line);
+    with more text it alternates left/right so nothing gets pushed off
   - The position is based on ctx.state.lastBareImagePosition, NOT slide index
-  - All three rewrite the bare ![](src) into a parser primitive:
+  - Rewrites the bare ![](src) into a parser primitive:
       ![inline](src), ![left](src), ![right](src)
   - State is also updated when an EXPLICIT ![left]/![right]/![inline]
-    image appears on a skipped slide, so the variation never repeats the
-    same position as the previous slide.
+    image appears on any slide, so neighbors never repeat a side.
 
 The name says "position variation" because it varies the IMAGE POSITION
 across slides — it doesn't rotate the image itself.
 
-The 4 slides below show one full cycle + wrap:
-  slide 1: 1st bare image → inline  (variation starts)
+  slide 1: 1st bare image → inline  (title + one line)
   slide 2: 2nd bare image → left
   slide 3: 3rd bare image → right
-  slide 4: 4th bare image → inline  (cycle wraps)
+  slide 4: a few words → hero (filtered background), not a position
 -->
 
 ![](/demo/images/vibe-coding/karpathy-vibe.webp)
 
 # First image of the deck
 
-This one becomes inline (image in flow, text above).
+A title and one line of text: the image goes inline.
 
 ---
 
@@ -47,7 +49,8 @@ This one becomes inline (image in flow, text above).
 
 # Second image
 
-This one varies to left split.
+More text than a hero slide holds,
+so the image takes the left half of a split.
 
 ---
 
@@ -55,12 +58,12 @@ This one varies to left split.
 
 # Third image
 
-And this one varies to right split.
+The next one alternates to the right,
+so neighboring slides never repeat a side.
 
 ---
 
 ![](/demo/images/vibe-coding/bravenewgeek-you-are-not-paid.webp)
 
-# Fourth image
-
-Cycle wraps: back to inline.
+You are not paid
+to write code.

@@ -57,7 +57,7 @@ Two paragraphs where at least one contains a question. Positioned on opposite co
 
 ### Statement
 
-Short plain-text lines (1-4 lines, max 8 words each) become `#[fit]` headings that fill the slide.
+Short plain-text lines (1-4 lines, up to 8 words each) become `#[fit]` headings that fill the slide. Denser lines (up to 15 words) scale together as one block instead.
 
 <StellarSlide autoflow source={`Think **big**.
 Act **small**.`} />
@@ -68,13 +68,21 @@ A single line with one or two words becomes a full-width `#[fit]` heading. Perfe
 
 <StellarSlide autoflow source={`**Learn** fast.`} />
 
-### Split (image + text)
+### Image + text
 
-When autoflow detects a bare image and text on the same slide, it creates a split layout — image on one side, text on the other. The side alternates between slides.
+When autoflow detects a bare image and text on the same slide, it looks at how much text there is. A few words (8 or fewer) make a hero: the image becomes a dark-filtered background and the words go big on top. More text gets a split layout — image on one side, text on the other — and the side alternates between slides (a title plus one line can also sit inline, with the image in the flow).
 
 <StellarSlide autoflow source={`![](images/coaches/yuval-ayalon.webp)
 
-The discipline of hand balancing requires years of patient, consistent practice.`} />
+The discipline of hand balancing
+requires years of patient,
+consistent practice.`} />
+
+A few words over the same photo make a hero:
+
+<StellarSlide autoflow source={`![](images/coaches/yuval-ayalon.webp)
+
+Years of practice.`} />
 
 ## Anti-Monotony
 

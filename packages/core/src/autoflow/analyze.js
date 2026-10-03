@@ -14,6 +14,7 @@ const AUTOFLOW_DEFAULTS = {
   dividerMaxWords: 2,
   autoscaleMinLines: 9,
   autoscaleMinWords: 80,
+  heroMaxWords: 8,             // bare image + at most this many words → filtered background (hero)
 };
 
 // Modifiers that give an image an explicit role; anything else is "bare".

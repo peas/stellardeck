@@ -1,6 +1,6 @@
 ---
 title: 'Autoflow rule: bare-image-position-variation'
-description: A bare ![](src) varies position across the deck — inline → left → right → ...
+description: A bare ![](src) beside text varies position across the deck — inline → left → right. A few words over it make a hero instead.
 ---
 
 import StellarDeck from '../../../../components/StellarDeck.astro';
@@ -22,8 +22,13 @@ across slides — it doesn't rotate the image itself.
 ## When it fires
 
 - The slide has **exactly 1 image** with **no layout modifier**
-  (no `right` / `left` / `inline` / `qr` / `fit` / `filtered` / `bg`)
-- The slide also has at least 1 non-image content line (heading or text)
+  (no `right` / `left` / `inline` / `qr` / `fit` / `filtered` / `bg` / `bordered`)
+- The slide has **more than 8 words** of text beside it
+
+With 8 words or fewer, the slide is a **hero** instead: the image becomes a
+`![filtered]` background (dark overlay) and the words go through the text
+rules on top of it — usually a big `#[fit]` statement. The threshold is
+`heroMaxWords` in the autoflow config.
 
 ## What it does
 
@@ -31,11 +36,15 @@ The rule reads `ctx.state.lastBareImagePosition` and picks the next
 position in the cycle:
 
 ```
-1st bare image in deck → inline  (image in flow, text above)
+1st bare image in deck → inline  (image in flow, source order)
 2nd bare image in deck → left    (split, image left + text right)
 3rd bare image in deck → right   (split, image right + text left)
 4th → inline,  5th → left,  6th → right, ...
 ```
+
+`inline` stacks image and text in one column, so it's only picked when the
+text is at most two lines (a title and one line). With more text the
+variation alternates `left` / `right`.
 
 All three are existing parser primitives — the rule rewrites the bare
 `![](src)` into one of `![inline](src)` / `![left](src)` / `![right](src)`
@@ -47,10 +56,10 @@ bare-image slides, the variation continues from where it left off.
 
 ## Cross-slide observation: explicit images count too
 
-The autoflow also **observes** explicit `![left]` / `![right]` / `![inline]`
-images on every slide — even on slides that the autoflow itself skips
-(because of `#[fit]`, code blocks, etc). The state is updated as if the
-variation had picked that position.
+The rule's `observe` hook runs on **every** slide — even ones autoflow
+skips (because of `#[fit]`, code blocks, etc) — and records explicit
+`![left]` / `![right]` / `![inline]` images as if the variation had picked
+that position.
 
 Why: a user-placed `![left](photo.jpg)` and a bare `![](next-photo.jpg)`
 on the next slide should not both end up on the left. Without this
@@ -62,7 +71,7 @@ Concrete example:
 
 ```
 slide 1: ![](a.jpg)        → rule rewrites to ![inline](a.jpg)         (lastPosition = inline)
-slide 2: ![left](b.jpg)    → autoflow skips (explicit), but observes   (lastPosition = left)
+slide 2: ![left](b.jpg)    → explicit, left as written; observed       (lastPosition = left)
 slide 3: ![](c.jpg)        → rule picks NEXT after left = right        (lastPosition = right)
 ```
 
@@ -77,8 +86,8 @@ natural rhythm without any thinking from the author.
 
 ## Live fixture
 
-The fixture below has 4 bare-image slides in a row. Watch the position
-cycle through inline → left → right → inline as you flip through.
+The fixture below has 4 bare-image slides in a row: inline → left → right,
+then a hero (a few words over the image).
 
 <StellarDeck source={fixture.md} autoflow={true} />
 

@@ -470,6 +470,39 @@ test('explicit text layout still skips even with an explicit image', () => {
   assert.equal(applyAutoflow(lines('![right](p.jpg)\n\n#[fit] Mine'), 1).rule, 'explicit');
 });
 
+test('bare image + more than a hero\'s worth of text → position variation (#4)', () => {
+  const r = applyAutoflow(lines('![](photo.jpg)\n\n# Mission Chocolate\n\nShe trained at Dandelion and came to Brazil.'), 1);
+  assert.equal(r.rule, 'bare-image-position-variation');
+  assert.ok(r.lines.includes('![inline](photo.jpg)'), 'first in deck, ≤2 text lines → inline');
+  assert.ok(!r.lines.some(l => l.includes('![filtered]')));
+});
+
+test('hero threshold: 8 words → filtered, 9 words → position', () => {
+  const eight = applyAutoflow(lines('![](p.jpg)\n\none two three four five six seven eight'), 1);
+  assert.ok(eight.lines.includes('![filtered](p.jpg)'));
+  const nine = applyAutoflow(lines('![](p.jpg)\n\none two three four five six seven eight nine'), 1);
+  assert.equal(nine.rule, 'bare-image-position-variation');
+});
+
+test('position variation cycles inline → left → right across a deck', () => {
+  const ctx = createContext();
+  const slide = n => lines(`![](${n}.jpg)\n\n# Slide ${n}\n\nEnough words here to not be a hero slide.`);
+  const got = [1, 2, 3, 4].map(n => applyAutoflow(slide(n), n, undefined, undefined, ctx).detail);
+  assert.deepEqual(got, ['bare image → inline', 'bare image → left', 'bare image → right', 'bare image → inline']);
+});
+
+test('more than 2 text lines never go inline (they would push the image off)', () => {
+  const r = applyAutoflow(lines('![](p.jpg)\n\n# Title\n\nLine one of the text.\n\nLine two of the text.'), 1);
+  assert.equal(r.detail, 'bare image → left');
+});
+
+test('explicit ![left] on the previous slide is observed: next bare image goes right', () => {
+  const ctx = createContext();
+  applyAutoflow(lines('![left](a.jpg)\n\n# A'), 1, undefined, undefined, ctx);
+  const r = applyAutoflow(lines('![](b.jpg)\n\n# B\n\nEnough words here to not be a hero slide.'), 2, undefined, undefined, ctx);
+  assert.equal(r.detail, 'bare image → right');
+});
+
 test('![bordered] is not bare: never turned into a filtered background', () => {
   const result = applyAutoflow(lines('![bordered](logo.png)\n\nBuilt with StellarDeck'), 0);
   assert.ok(result.lines.some(l => l.includes('![bordered](logo.png)')));

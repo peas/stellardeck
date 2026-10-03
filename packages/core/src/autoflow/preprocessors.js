@@ -31,9 +31,12 @@ const explicitImage = {
 
 const bareImageBackground = {
   name: 'bare-image-background',
-  description: 'One bare image plus text: the image becomes a ![filtered] background (dark overlay) and leaves the text analysis, so text rules (statement, diagonal, …) still apply on top.',
+  description: 'Hero slide: one bare image plus a few words (≤ heroMaxWords, default 8). The image becomes a ![filtered] background (dark overlay) and leaves the text analysis, so text rules (statement, divider, …) apply on top. With more text, the image keeps its own space instead (bare-image-position-variation).',
   match(info, ctx) {
-    return info.bareImages.length === 1 && info.contentLines.some(l => !hasImage(l));
+    if (info.bareImages.length !== 1) return false;
+    const text = info.contentLines.filter(l => !hasImage(l));
+    const words = text.reduce((s, l) => s + wordCount(l), 0);
+    return text.length > 0 && words <= info.config.heroMaxWords;
   },
   apply(info, ctx) {
     const img = info.bareImages[0];
