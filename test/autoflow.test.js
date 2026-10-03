@@ -425,17 +425,49 @@ test('multiple bare image slides all get filtered', () => {
   assert.ok(r2.lines.some(l => l.includes('![filtered](b.jpg)')));
 });
 
-test('explicit ![left] is NOT converted to filtered (skip check)', () => {
-  const input = lines('![left](photo.jpg)\n\nSome text');
-  const result = applyAutoflow(input, 0);
-  assert.equal(result.rule, 'explicit');
-  assert.ok(result.lines.some(l => l.includes('![left](photo.jpg)')));
+test('explicit ![left] stays as written; the text beside it still gets autoflow', () => {
+  const input = lines('![left](photo.jpg)\n\nYou are not paid\nto write code.');
+  const result = applyAutoflow(input, 1);
+  assert.equal(result.rule, 'statement');
+  assert.ok(result.lines.includes('![left](photo.jpg)'), 'image line untouched');
+  assert.ok(result.lines.includes('#[fit] You are not paid'));
+  assert.ok(!result.lines.some(l => l.includes('![filtered]')));
 });
 
-test('image with modifiers is NOT bare-image-rotate (explicit)', () => {
-  const input = lines('![fit](photo.jpg)\n\nSome text');
-  const result = applyAutoflow(input, 0);
-  assert.equal(result.rule, 'explicit');
+test('explicit ![fit] background on the first line + text → text rules apply', () => {
+  const result = applyAutoflow(lines('![fit](photo.jpg)\n\nSome text'), 1);
+  assert.equal(result.rule, 'divider');
+  assert.ok(result.lines.includes('![fit](photo.jpg)'));
+});
+
+test('explicit image alone (no text) is still the explicit skip', () => {
+  assert.equal(applyAutoflow(lines('![fit](photo.jpg)'), 1).rule, 'explicit');
+  assert.equal(applyAutoflow(lines('![right](photo.jpg)'), 1).rule, 'explicit');
+});
+
+test('split image rules out whole-slide layouts (diagonal, z-pattern, alternating)', () => {
+  const diag = applyAutoflow(lines('![right](p.jpg)\n\nWhy now?\n\nBecause it changed.'), 1);
+  assert.notEqual(diag.rule, 'diagonal');
+  const alt = applyAutoflow(lines('![left](p.jpg)\n\nSpeed\n\nCost\n\nBarrier to entry'), 1);
+  assert.notEqual(alt.rule, 'alternating');
+  const z = applyAutoflow(lines('![left](p.jpg)\n\nTXT\n\nMarkdown\n\nYAML\n\nJSONL'), 1);
+  assert.notEqual(z.rule, 'z-pattern');
+});
+
+test('background image keeps whole-slide layouts available (diagonal)', () => {
+  const r = applyAutoflow(lines('![filtered](p.jpg)\n\nWhy now?\n\nBecause it changed.'), 1);
+  assert.equal(r.rule, 'diagonal');
+  assert.ok(r.lines.includes('![filtered](p.jpg)'));
+});
+
+test('explicit image the parser renders in flow is still skipped (mid-slide fit, inline, several images)', () => {
+  assert.equal(applyAutoflow(lines('Some text\n\n![fit](p.jpg)'), 1).rule, 'explicit');
+  assert.equal(applyAutoflow(lines('![fit inline filtered](p.jpg)\n\nSome text'), 1).rule, 'explicit');
+  assert.equal(applyAutoflow(lines('![right](a.jpg)\n![](b.jpg)\n\nSome text'), 1).rule, 'explicit');
+});
+
+test('explicit text layout still skips even with an explicit image', () => {
+  assert.equal(applyAutoflow(lines('![right](p.jpg)\n\n#[fit] Mine'), 1).rule, 'explicit');
 });
 
 test('![bordered] is not bare: never turned into a filtered background', () => {
@@ -538,9 +570,8 @@ test('explicit #[fit] skips autoflow', () => {
   assert.deepEqual(result.lines, ['#[fit] My title']);
 });
 
-test('explicit ![right] skips autoflow', () => {
-  const input = lines('![right](photo.jpg)\n\nText here');
-  const result = applyAutoflow(input, 0);
+test('explicit ![right] alone skips autoflow', () => {
+  const result = applyAutoflow(lines('![right](photo.jpg)'), 0);
   assert.equal(result.rule, 'explicit');
 });
 

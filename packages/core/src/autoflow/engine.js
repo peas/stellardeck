@@ -6,7 +6,8 @@
  *     2. skip checks    first match → slide returned untouched
  *     3. empty          no content → untouched
  *     4. preprocessors  rewrite info, keep going
- *     5. rules          by priority; guard → match → transform → vary; first wins
+ *     5. rules          by priority; skipIfDirective → guard → match → transform
+ *                       → vary; first wins
  *     6. default        nothing matched → untouched
  *
  * ctx carries what crosses slides: `state` (mutable, e.g. lastBareImagePosition)
@@ -69,6 +70,7 @@ function applyAutoflow(slideLines, slideIndex, options, prevRules, ctx) {
   }
 
   for (const rule of RULES_BY_PRIORITY) {
+    if (rule.skipIfDirective && rule.skipIfDirective.some(d => info.directives.has(d))) continue;
     if (rule.guard && !rule.guard(info, usedCtx)) continue;
     if (!rule.match(info, usedCtx)) continue;
 

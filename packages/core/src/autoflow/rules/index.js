@@ -6,6 +6,8 @@
  * Rule shape:
  *   name, description, example  — identity + docs (scripts/autoflow-docs.js)
  *   priority                    — lower runs first
+ *   skipIfDirective?            — layout facts that rule the rule out, e.g.
+ *                                 ['split-image'] (set by preprocessors)
  *   guard?(info, ctx)           — cheap precondition (e.g. "first slide only")
  *   match(info, ctx)            — does this slide have the rule's shape?
  *   transform(info, ctx)        — { lines, detail, tier? } — may update ctx.state

@@ -44,6 +44,29 @@ function isBareImage(img) {
 }
 
 /**
+ * What an explicitly placed image (`![left]`, `![right]`, `![fit]`,
+ * `![filtered]`) leaves for the text, mirroring how the parser lays it out:
+ *
+ *   'split'      — ![left]/![right]: text gets the other half
+ *   'background' — ![fit]/![filtered] alone on the first content line: the
+ *                  parser makes it the slide background, text renders on top
+ *   'other'      — anything else (several images, background image mid-slide)
+ *   null         — no explicit image
+ */
+function explicitImageLayout(images, contentLines) {
+  const explicit = images.filter(img => img.modifiers.some(m => ['left', 'right', 'fit', 'filtered'].includes(m)));
+  if (explicit.length === 0) return null;
+  if (images.length !== 1) return 'other';
+  const img = images[0];
+  if (img.modifiers.includes('left') || img.modifiers.includes('right')) return 'split';
+  // Parser's background case: alone on the first line, not inline/qr, not video
+  const inFlow = img.modifiers.includes('inline') || img.modifiers.includes('qr');
+  const video = /\.(mp4|mov|webm|m4v|ogg|ogv)$|youtube\.com|youtu\.be/i.test(img.src);
+  const firstLine = contentLines[0] && contentLines[0].trim() === img.full;
+  return firstLine && !inFlow && !video ? 'background' : 'other';
+}
+
+/**
  * Build a slide info object that every rule can read.
  * Pure derivation from raw markdown lines.
  *
@@ -67,6 +90,8 @@ function analyzeSlide(rawLines, slideIndex, totalSlides, options) {
   const images = findSlideImages(cleanedLines);
   const bareImages = images.filter(isBareImage);
 
+  const imageLayout = explicitImageLayout(images, contentLines);
+
   const headingLines = contentLines.filter(isHeading).length;
   const bulletLines = contentLines.filter(isListItem).length;
   const plainLines = contentLines.filter(l => isPlainText(l)).length;
@@ -87,6 +112,10 @@ function analyzeSlide(rawLines, slideIndex, totalSlides, options) {
     headingLines,
     bulletLines,
     plainLines,
+    explicitImageLayout: imageLayout,
+    // Layout facts preprocessors establish (e.g. 'split-image',
+    // 'background-image'); rules opt out via skipIfDirective.
+    directives: new Set(),
     config,
   };
 }
@@ -96,5 +125,6 @@ module.exports = {
   LAYOUT_MODIFIERS,
   findSlideImages,
   isBareImage,
+  explicitImageLayout,
   analyzeSlide,
 };

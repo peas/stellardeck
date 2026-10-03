@@ -70,9 +70,10 @@ function runFixture(filename) {
 // ============================================================
 console.log('\n── Fixture: 00-skip-checks ──');
 
-test('00-skip-checks: 4 slides, all skip autoflow for known reasons', () => {
+test('00-skip-checks: 3 skips + explicit image with text still autoflowed', () => {
   const r = runFixture('00-skip-checks.deck.md');
-  assert.equal(r.slideCount, 4);
+  assert.equal(r.slideCount, 5);
+  assert.equal(r.rules[4], 'statement', 'slide 4: ![right] + text → text still gets autoflow');
   // slide 0: cover (regular content) — likely 'default' or 'title' depending
   // slides 1-3: explicit, code, custom-block
   assert.equal(r.rules[1], 'explicit', 'slide 1 should hit `explicit` skip');

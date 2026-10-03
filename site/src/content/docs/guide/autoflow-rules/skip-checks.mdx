@@ -18,13 +18,17 @@ autoflow leaves the slide untouched.
 
 | Check | Trigger |
 |:---|:---|
-| `explicit` | Slide already has `#[fit]`, `![right]`, position modifiers, `[.autoscale]`, or `[.alternating-colors]` |
+| `explicit` | Slide already lays out its text: `#[fit]`, position modifiers, `[.autoscale]`, or `[.alternating-colors]`. Or an explicit image with no text, or one autoflow can't lay text around |
 | `code` | Slide contains a fenced code block (```` ``` ````) |
 | `custom-block` | Slide contains a `:::columns`, `:::diagram`, `:::steps`, `:::center`, or `:::math` block |
 
 ## Why
 
 The user already told autoflow what they want. Don't override intent.
+
+## Explicit images are not an opt-out
+
+An explicit image (`![left]`, `![right]`, `![fit]`, `![filtered]`) is a decision about the image, not about the words. When it's a split or a background and there's text beside it, the image line stays exactly as written and the text still goes through the rules: a short line next to `![right]` becomes a statement. Layouts that need the whole slide (diagonal, z-pattern, alternating colors) sit out on split slides; they declare `skipIfDirective: ['split-image']`.
 
 ## Live fixture
 

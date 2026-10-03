@@ -16,6 +16,7 @@ module.exports = {
   description: 'Two short paragraphs where at least one ends with "?". Places them at opposing corners (top-left + bottom-right) for dramatic tension. Anti-monotony mirrors corners.',
   example: 'What language are you\nwriting code in?\n\nThe answer has changed.',
   priority: 30,
+  skipIfDirective: ['split-image'], // Corner placement needs the whole slide; a split leaves half.
   match(info, ctx) {
     if (info.paragraphs.length !== 2) return false;
     if (!info.paragraphs.every(p => isShortPlainParagraph(p, 10, 3))) return false;

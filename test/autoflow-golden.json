@@ -313,15 +313,29 @@
   },
   {
    "slide": 3,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "statement",
+   "detail": "3 lines, max 3 words, varied → center-aligned",
+   "tier": 2,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "![right](images/chocolate/factory.webp)",
+    "",
+    "#[fit] Sugar. Vegetable fat.",
+    "#[fit] Cocoa powder. Vanilla.",
+    "#[fit] Lecithin. **Flavoring.**",
+    "",
+    "^A typical supermarket bar. 5-10% actual cacao. Sugar always comes first.",
+    ""
+   ]
   },
   {
    "slide": 4,
    "rule": "statement",
-   "detail": "2 lines, max 5 words, centered",
+   "detail": "2 lines, max 5 words, centered, varied → right-aligned",
    "tier": 1,
    "lines": [
+    "[.heading-align: right]",
     "[.heading-align: center]",
     "",
     "#[fit] Chocolate that tastes of everything",
@@ -338,15 +352,30 @@
   },
   {
    "slide": 6,
-   "rule": "explicit",
-   "detail": "has explicit directives"
-  },
-  {
-   "slide": 7,
    "rule": "statement",
    "detail": "4 lines, max 6 words",
    "tier": 2,
    "lines": [
+    "",
+    "![left](images/chocolate/maya-vessel.webp)",
+    "",
+    "#[fit] The Maya drank their cacao —",
+    "#[fit] bitter, spiced, **alive with flavor**.",
+    "",
+    "#[fit] This vessel held chocolate a thousand",
+    "#[fit] years before the candy bar.",
+    "",
+    "^A real Maya chocolate-drinking vessel (Walters Art Museum, public domain). Cacao was ground, mixed with water and chili, poured from height for foam.",
+    ""
+   ]
+  },
+  {
+   "slide": 7,
+   "rule": "statement",
+   "detail": "4 lines, max 6 words, varied → center-aligned",
+   "tier": 2,
+   "lines": [
+    "[.heading-align: center]",
     "",
     "#[fit] For the Maya and the Aztec,",
     "#[fit] cacao was **currency**.",
@@ -395,8 +424,21 @@
   },
   {
    "slide": 11,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "statement",
+   "detail": "3 lines, max 5 words",
+   "tier": 2,
+   "lines": [
+    "",
+    "![left](images/chocolate/cocoa-nibs.webp)",
+    "",
+    "#[fit] **Cocoa nibs**: roasted cacao beans,",
+    "#[fit] cracked and winnowed.",
+    "",
+    "#[fit] Two ingredients: cacao and sugar.",
+    "",
+    "^The maker controls every step from here: grinding, conching for hours, tempering, molding.",
+    ""
+   ]
   },
   {
    "slide": 12,
@@ -513,8 +555,8 @@
   },
   {
    "slide": 6,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "3 lines, 19 words"
   },
   {
    "slide": 7,
@@ -555,20 +597,47 @@
   },
   {
    "slide": 2,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "statement",
+   "detail": "3 lines, max 6 words",
+   "tier": 2,
+   "lines": [
+    "",
+    "![right fit](images/hand-balancing-history/paulinetti-onearm.webp)",
+    "",
+    "#[fit] **P. H. Paulinetti**, early 1900s.",
+    "",
+    "#[fit] One of the first to hold",
+    "#[fit] a **one-arm** handstand.",
+    "",
+    "^Widely regarded as one of the greatest hand balancers in history.",
+    ""
+   ]
   },
   {
    "slide": 3,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "statement",
+   "detail": "2 lines, max 5 words, centered, varied → left-aligned",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: left]",
+    "[.heading-align: center]",
+    "",
+    "![left](images/hand-balancing-history/yogis-vintage.webp)",
+    "",
+    "#[fit] Yoga practitioners have been inverting",
+    "#[fit] for **centuries**.",
+    "",
+    "^Indian manuscript illustrations showing headstands, arm balances, and inverted postures.",
+    ""
+   ]
   },
   {
    "slide": 4,
    "rule": "statement",
-   "detail": "1 lines, max 3 words, centered",
+   "detail": "1 lines, max 3 words, centered, varied → right-aligned",
    "tier": 1,
    "lines": [
+    "[.heading-align: right]",
     "[.heading-align: center]",
     "",
     "#[fit] Then something changed.",
@@ -636,58 +705,58 @@
   },
   {
    "slide": 10,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "6 lines, 17 words"
   },
   {
    "slide": 11,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "5 lines, 15 words"
   },
   {
    "slide": 12,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "6 lines, 22 words"
   },
   {
    "slide": 13,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "5 lines, 14 words"
   },
   {
    "slide": 14,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "5 lines, 16 words"
   },
   {
    "slide": 15,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "5 lines, 17 words"
   },
   {
    "slide": 16,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "4 lines, 10 words"
   },
   {
    "slide": 17,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "5 lines, 12 words"
   },
   {
    "slide": 18,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "5 lines, 11 words"
   },
   {
    "slide": 19,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "5 lines, 15 words"
   },
   {
    "slide": 20,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "5 lines, 13 words"
   },
   {
    "slide": 21,
@@ -821,8 +890,8 @@
   },
   {
    "slide": 18,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "3 lines, 11 words"
   },
   {
    "slide": 19,
@@ -831,18 +900,18 @@
   },
   {
    "slide": 20,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 8 words"
   },
   {
    "slide": 21,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "4 lines, 15 words"
   },
   {
    "slide": 22,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 21 words"
   },
   {
    "slide": 23,
@@ -918,8 +987,8 @@
   },
   {
    "slide": 9,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 20 words"
   },
   {
    "slide": 10,
@@ -938,8 +1007,8 @@
   },
   {
    "slide": 13,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "3 lines, 14 words"
   },
   {
    "slide": 14,
@@ -1007,6 +1076,28 @@
    "slide": 4,
    "rule": "custom-block",
    "detail": "has :::block layout"
+  },
+  {
+   "slide": 5,
+   "rule": "statement",
+   "detail": "2 lines, max 4 words, centered",
+   "tier": 1,
+   "lines": [
+    "[.heading-align: center]",
+    "",
+    "<!--",
+    "NOT A SKIP: explicit image + text",
+    "An explicit image is about the image. `![right]` stays exactly as written,",
+    "and the text beside it still goes through autoflow (here: statement).",
+    "Whole-slide layouts (diagonal, z-pattern, alternating) sit out on splits.",
+    "-->",
+    "",
+    "![right](/demo/images/coaches/yuval-ayalon.webp)",
+    "",
+    "#[fit] The image is mine.",
+    "#[fit] The words are autoflow's.",
+    ""
+   ]
   }
  ],
  "test/autoflow-fixtures/01-title.deck.md": [
@@ -1639,13 +1730,13 @@
   },
   {
    "slide": 9,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "4 lines, 16 words"
   },
   {
    "slide": 10,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 12 words"
   },
   {
    "slide": 11,
@@ -1659,8 +1750,8 @@
   },
   {
    "slide": 13,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 10 words"
   },
   {
    "slide": 14,
@@ -2063,13 +2154,13 @@
  "test/broken-images-test.md": [
   {
    "slide": 1,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 9 words"
   },
   {
    "slide": 2,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 12 words"
   },
   {
    "slide": 3,
@@ -2184,8 +2275,8 @@
   },
   {
    "slide": 18,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "3 lines, 11 words"
   },
   {
    "slide": 19,
@@ -2194,13 +2285,13 @@
   },
   {
    "slide": 20,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 8 words"
   },
   {
    "slide": 21,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "4 lines, 15 words"
   },
   {
    "slide": 22,
@@ -2279,8 +2370,8 @@
   },
   {
    "slide": 7,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "3 lines, 25 words"
   },
   {
    "slide": 8,
@@ -2409,13 +2500,13 @@
   },
   {
    "slide": 9,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "4 lines, 16 words"
   },
   {
    "slide": 10,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 12 words"
   },
   {
    "slide": 11,
@@ -2429,8 +2520,8 @@
   },
   {
    "slide": 13,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 10 words"
   },
   {
    "slide": 14,
@@ -2526,13 +2617,13 @@
   },
   {
    "slide": 9,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "4 lines, 16 words"
   },
   {
    "slide": 10,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 12 words"
   },
   {
    "slide": 11,
@@ -2546,8 +2637,8 @@
   },
   {
    "slide": 13,
-   "rule": "explicit",
-   "detail": "has explicit directives"
+   "rule": "default",
+   "detail": "2 lines, 10 words"
   },
   {
    "slide": 14,

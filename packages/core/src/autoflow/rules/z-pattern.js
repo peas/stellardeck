@@ -5,6 +5,7 @@ module.exports = {
   description: 'Exactly 4 short paragraphs (≤8 words, ≤2 lines each). Places them at the four corners: top-left, top-right, bottom-left, bottom-right. Uses h1 for short text (≤3 words), h2 for longer.',
   example: 'TXT\n\nMarkdown\n\nYAML\n\nJSONL',
   priority: 40,
+  skipIfDirective: ['split-image'], // Corner placement needs the whole slide; a split leaves half.
   match(info, ctx) {
     if (info.paragraphs.length !== 4) return false;
     return info.paragraphs.every(p => isShortPlainParagraph(p, 8, 2));

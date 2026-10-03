@@ -50,3 +50,17 @@ First column with some text that lays out beside the next.
 
 Second column with different text.
 :::
+
+---
+
+<!--
+NOT A SKIP: explicit image + text
+An explicit image is about the image. `![right]` stays exactly as written,
+and the text beside it still goes through autoflow (here: statement).
+Whole-slide layouts (diagonal, z-pattern, alternating) sit out on splits.
+-->
+
+![right](/demo/images/coaches/yuval-ayalon.webp)
+
+The image is mine.
+The words are autoflow's.
