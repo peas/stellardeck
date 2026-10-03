@@ -10,9 +10,6 @@ CLAUDE.local.md
 scratch/
 codex-tmp
 
-# Tauri build artifacts
-src-tauri/target/
-
 # electron-forge build artifacts
 out/
 
@@ -27,3 +24,11 @@ playwright-report/
 site/dist/
 site/node_modules/
 site/.astro/
+# Copied by site/scripts/copy-engine.js on predev/prebuild — never edit by hand
+site/public/engine/
+site/public/demo/
+site/public/assets/brand/
+site/public/examples/*/images/
+site/public/examples/assets/
+site/public/guide/*/images/
+site/public/guide/assets/

@@ -3,7 +3,7 @@
  *
  * Re-exports the engine surface that hosts (Electron app, browser viewer,
  * embed, CLI, future VS Code extension) consume. Pure-JS, no DOM, no
- * Node-only modules — runs in Node 20+, browsers, and Web Workers.
+ * Node-only modules — runs in Node 22+, browsers, and Web Workers.
  *
  * The DOM-bound entry points (rendering, fitText, print mode) live alongside
  * but are intentionally NOT loaded here at the top level — import them

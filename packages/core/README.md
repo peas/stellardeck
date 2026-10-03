@@ -3,7 +3,7 @@
 Engine for [StellarDeck](https://stellardeck.dev) — a markdown
 presentation tool. This package contains the parser, autoflow layout
 inference, deck health diagnostics, and shared constants. **Pure JS,
-no DOM, no Node-only modules**: runs in Node 20+, browsers, and Web
+no DOM, no Node-only modules**: runs in Node 22+, browsers, and Web
 Workers.
 
 > Currently private. The package will be published once the surface
