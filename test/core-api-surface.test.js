@@ -28,7 +28,7 @@ const IIFE_BUNDLE = path.join(CORE_ROOT, 'dist', 'browser-globals.global.js');
 const EXPECTED_NAMED = [
   // Autoflow
   'applyAutoflow', 'createAutoflowContext', 'AUTOFLOW_DEFAULTS',
-  'RULES', 'SKIP_CHECKS', 'LAYOUT_MODIFIERS', 'POSITIONS',
+  'RULES', 'SKIP_CHECKS', 'PREPROCESSORS', 'LAYOUT_MODIFIERS', 'POSITIONS',
   // Parser
   'parseDecksetMarkdown', 'parseSlide', 'findMedia', 'isMediaOnly',
   'isVideo', 'isAudio', 'parseYouTube', 'extractDirectives',

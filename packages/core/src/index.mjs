@@ -12,6 +12,7 @@ export const createAutoflowContext = core.createAutoflowContext;
 export const AUTOFLOW_DEFAULTS = core.AUTOFLOW_DEFAULTS;
 export const RULES = core.RULES;
 export const SKIP_CHECKS = core.SKIP_CHECKS;
+export const PREPROCESSORS = core.PREPROCESSORS;
 export const LAYOUT_MODIFIERS = core.LAYOUT_MODIFIERS;
 export const POSITIONS = core.POSITIONS;
 

@@ -54,6 +54,8 @@ export interface AutoflowDefaults {
   dividerMaxWords: number;
   autoscaleMinLines: number;
   autoscaleMinWords: number;
+  /** Bare image + at most this many words → filtered hero background. */
+  heroMaxWords: number;
 }
 
 export type AutoflowOptions = Partial<AutoflowDefaults> & {
@@ -61,7 +63,7 @@ export type AutoflowOptions = Partial<AutoflowDefaults> & {
 };
 
 export interface AutoflowState {
-  lastBareImagePosition: 'left' | 'right' | 'center' | null;
+  lastBareImagePosition: 'inline' | 'left' | 'right' | null;
   lastSplitSide: 'left' | 'right' | null;
   lastPhraseBulletsLayout: string | null;
   [k: string]: unknown;
@@ -92,7 +94,17 @@ export interface AutoflowRule {
   transform: (info: unknown, ctx: AutoflowContext) => AutoflowResult;
   vary?: (result: AutoflowResult, repetitionIndex: number) => AutoflowResult;
   guard?: (info: unknown, ctx: AutoflowContext) => boolean;
+  /** Layout facts set by preprocessors (e.g. 'split-image') that rule this rule out. */
   skipIfDirective?: string[];
+  /** Runs on every slide, skipped ones included, to keep cross-slide state. */
+  observe?: (info: unknown, ctx: AutoflowContext) => void;
+}
+
+export interface AutoflowPreprocessor {
+  name: string;
+  description: string;
+  match: (info: unknown, ctx: AutoflowContext) => boolean;
+  apply: (info: unknown, ctx: AutoflowContext) => void;
 }
 
 export interface AutoflowSkipCheck {
@@ -103,6 +115,7 @@ export interface AutoflowSkipCheck {
 export const AUTOFLOW_DEFAULTS: AutoflowDefaults;
 export const RULES: AutoflowRule[];
 export const SKIP_CHECKS: AutoflowSkipCheck[];
+export const PREPROCESSORS: AutoflowPreprocessor[];
 export const LAYOUT_MODIFIERS: readonly string[];
 export const POSITIONS: readonly string[];
 
