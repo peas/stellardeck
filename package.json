@@ -1,7 +1,7 @@
 {
   "name": "stellardeck",
   "version": "0.9.0",
-  "description": "Markdown presentation engine \u2014 Deckset-compatible, autoflow layouts, zero dependencies",
+  "description": "Markdown presentation engine — Deckset-compatible, autoflow layouts, zero dependencies",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -50,7 +50,10 @@
     "@electron-forge/cli": "^7.11.1",
     "@electron-forge/maker-dmg": "^7.11.1",
     "@electron-forge/maker-zip": "^7.11.1",
-    "electron": "^40.0.0"
+    "electron": "^44.0.0"
+  },
+  "overrides": {
+    "yauzl": "^3.2.0"
   },
   "dependencies": {
     "@playwright/test": "^1.58.2",
@@ -80,5 +83,11 @@
     "packages/core/src/",
     "packages/core/dist/",
     "packages/core/package.json"
-  ]
+  ],
+  "allowScripts": {
+    "esbuild": true,
+    "sharp": true,
+    "fs-xattr": true,
+    "macos-alias": true
+  }
 }

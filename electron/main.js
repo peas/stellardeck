@@ -49,7 +49,10 @@ const store = new Store({
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app',  privileges: { standard: true, secure: true, supportFetchAPI: true, codeCache: true } },
-  { scheme: 'deck', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } },
+  // corsEnabled: the renderer lives on app://. and fetches deck:// (a different
+  // origin). Electron 44 started enforcing CORS on custom schemes — without
+  // this flag fetch() gets "Failed to fetch" while <img src> still loads.
+  { scheme: 'deck', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } },
 ]);
 
 // allowDeckDir is kept as a no-op for now (call sites still invoke it). The

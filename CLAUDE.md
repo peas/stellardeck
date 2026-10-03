@@ -83,7 +83,7 @@ npm run make                    # produce .dmg + .zip via electron-forge
 ├── scripts/                  # CLI export, dev-server, helpers
 ├── test/                     # Unit + integration tests
 ├── docs/                     # format-spec.yaml, autoflow plan, roadmap
-├── electron/                 # Electron 40 desktop shell (main + preload + icons)
+├── electron/                 # Electron 44 desktop shell (main + preload + icons)
 ├── demo/                     # Demo decks (bean-to-bar, hand-balancing, vibe-coding)
 └── .claude/skills/stellardeck/ # Claude Code skill: source text → slides
 ```
@@ -216,6 +216,11 @@ After 1-3 (all green now):
 - `npm run electron -- <deck.md> [<deck.md> …]` opens 1+ decks in a session — **fast**, but macOS menu bar says "Electron" because it reads the name from the unmodified Electron framework binary's Info.plist (`app.setName()` cannot rewrite it at runtime)
 - `npm run app -- <deck.md> [<deck.md> …]` packages once (cached via mtime check) + opens `out/StellarDeck-<platform>-<arch>/StellarDeck.app`, so the menu bar correctly says "StellarDeck". Pass `--rebuild` after `--` to force a re-package
 - `npm run package` builds the .app without launching it; `npm run make` builds distributable artifacts under `out/make/` (zip + .dmg on macOS) via `forge.config.js`
+- **Node 26 + zip extraction (fixed 2026-09-09, keep an eye on it).** `extract-zip@2` + `yauzl@2` silently stop mid-extraction on Node ≥ 26 (exit 0, no error). Electron ≥ 42 dropped `extract-zip` for its own `@electron-internal/extract-zip`, but `@electron-forge` 7.11 still pins `@electron/packager@18`, which pulls the old pair — so `electron-forge package` prints "Finalizing package" and exits without creating `out/`. Fix in `package.json`: `"overrides": { "yauzl": "^3.2.0" }` (verified: full extraction on Node 26.8). **Remove the override once Forge moves to `@electron/packager` ≥ 20** (`npm view @electron-forge/core dependencies`). CI runs Node 22/24/26 so a regression shows up there.
+- **Playwright + Node 26:** `playwright-core` ≤ 1.59 bundles the same broken zip lib — `npx playwright install chromium` downloads in seconds and then hangs at "extracting archive" forever (`DEBUG=pw:install` shows it). `@playwright/test` ≥ 1.63 is fine; keep it current.
+- **Electron ≥ 42 has no postinstall.** The binary downloads lazily on the first `electron .` / `npm run electron` / `npm run app` (see `node_modules/electron/index.js`), so a fresh `npm ci` leaves `node_modules/electron/dist/` empty — that's expected. If the download gets interrupted: `rm -rf node_modules/electron/dist node_modules/electron/path.txt` and run again. Cached zips live in `~/Library/Caches/electron/<sha>/`.
+- **npm ≥ 11 `install-scripts` gate.** npm skips install scripts of packages not listed in `package.json` → `allowScripts` (it only warns). The repo lists `esbuild`, `sharp`, `fs-xattr`, `macos-alias`. When a new dep with an install script shows up, `npm install-scripts approve --no-allow-scripts-pin <pkg>` (unpinned, so version bumps don't need re-approval); `npm install-scripts prune` drops stale entries.
+- **Sandboxed shells (Claude Code Bash sandbox, seatbelt):** Chromium aborts with exit 134 inside the sandbox. Launch `npm run electron` / `npm run app` with the sandbox disabled, in the background (`nohup … &`), and check the log file instead of waiting on stdout.
 - The desktop runtime exposes `window.stellardeck.invoke(cmd, args)` (preload, sandboxed)
 - `app://./viewer.html` serves the repo with a real origin (ES modules + fetch work)
 - `deck://./<absolute-path>` serves any local file the markdown references — no allowlist (legacy Tauri parity, kept since real decks reference shared `assets/` outside their own folder)
