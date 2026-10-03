@@ -180,7 +180,7 @@
     .sd-slide strong { color: var(--sd-accent-bold-color, inherit); }
     /* Inside headings, accent often == heading color → bold is invisible.
        Fix: use main color (body text), which always contrasts with heading. */
-    .sd-slide :is(h1, h2, h3, h4, h5, h6) strong { color: var(--r-main-color); }
+    .sd-slide :is(h1, h2, h3, h4, h5, h6) strong { color: var(--sd-heading-strong-color, var(--r-main-color)); }
     .sd-slide del {
       color: var(--sd-accent-bold-color, inherit);
       text-decoration-color: var(--sd-accent-bold-color, inherit);

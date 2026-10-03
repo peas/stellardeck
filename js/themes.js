@@ -16,6 +16,7 @@ export const THEME_VARS = [
   '--r-heading-line-height', '--r-heading-text-transform', '--r-background-color',
   '--r-main-color', '--r-heading-color', '--r-main-font', '--r-main-font-size', '--accent',
   '--sd-heading-align', '--sd-image-radius', '--sd-fit-scale', '--sd-code-radius',
+  '--sd-heading-strong-color',
 ];
 
 // Copy CSS variables from .reveal to :root so grid overlay and other siblings can access them.

@@ -119,7 +119,7 @@
   description: >
     Sets the presentation theme and optional color scheme number.
     StellarDeck themes: Default (Inter), Letters from Sweden, Serif,
-    Minimal, Hacker, Poster, Alun, Borneli.
+    Minimal, Hacker, Poster, Alun, Borneli, Nordic, Keynote, Alura.
 
 - id: frontmatter-build-lists
   category: frontmatter

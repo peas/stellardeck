@@ -596,7 +596,7 @@ test.describe('Theme switching', () => {
       return t ? Object.keys(t) : [];
     });
     for (const name of ['letters-from-brazil', 'serif', 'minimal', 'hacker',
-                        'poster', 'alun', 'borneli', 'nordic', 'keynote']) {
+                        'poster', 'alun', 'borneli', 'nordic', 'keynote', 'alura']) {
       expect(themes).toContain(name);
     }
     expect(themes.length).toBeGreaterThanOrEqual(10);

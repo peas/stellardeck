@@ -21,4 +21,5 @@ export const themes: ThemeInfo[] = [
   { slug: 'alun',                label: 'Alun',                fonts: 'FK Grotesk',              style: 'Grupo Alun brand',           schemeCount: 5 },
   { slug: 'borneli',             label: 'Borneli',             fonts: 'DM Sans',                 style: 'StartSe brand',              schemeCount: 5 },
   { slug: 'keynote',             label: 'Keynote',             fonts: 'Montserrat + Raleway',    style: 'Gradient backgrounds',       schemeCount: 5 },
+  { slug: 'alura',               label: 'Alura',               fonts: 'Arial Rounded + Arial Narrow', style: 'Alura 2020 brand',      schemeCount: 3 },
 ];

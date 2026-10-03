@@ -92,6 +92,11 @@
       { id: '4', bg: '#0c0a20', fg: '#e0e7ff' },
       { id: '5', bg: '#1c1917', fg: '#fef3c7' },
     ]},
+    'alura': { label: 'Alura', schemes: [
+      { id: '1', bg: '#f3f3f1', fg: '#4b4b4d' },
+      { id: '2', bg: '#6b5be2', fg: '#ffffff' },
+      { id: '3', bg: '#011435', fg: '#ffffff' },
+    ]},
   };
 
   const API = { CDN, SLIDE, THEMES };

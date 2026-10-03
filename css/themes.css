@@ -17,6 +17,8 @@
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&display=swap');
 
     /* ===== Default theme (Inter) — Clean modern ===== */
     :root {
@@ -222,6 +224,27 @@
     .theme-keynote.scheme-3 { --r-background-color: #ffffff; --r-heading-color: #111827; --r-main-color: #4b5563; --accent: #6366f1; }
     .theme-keynote.scheme-4 { --r-background-color: #0c0a20; --r-heading-color: #e0e7ff; --r-main-color: #a5b4fc; --accent: #818cf8; }
     .theme-keynote.scheme-5 { --r-background-color: #1c1917; --r-heading-color: #fef3c7; --r-main-color: #a8a29e; --accent: #f97316; }
+
+    /* ===== Alura — the 2020 Alura brand: Arial Rounded headings, Arial Narrow body, purple + green ===== */
+    /* Arial Rounded MT Bold / Arial Narrow ship with macOS and Office; Nunito / Archivo Narrow are the web fallbacks. */
+    .theme-alura {
+      --r-main-font: 'Arial Narrow', 'Archivo Narrow', 'Roboto Condensed', sans-serif;
+      --r-heading-font: 'Arial Rounded MT Bold', 'Nunito', Arial, sans-serif;
+      --r-heading-font-weight: 700;
+      --r-heading-letter-spacing: 0.02em;
+      --r-heading-line-height: 1.05;
+      --r-heading-text-transform: uppercase;
+      --r-main-font-size: 30px;
+      --sd-heading-align: left;
+      --sd-image-radius: 12px;
+      --sd-fit-scale: 1.0;
+      --sd-accent-bold: 1;
+      --sd-accent-bullets: 1;
+      --sd-heading-strong-color: var(--accent); /* "TRIBO **PIRAHÃ**": bold word in brand color, as in the 2020 decks */
+    }
+    .theme-alura.scheme-1 { --r-background-color: #f3f3f1; --r-heading-color: #4b4b4d; --r-main-color: #636365; --accent: #6b5be2; }
+    .theme-alura.scheme-2 { --r-background-color: #6b5be2; --r-heading-color: #ffffff; --r-main-color: #ecebfb; --accent: #01c96e; }
+    .theme-alura.scheme-3 { --r-background-color: #011435; --r-heading-color: #ffffff; --r-main-color: #a0b9db; --accent: #01c96e; }
 
     /* ===== Accent color patterns ===== */
     /* Active by default on ALL themes. Disable per-slide with [.accent-bold: false] */
