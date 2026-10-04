@@ -453,6 +453,40 @@ test('empty input → empty groups', () => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// slides2.js readable colors (pure parts)
+// ─────────────────────────────────────────────────────────────
+
+console.log('\n── readable text on custom backgrounds ──');
+const { contrastRatio, readableOverrides } = require('../slides2.js');
+
+test('contrastRatio: black on white is 21', () => {
+  assert.strictEqual(Math.round(contrastRatio([0, 0, 0], [255, 255, 255])), 21);
+});
+
+test('dark text on a navy slide gets light fallbacks; passing colors are kept', () => {
+  const navy = [30, 58, 95];
+  const fixes = readableOverrides(navy, {
+    '--r-heading-color': [17, 17, 17],      // fails
+    '--r-main-color': [255, 255, 255],      // passes
+    '--accent': [253, 202, 66],             // passes
+  }, []);
+  assert.deepStrictEqual(fixes, { '--r-heading-color': '#ffffff' });
+});
+
+test('authored colors and unknown colors are never overridden', () => {
+  const fixes = readableOverrides([30, 58, 95], {
+    '--r-heading-color': [17, 17, 17],
+    '--r-main-color': null,
+  }, ['--r-heading-color']);
+  assert.deepStrictEqual(fixes, {});
+});
+
+test('light custom background gets dark fallbacks', () => {
+  const fixes = readableOverrides([245, 245, 245], { '--r-heading-color': [248, 250, 252] }, []);
+  assert.deepStrictEqual(fixes, { '--r-heading-color': '#111111' });
+});
+
+// ─────────────────────────────────────────────────────────────
 // Summary
 // ─────────────────────────────────────────────────────────────
 

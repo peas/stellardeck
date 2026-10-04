@@ -15,6 +15,83 @@
 (function () {
   'use strict';
 
+  // ─── Readable text on slides with their own background ───
+  // A slide's own background — [.background-color], or a filtered image (the
+  // parser pairs it with data-background-color="#000") — can defeat the
+  // theme's text colors: dark text on a navy slide in a light scheme. Once the
+  // theme has resolved, measure the real contrast and override only the colors
+  // that fail, with the thresholds of scripts/audit-themes.js. Colors the
+  // author set on the slide ([.header], [.text]) are never touched.
+
+  // Bold and bullet colors are resolved on :root from --accent, so they're
+  // measured (and overridden) on their own.
+  const READABLE_MIN = {
+    '--r-heading-color': 3, '--r-main-color': 4.5,
+    '--accent': 2.5, '--sd-accent-bold-color': 2.5, '--sd-accent-bullets-color': 2.5,
+  };
+  const ON_DARK = '#ffffff', ON_DARK_BODY = '#e5e7eb', ON_LIGHT = '#111111', ON_LIGHT_BODY = '#374151';
+  const READABLE_FALLBACK = {
+    dark: { '--r-heading-color': ON_DARK, '--r-main-color': ON_DARK_BODY,
+            '--accent': ON_DARK, '--sd-accent-bold-color': ON_DARK, '--sd-accent-bullets-color': ON_DARK },
+    light: { '--r-heading-color': ON_LIGHT, '--r-main-color': ON_LIGHT_BODY,
+             '--accent': ON_LIGHT, '--sd-accent-bold-color': ON_LIGHT, '--sd-accent-bullets-color': ON_LIGHT },
+  };
+
+  function relativeLuminance([r, g, b]) {
+    const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  }
+
+  function contrastRatio(a, b) {
+    const [hi, lo] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  // Which overrides a slide needs: { prop: color } for every color that fails
+  // against `bg`. `colors` maps prop → [r,g,b] (null = unknown, skipped);
+  // `authored` lists props the slide sets itself.
+  function readableOverrides(bg, colors, authored) {
+    const side = relativeLuminance(bg) < 0.18 ? 'dark' : 'light';
+    const out = {};
+    for (const [prop, min] of Object.entries(READABLE_MIN)) {
+      if (authored.includes(prop) || !colors[prop]) continue;
+      if (contrastRatio(colors[prop], bg) < min) out[prop] = READABLE_FALLBACK[side][prop];
+    }
+    return out;
+  }
+
+  let _colorCtx = null;
+  function toRGB(value) {
+    if (!value || typeof document === 'undefined') return null;
+    _colorCtx = _colorCtx || document.createElement('canvas').getContext('2d');
+    _colorCtx.fillStyle = '#010203';
+    _colorCtx.fillStyle = value.trim();
+    const v = _colorCtx.fillStyle;
+    if (v === '#010203' && value.trim().toLowerCase() !== '#010203') return null; // unparseable
+    const hex = v.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    if (hex) return hex.slice(1).map(h => parseInt(h, 16));
+    const rgba = v.match(/rgba?\(([^)]+)\)/);
+    return rgba ? rgba[1].split(',').slice(0, 3).map(Number) : null;
+  }
+
+  function applyReadableColors(section) {
+    const previous = (section.getAttribute('data-sd-readable') || '').split(' ').filter(Boolean);
+    previous.forEach(prop => section.style.removeProperty(prop));
+    section.removeAttribute('data-sd-readable');
+
+    const bg = toRGB(section.getAttribute('data-background-color'));
+    if (!bg) return;
+    const authored = Object.keys(READABLE_MIN).filter(p => section.style.getPropertyValue(p));
+    const cs = getComputedStyle(section);
+    const colors = {};
+    for (const prop of Object.keys(READABLE_MIN)) colors[prop] = toRGB(cs.getPropertyValue(prop));
+    const fixes = readableOverrides(bg, colors, authored);
+    const props = Object.keys(fixes);
+    if (!props.length) return;
+    props.forEach(prop => section.style.setProperty(prop, fixes[prop]));
+    section.setAttribute('data-sd-readable', props.join(' '));
+  }
+
   // ─── StellarSlides class ───
 
   class StellarSlides {
@@ -299,6 +376,7 @@
         if (bgColor) {
           bg.style.backgroundColor = bgColor;
         }
+        applyReadableColors(section);
         if (bgImage) {
           bg.style.backgroundImage = `url("${bgImage}")`;
           bg.style.backgroundSize = bgSize;
@@ -357,6 +435,12 @@
       this._slidesEl.style.width = slideW + 'px';
       this._slidesEl.style.height = slideH + 'px';
       this._slidesEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    // Re-check text contrast on slides with their own background — call
+    // after a theme/scheme change (backgrounds are otherwise built in sync()).
+    refreshReadableColors() {
+      this._getSections().forEach(applyReadableColors);
     }
 
     // ─── Sync (rebuild after DOM changes) ───
@@ -513,6 +597,7 @@
     prev() { if (_defaultInstance) _defaultInstance.prev(); },
     sync() { if (_defaultInstance) _defaultInstance.sync(); },
     layout() { if (_defaultInstance) _defaultInstance.layout(); },
+    refreshReadableColors() { if (_defaultInstance) _defaultInstance.refreshReadableColors(); },
 
     getState() { return _defaultInstance ? _defaultInstance.getState() : { indexh: 0, indexv: 0 }; },
     getTotalSlides() { return _defaultInstance ? _defaultInstance.getTotalSlides() : 0; },
@@ -528,6 +613,11 @@
   };
 
   // ─── Exports ───
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { contrastRatio, relativeLuminance, readableOverrides, READABLE_MIN, READABLE_FALLBACK };
+  }
+  if (typeof window === 'undefined') return;
 
   window.StellarSlides = StellarSlides;
   window.Reveal = stellarSlides; // Legacy API alias — keeps existing Reveal.xxx() calls working

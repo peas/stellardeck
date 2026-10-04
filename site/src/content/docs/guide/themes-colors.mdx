@@ -115,6 +115,8 @@ Custom heading and text colors per slide.`} />
 
 The override works with any theme and takes priority over the scheme's default background.
 
+Text stays readable on its own: when a slide's background (a `[.background-color]`, or a `![filtered]` image) leaves the theme's heading, body, or bold colors below a readable contrast, those colors switch to near-white or near-black for that slide. Colors you set with `[.header]` / `[.text]` are never changed, and switching scheme re-checks every slide.
+
 ## Accent Colors
 
 Bold text (`**word**`) in headings uses the theme's accent color. Inline code uses monospace with accent styling. Strikethrough (`~~text~~`) also picks up the accent.

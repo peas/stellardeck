@@ -62,6 +62,9 @@ export function applyTheme(md) {
 // Force all color-dependent elements to pick up new CSS variable values
 export function applySchemeColors() {
   propagateThemeVars(); // sync CSS vars to :root for grid and other siblings
+  // Slides with their own background re-check text contrast against the new
+  // scheme (before the grid rebuild below clones them into thumbnails)
+  window.Reveal?.refreshReadableColors?.();
 
   // Clear inline background colors to let CSS variables cascade cleanly,
   // then re-apply explicit data-background-color overrides from sections.

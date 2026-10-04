@@ -202,7 +202,10 @@
     Custom background color.
   description: >
     Sets the slide background to a specific color.
-    Overrides the theme's default background.
+    Overrides the theme's default background. If the theme's text colors
+    don't contrast with it (heading < 3:1, body < 4.5:1, bold/accent < 2.5:1),
+    the renderer switches those to near-white/near-black for that slide;
+    [.header]/[.text] set on the slide are never overridden.
 
 - id: directive-background-image
   category: directives

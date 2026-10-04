@@ -266,6 +266,30 @@ test.describe('Columns layout', () => {
   });
 });
 
+test.describe('Readable text on slides with their own background', () => {
+  test('dark [.background-color] on a light scheme flips text to light; back on dark, the fix drops', async ({ page }) => {
+    await page.goto(DECK);
+    await page.waitForSelector('.reveal .slides section');
+    await page.waitForTimeout(800);
+    const setScheme = (n) => page.evaluate((n) => {
+      const reveal = document.querySelector('.reveal');
+      reveal.className = reveal.className.replace(/scheme-\S+/g, '').trim();
+      reveal.classList.add('scheme-' + n);
+      applySchemeColors();
+    }, n);
+    // smoke-test.md slide 16: [.background-color: #1e3a5f] (navy)
+    const heading = () => page.evaluate(() =>
+      getComputedStyle(document.querySelectorAll('.reveal .slides > section')[15].querySelector('h1')).color);
+    await setScheme(2); // Default, light (#111 headings)
+    await page.waitForTimeout(300);
+    expect(await heading()).toBe('rgb(255, 255, 255)');
+    await setScheme(1); // Default, dark — theme headings already read on navy
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() =>
+      document.querySelectorAll('.reveal .slides > section')[15].getAttribute('data-sd-readable'))).toBeNull();
+  });
+});
+
 test.describe('Background color directive persists after scheme change', () => {
   test('[.background-color] override survives scheme change', async ({ page }) => {
     await page.goto(DECK);
