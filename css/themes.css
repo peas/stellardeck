@@ -44,7 +44,13 @@
     /* Default theme schemes. In the app, Default means "no theme-* class" on
        .reveal; the CLI/URL (`--theme default`) adds .theme-default. Scheme 1
        repeats the :root values so switching back from 2/3 works. */
-    .reveal:not([class*="theme-"]).scheme-1, .theme-default.scheme-1 { --r-background-color: #0a0a0a; --r-heading-color: #f8fafc; --r-main-color: #e2e8f0; --accent: #0ea5e9; }
+    .reveal:not([class*="theme-"]).scheme-1, .theme-default.scheme-1 { --r-background-color: #0a0a0a; --r-heading-color: #f8fafc; --r-main-color: #e2e8f0; --accent: #0ea5e9; --sd-heading-strong-color: var(--accent); }
+    /* Scheme 1 is also what an unschemed Default deck renders with. Its heading
+       and body colors are near-identical, so the two-tone **bold** in headings
+       (body color) would vanish — bold in headings uses the accent instead.
+       Any scheme with heading↔body contrast < 1.5 must do the same
+       (test/unit.test.js enforces it). */
+    .reveal:not([class*="theme-"]):not([class*="scheme-"]), .theme-default:not([class*="scheme-"]) { --sd-heading-strong-color: var(--accent); }
     .reveal:not([class*="theme-"]).scheme-2, .theme-default.scheme-2 { --r-background-color: #ffffff; --r-heading-color: #111111; --r-main-color: #374151; --accent: #0369a1; }
     .reveal:not([class*="theme-"]).scheme-3, .theme-default.scheme-3 { --r-background-color: #1e293b; --r-heading-color: #e2e8f0; --r-main-color: #94a3b8; --accent: #38bdf8; }
 

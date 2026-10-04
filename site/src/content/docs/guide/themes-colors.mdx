@@ -119,7 +119,7 @@ Text stays readable on its own: when a slide's background (a `[.background-color
 
 ## Accent Colors
 
-Bold text (`**word**`) in headings uses the theme's accent color. Inline code uses monospace with accent styling. Strikethrough (`~~text~~`) also picks up the accent.
+Bold text (`**word**`) in body text uses the theme's accent color. Inside headings, bold is two-tone — it takes the body text color, the Deckset look ("One bean. **Infinite** flavors.") — except in schemes where heading and body colors are nearly identical, where it uses the accent so it doesn't vanish. Override per slide with `[.header-strong: #hex]`. Inline code uses monospace with accent styling. Strikethrough (`~~text~~`) also picks up the accent.
 
 <StellarSlide source={`# Accent Colors
 

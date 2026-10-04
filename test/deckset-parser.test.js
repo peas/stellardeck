@@ -567,9 +567,10 @@ test('[.text: #hex] sets text color', () => {
   assert.ok(html.includes('--r-main-color: #00ff00'));
 });
 
-test('[.header-strong: #hex] aliases to heading color', () => {
-  const html = parseDecksetMarkdown('[.header-strong: #0000ff]\n\n# Blue');
-  assert.ok(html.includes('--r-heading-color: #0000ff'));
+test('[.header-strong: #hex] colors bold inside headings (Deckset semantics)', () => {
+  const html = parseDecksetMarkdown('[.header-strong: #0000ff]\n\n# Plain **blue**');
+  assert.ok(html.includes('--sd-heading-strong-color: #0000ff'));
+  assert.ok(!html.includes('--r-heading-color: #0000ff'), 'the heading itself keeps its color');
 });
 
 test('header and text combined on same slide', () => {

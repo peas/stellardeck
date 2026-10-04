@@ -356,6 +356,31 @@ test('every scheme in constants.js has a CSS rule in themes.css', () => {
   assert.deepStrictEqual(missing, []);
 });
 
+test('schemes whose heading and body colors nearly match color **bold** in headings', () => {
+  // Bold inside headings is two-tone (body color). Where heading ≈ body
+  // (contrast < 1.5, the audit-themes.js threshold) the bold vanishes, so the
+  // scheme or its theme must set --sd-heading-strong-color.
+  const css = fs.readFileSync(path.join(__dirname, '..', 'css', 'themes.css'), 'utf8');
+  const lum = hex => {
+    const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map(v => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  const re = /\.theme-([\w-]+)\.scheme-(\w+)\s*\{([^}]*)\}/g;
+  const missing = [];
+  let m;
+  while ((m = re.exec(css))) {
+    const [, theme, scheme, body] = m;
+    const h = body.match(/--r-heading-color:\s*(#[0-9a-fA-F]{6})/);
+    const t = body.match(/--r-main-color:\s*(#[0-9a-fA-F]{6})/);
+    if (!h || !t || ratio(h[1], t[1]) >= 1.5) continue;
+    const themeBlock = (css.match(new RegExp(`\\.theme-${theme}\\s*\\{([^}]*)\\}`)) || [])[1] || '';
+    if (!/--sd-heading-strong-color/.test(body + themeBlock)) missing.push(`${theme}.${scheme}`);
+  }
+  assert.deepStrictEqual(missing, []);
+});
+
 test('listSchemes("default") works with renamed default theme', () => {
   const result = listSchemes('default');
   assert.strictEqual(result.theme, 'default');

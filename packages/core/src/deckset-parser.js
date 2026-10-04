@@ -116,8 +116,9 @@ const DIRECTIVE_REGISTRY = [
     apply: (val, ctx) => ctx.styles.push(`--sd-heading-align: ${val}`) },
   { name: 'header',           scope: 'slide',
     apply: (val, ctx) => ctx.styles.push(`--r-heading-color: ${val}`) },
+  // Deckset: header-strong styles **bold** inside headings (not the heading)
   { name: 'header-strong',    scope: 'slide',
-    apply: (val, ctx) => ctx.styles.push(`--r-heading-color: ${val}`) },
+    apply: (val, ctx) => ctx.styles.push(`--sd-heading-strong-color: ${val}`) },
   { name: 'text',             scope: 'slide',
     apply: (val, ctx) => ctx.styles.push(`--r-main-color: ${val}`) },
   { name: 'accent-bold',      scope: 'slide',
