@@ -11,6 +11,7 @@ const AUTOFLOW_DEFAULTS = {
   statementMaxWords: 8,        // tier 2 ceiling — last word count where #[fit] still reads as a clean statement
   statementDenseMaxWords: 15,  // tier 3 ceiling — beyond this, fall through to autoscale/plain
   statementMaxLines: 4,
+  statementSplitMaxLines: 3,   // beside a split image: per-line #[fit] in a half-width column gets ragged past 3 lines
   dividerMaxWords: 2,
   autoscaleMinLines: 9,
   autoscaleMinWords: 80,

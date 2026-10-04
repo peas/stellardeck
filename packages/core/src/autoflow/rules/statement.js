@@ -17,13 +17,20 @@ function varyStatement(result, rep) {
 
 module.exports = {
   name: 'statement',
-  description: 'Short plain-text slides — 1-4 lines, up to 15 words/line. Three tiers prevent the "cliff" where adding one word silently breaks the layout: T1 (≤2 lines, ≤5 words) renders centered + #[fit]; T2 (≤8 words/line) renders #[fit]; T3 (9-15 words/line) drops #[fit] and uses [.autoscale: true] so the whole slide scales as a block instead of each line shrinking independently.',
+  description: 'Short plain-text slides — 1-4 lines, up to 15 words/line. Three tiers prevent the "cliff" where adding one word silently breaks the layout: T1 (≤2 lines, ≤5 words) renders centered + #[fit]; T2 (≤8 words/line) renders #[fit]; T3 (9-15 words/line) drops #[fit] and uses [.autoscale: true] so the whole slide scales as a block instead of each line shrinking independently. Beside a split image: at most 3 lines and no T3 (half-width column).',
   example: 'You are not paid\nto write code.',
   priority: 60,
   match(info, ctx) {
     if (info.contentLines.length < 1 || info.contentLines.length > info.config.statementMaxLines) return false;
     if (!info.contentLines.every(l => isPlainText(l))) return false;
     const maxW = Math.max(...info.contentLines.map(l => wordCount(l)));
+    // Beside a split image the text gets half the width: per-line #[fit]
+    // turns ragged past 3 lines, and a dense line wraps anyway, so the tier-3
+    // block comes out small. Leave those as body text.
+    if (info.directives.has('split-image')) {
+      return info.contentLines.length <= info.config.statementSplitMaxLines &&
+             maxW <= info.config.statementMaxWords;
+    }
     return maxW <= info.config.statementDenseMaxWords;
   },
   transform(info, ctx) {

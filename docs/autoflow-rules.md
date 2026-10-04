@@ -160,7 +160,7 @@ Disposable software
   
 **Anti-monotony:** yes (varies across consecutive uses)
 
-Short plain-text slides — 1-4 lines, up to 15 words/line. Three tiers prevent the "cliff" where adding one word silently breaks the layout: T1 (≤2 lines, ≤5 words) renders centered + #[fit]; T2 (≤8 words/line) renders #[fit]; T3 (9-15 words/line) drops #[fit] and uses [.autoscale: true] so the whole slide scales as a block instead of each line shrinking independently.
+Short plain-text slides — 1-4 lines, up to 15 words/line. Three tiers prevent the "cliff" where adding one word silently breaks the layout: T1 (≤2 lines, ≤5 words) renders centered + #[fit]; T2 (≤8 words/line) renders #[fit]; T3 (9-15 words/line) drops #[fit] and uses [.autoscale: true] so the whole slide scales as a block instead of each line shrinking independently. Beside a split image: at most 3 lines and no T3 (half-width column).
 
 **Example input:**
 
@@ -230,6 +230,7 @@ Dense slide with >8 lines or >80 words. Applies [.autoscale: true] to shrink tex
 | `statementMaxWords` | 8 |
 | `statementDenseMaxWords` | 15 |
 | `statementMaxLines` | 4 |
+| `statementSplitMaxLines` | 3 |
 | `dividerMaxWords` | 2 |
 | `autoscaleMinLines` | 9 |
 | `autoscaleMinWords` | 80 |

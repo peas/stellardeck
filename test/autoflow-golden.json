@@ -352,30 +352,15 @@
   },
   {
    "slide": 6,
-   "rule": "statement",
-   "detail": "4 lines, max 6 words",
-   "tier": 2,
-   "lines": [
-    "",
-    "![left](images/chocolate/maya-vessel.webp)",
-    "",
-    "#[fit] The Maya drank their cacao —",
-    "#[fit] bitter, spiced, **alive with flavor**.",
-    "",
-    "#[fit] This vessel held chocolate a thousand",
-    "#[fit] years before the candy bar.",
-    "",
-    "^A real Maya chocolate-drinking vessel (Walters Art Museum, public domain). Cacao was ground, mixed with water and chili, poured from height for foam.",
-    ""
-   ]
+   "rule": "default",
+   "detail": "4 lines, 21 words"
   },
   {
    "slide": 7,
    "rule": "statement",
-   "detail": "4 lines, max 6 words, varied → center-aligned",
+   "detail": "4 lines, max 6 words",
    "tier": 2,
    "lines": [
-    "[.heading-align: center]",
     "",
     "#[fit] For the Maya and the Aztec,",
     "#[fit] cacao was **currency**.",

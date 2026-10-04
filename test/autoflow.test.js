@@ -440,6 +440,17 @@ test('explicit ![fit] background on the first line + text → text rules apply',
   assert.ok(result.lines.includes('![fit](photo.jpg)'));
 });
 
+test('beside a split image, statement caps at 3 lines and skips the dense tier', () => {
+  const three = applyAutoflow(lines('![right](p.jpg)\n\nSugar. Vegetable fat.\nCocoa powder. Vanilla.\nLecithin. Flavoring.'), 1);
+  assert.equal(three.rule, 'statement');
+  const four = applyAutoflow(lines('![right](p.jpg)\n\nThe Maya drank their cacao\nbitter, spiced, alive with flavor.\nThis vessel held chocolate\nlong before the candy bar.'), 1);
+  assert.notEqual(four.rule, 'statement');
+  const dense = applyAutoflow(lines('![right](p.jpg)\n\nFormações com mais destaque, humanos com mais destaque, escola'), 1);
+  assert.notEqual(dense.rule, 'statement');
+  // Full-width slides keep 4 lines and the dense tier
+  assert.equal(applyAutoflow(lines('The Maya drank their cacao\nbitter, spiced, alive with flavor.\nThis vessel held chocolate\nlong before the candy bar.'), 1).rule, 'statement');
+});
+
 test('explicit image alone (no text) is still the explicit skip', () => {
   assert.equal(applyAutoflow(lines('![fit](photo.jpg)'), 1).rule, 'explicit');
   assert.equal(applyAutoflow(lines('![right](photo.jpg)'), 1).rule, 'explicit');
